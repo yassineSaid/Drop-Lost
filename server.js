@@ -1,18 +1,22 @@
 const express = require("express");
 const connectDB = require("./config/db");
 const path = require("path");
-
+const bodyparser = require('body-parser');
 const app = express();
+var usersRouter = require('./routes/api/users');
 
 // Connect Database
 connectDB();
 
 // Init Middleware
 app.use(express.json({ extended: false }));
-
+app.use(bodyparser.json());
 // Define Routes
 //app.use("/api/auth", require("./routes/api/auth"));
-
+app.use('/users', usersRouter);
+app.use('/signUp', usersRouter);
+app.use('/signIn', usersRouter);
+app.use('/secret', usersRouter);
 // Serve static assets in production
 if (process.env.NODE_ENV === "production") {
   // Set static folder
