@@ -1,0 +1,4 @@
+{
+    "mongoURI": "mongodb+srv://admin:droplost@cluster0-vnmww.mongodb.net/drop-lost?retryWrites=true&w=majority",
+    "jwtSecret": "DropLostToken"
+}
