@@ -153,17 +153,18 @@ module.exports = {
                 return res.status(403).json({ error: 'Password reset token is invalid or has expired' });
 
             }
-            if (req.body.newpassword===req.body.confirmnewpassword) {
-                const salt = await bcrypt.genSalt(10);
-                  const passwordHash = await bcrypt.hash(req.body.newpassword, salt);
-                await foundUser.updateOne({
-                    "local.password": passwordHash,
-                    "local.Passwordtoken": undefined,
-                    "local.PasswordResetDate": undefined
-                }, { new: true }
-                );
-            }
+            if (req.body.newpassword!=req.body.confirmnewpassword) {
+                return res.status(403).json({ error: 'check the passwords that you have entered' });
 
+            }
+            const salt = await bcrypt.genSalt(10);
+            const passwordHash = await bcrypt.hash(req.body.newpassword, salt);
+          await foundUser.updateOne({
+              "local.password": passwordHash,
+              "local.Passwordtoken": undefined,
+              "local.PasswordResetDate": undefined
+          }, { new: true }
+          );
             res.status(200).json({ foundUser });
 
         } catch (error) {
