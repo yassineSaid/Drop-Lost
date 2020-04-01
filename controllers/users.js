@@ -2,6 +2,7 @@ const User = require('../models/user');
 const JWT = require('jsonwebtoken');
 var randomstring = require("randomstring");
 const nodemailer = require('nodemailer');
+var bcrypt = require('bcryptjs');
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -103,5 +104,73 @@ module.exports = {
 
         }
 
+    },
+    forget: async (req, res, next) => {
+        try {
+            const email = req.body.email;
+            console.log(email)
+            const foundUser = await User.findOne({ "local.email": email });
+            if (!foundUser) {
+                return res.status(403).json({ error: 'No account found' });
+
+            }
+            st = randomstring.generate();
+            await foundUser.updateOne({
+                "local.Passwordtoken": st,
+                "local.PasswordResetDate": Date.now() + 3600000
+            }, { new: true }
+            );
+            const html = 'Hi there ,click here to reset your password ' + st + '</b>'
+
+        var mailOptions = {
+            from: 'DropLostAdmin@gmail.com',
+            to: email,
+            subject: 'Please verify you mail',
+            text: html
+        };
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+
+
+            res.status(200).json({ foundUser });
+        } catch (error) {
+            next(error);
+
+        }
+
+    },
+    resetPassword: async (req, res, next) => {
+        try {
+            const secretToken = req.body.secretToken;
+            console.log(secretToken)
+            const foundUser = await User.findOne({ "local.Passwordtoken": secretToken,"local.PasswordResetDate":{$gt:Date.now()} });
+            if (!foundUser) {
+                return res.status(403).json({ error: 'Password reset token is invalid or has expired' });
+
+            }
+            if (req.body.newpassword===req.body.confirmnewpassword) {
+                const salt = await bcrypt.genSalt(10);
+                  const passwordHash = await bcrypt.hash(req.body.newpassword, salt);
+                await foundUser.updateOne({
+                    "local.password": passwordHash,
+                    "local.Passwordtoken": undefined,
+                    "local.PasswordResetDate": undefined
+                }, { new: true }
+                );
+            }
+
+            res.status(200).json({ foundUser });
+
+        } catch (error) {
+            next(error);
+
+        }
+
     }
+
 }

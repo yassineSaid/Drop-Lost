@@ -22,8 +22,14 @@ const userSchema = new Schema({
         },
         Isactive: {
             type: Boolean
-        }
+        },
+        Passwordtoken:{
+            type:String
+        },
 
+        PasswordResetDate: {
+            type:Date
+        }
     },
     google: {
         id: {
