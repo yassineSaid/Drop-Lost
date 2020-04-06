@@ -24,20 +24,14 @@ class SignUp extends React.Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       console.log("values", values);
-      if (!err) {
+     /*  if (!err) {
         this.props.showAuthLoader();
         this.props.userSignUp(values);
-      }
+      } */
     });
   };
 
-  constructor() {
-    super();
-    this.state = {
-      email: 'demo@example.com',
-      password: 'demo#123'
-    }
-  }
+ 
 
   componentDidUpdate() {
     if (this.props.showMessage) {

@@ -9,7 +9,6 @@ class UserProfile extends Component {
     const userMenuOptions = (
       <ul className="gx-user-popover">
         <li>My Account</li>
-        <li>Connections</li>
         <li onClick={() => this.props.userSignOut()}>Logout
         </li>
       </ul>

@@ -22,10 +22,12 @@ class SignIn extends React.Component {
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      if (!err) {
+      console.log("values", values);
+      
+      /* if (!err) {
         this.props.showAuthLoader();
         this.props.userSignIn(values);
-      }
+      } */
     });
   };
 
@@ -66,7 +68,6 @@ class SignIn extends React.Component {
 
                 <FormItem>
                   {getFieldDecorator('email', {
-                    initialValue: "demo@example.com",
                     rules: [{
                       required: true, type: 'email', message: 'The input is not valid E-mail!',
                     }],
@@ -76,7 +77,6 @@ class SignIn extends React.Component {
                 </FormItem>
                 <FormItem>
                   {getFieldDecorator('password', {
-                    initialValue: "demo#123",
                     rules: [{required: true, message: 'Please input your Password!'}],
                   })(
                     <Input type="password" placeholder="Password"/>

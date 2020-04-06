@@ -2,14 +2,14 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Avatar, Popover} from "antd";
 import {userSignOut} from "appRedux/actions/Auth";
+import {Link} from "react-router-dom";
 
 class UserInfo extends Component {
 
   render() {
     const userMenuOptions = (
       <ul className="gx-user-popover">
-        <li>My Account</li>
-        <li>Connections</li>
+        <li><Link to="/social-apps/profile">My Account</Link></li>
         <li onClick={() => this.props.userSignOut()}>Logout
         </li>
       </ul>
