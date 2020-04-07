@@ -1,4 +1,5 @@
 import {all, call, fork, put, takeEvery} from "redux-saga/effects";
+import axios from 'axios';
 import {
   auth,
   facebookAuthProvider,
@@ -23,13 +24,13 @@ import {
   userTwitterSignInSuccess
 } from "../actions/Auth";
 
-const createUserWithEmailPasswordRequest = async (email, password) =>
-  await  auth.createUserWithEmailAndPassword(email, password)
+const createUserWithEmailPasswordRequest = async (email,password) =>
+  await  axios.post('http://localhost:5000/users/signUp',email,password)
     .then(authUser => authUser)
     .catch(error => error);
 
 const signInUserWithEmailPasswordRequest = async (email, password) =>
-  await  auth.signInWithEmailAndPassword(email, password)
+  await   axios.post('http://localhost:5000/users/signIn',email,password)
     .then(authUser => authUser)
     .catch(error => error);
 
@@ -60,14 +61,13 @@ const signInUserWithTwitterRequest = async () =>
     .catch(error => error);
 
 function* createUserWithEmailPassword({payload}) {
-  const {email, password} = payload;
   try {
-    const signUpUser = yield call(createUserWithEmailPasswordRequest, email, password);
+    const signUpUser = yield call(createUserWithEmailPasswordRequest,payload);
     if (signUpUser.message) {
       yield put(showAuthMessage(signUpUser.message));
     } else {
-      localStorage.setItem('user_id', signUpUser.user.uid);
-      yield put(userSignUpSuccess(signUpUser.user.uid));
+      localStorage.setItem('user_id', signUpUser.data.token);
+      yield put(userSignUpSuccess(signUpUser.data.token));
     }
   } catch (error) {
     yield put(showAuthMessage(error));
@@ -140,12 +140,12 @@ function* signInUserWithTwitter() {
 function* signInUserWithEmailPassword({payload}) {
   const {email, password} = payload;
   try {
-    const signInUser = yield call(signInUserWithEmailPasswordRequest, email, password);
+    const signInUser = yield call(signInUserWithEmailPasswordRequest, payload);
     if (signInUser.message) {
-      yield put(showAuthMessage(signInUser.message));
+      yield put(showAuthMessage("Check your information or verify your account "));
     } else {
-      localStorage.setItem('user_id', signInUser.user.uid);
-      yield put(userSignInSuccess(signInUser.user.uid));
+      localStorage.setItem('user_id', signInUser.data.token);
+      yield put(userSignUpSuccess(signInUser.data.token));
     }
   } catch (error) {
     yield put(showAuthMessage(error));

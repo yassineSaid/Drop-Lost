@@ -22,13 +22,12 @@ class SignIn extends React.Component {
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      console.log("values", values);
-      
-      /* if (!err) {
+
+        if (!err) {
         this.props.showAuthLoader();
         this.props.userSignIn(values);
-      } */
-    });
+      } 
+    }); 
   };
 
   componentDidUpdate() {
@@ -82,16 +81,7 @@ class SignIn extends React.Component {
                     <Input type="password" placeholder="Password"/>
                   )}
                 </FormItem>
-                <FormItem>
-                  {getFieldDecorator('remember', {
-                    valuePropName: 'checked',
-                    initialValue: true,
-                  })(
-                    <Checkbox><IntlMessages id="appModule.iAccept"/></Checkbox>
-                  )}
-                  <span className="gx-signup-form-forgot gx-link"><IntlMessages
-                    id="appModule.termAndCondition"/></span>
-                </FormItem>
+              
                 <FormItem>
                   <Button type="primary" className="gx-mb-0" htmlType="submit">
                     <IntlMessages id="app.userAuth.signIn"/>
