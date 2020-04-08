@@ -14,7 +14,7 @@ connectDB();
 app.use(express.json({ extended: false }));
 app.use(bodyparser.json());
 // Define Routes
-//app.use("/api/auth", require("./routes/api/auth"));
+app.use("/api/chat", require("./routes/api/messages"));
 app.use('/users', usersRouter);
 app.use('/signUp', usersRouter);
 app.use('/signIn', usersRouter);
