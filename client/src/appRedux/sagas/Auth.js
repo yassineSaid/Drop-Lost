@@ -4,8 +4,8 @@ import {
   auth,
   facebookAuthProvider,
   githubAuthProvider,
-  googleAuthProvider,
-  twitterAuthProvider
+  twitterAuthProvider,
+  googleAuthProvider
 } from "../../firebase/firebase";
 import {
   SIGNIN_FACEBOOK_USER,
@@ -24,8 +24,8 @@ import {
   userTwitterSignInSuccess
 } from "../actions/Auth";
 
-const createUserWithEmailPasswordRequest = async (email,password) =>
-  await  axios.post('http://localhost:5000/users/signUp',email,password)
+const createUserWithEmailPasswordRequest = async (nom,prenom,ville,adresse,numero,email,password) =>
+  await  axios.post('http://localhost:5000/users/signUp',nom,prenom,ville,adresse,numero,email,password)
     .then(authUser => authUser)
     .catch(error => error);
 
@@ -39,11 +39,11 @@ const signOutRequest = async () =>
     .then(authUser => authUser)
     .catch(error => error);
 
-
 const signInUserWithGoogleRequest = async () =>
   await  auth.signInWithPopup(googleAuthProvider)
     .then(authUser => authUser)
     .catch(error => error);
+    
 
 const signInUserWithFacebookRequest = async () =>
   await  auth.signInWithPopup(facebookAuthProvider)
@@ -64,7 +64,7 @@ function* createUserWithEmailPassword({payload}) {
   try {
     const signUpUser = yield call(createUserWithEmailPasswordRequest,payload);
     if (signUpUser.message) {
-      yield put(showAuthMessage(signUpUser.message));
+      yield put(showAuthMessage("Email already exists"));
     } else {
       localStorage.setItem('user_id', signUpUser.data.token);
       yield put(userSignUpSuccess(signUpUser.data.token));
@@ -74,9 +74,10 @@ function* createUserWithEmailPassword({payload}) {
   }
 }
 
-function* signInUserWithGoogle() {
-  try {
-    const signUpUser = yield call(signInUserWithGoogleRequest);
+function* signInUserWithGoogle(access_token) {
+ 
+   try {
+    const signUpUser = yield call(signInUserWithGoogleRequest,access_token.access_token);
     if (signUpUser.message) {
       yield put(showAuthMessage(signUpUser.message));
     } else {
@@ -85,7 +86,7 @@ function* signInUserWithGoogle() {
     }
   } catch (error) {
     yield put(showAuthMessage(error));
-  }
+  } 
 }
 
 
@@ -138,14 +139,14 @@ function* signInUserWithTwitter() {
 }
 
 function* signInUserWithEmailPassword({payload}) {
-  const {email, password} = payload;
   try {
     const signInUser = yield call(signInUserWithEmailPasswordRequest, payload);
     if (signInUser.message) {
       yield put(showAuthMessage("Check your information or verify your account "));
     } else {
+      console.log(signInUser.data)
       localStorage.setItem('user_id', signInUser.data.token);
-      yield put(userSignUpSuccess(signInUser.data.token));
+      yield put(userSignInSuccess(signInUser.data.token));
     }
   } catch (error) {
     yield put(showAuthMessage(error));

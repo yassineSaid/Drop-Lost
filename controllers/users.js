@@ -22,7 +22,7 @@ signToken = user => {
 module.exports = {
     signUp: async (req, res, next) => {
 
-        const { email, password } = req.value.body;
+        const {nom,prenom,ville,adresse,numero, email, password } = req.value.body;
         // check if user already exists
         const foundUser = await User.findOne({ "local.email": email });
         if (foundUser) {
@@ -34,6 +34,11 @@ module.exports = {
         const newUser = new User({
             method: 'local',
             local: {
+                nom: nom,
+                prenom: prenom,
+                ville: ville,
+                adresse: adresse,
+                numero: numero,
                 email: email,
                 password: password,
                 Isactive: false,
@@ -122,19 +127,19 @@ module.exports = {
             );
             const html = 'Hi there ,click here to reset your password ' + st + '</b>'
 
-        var mailOptions = {
-            from: 'DropLostAdmin@gmail.com',
-            to: email,
-            subject: 'Please verify you mail',
-            text: html
-        };
-        transporter.sendMail(mailOptions, function (error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent: ' + info.response);
-            }
-        });
+            var mailOptions = {
+                from: 'DropLostAdmin@gmail.com',
+                to: email,
+                subject: 'Please verify you mail',
+                text: html
+            };
+            transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log('Email sent: ' + info.response);
+                }
+            });
 
 
             res.status(200).json({ foundUser });
@@ -148,23 +153,23 @@ module.exports = {
         try {
             const secretToken = req.body.secretToken;
             console.log(secretToken)
-            const foundUser = await User.findOne({ "local.Passwordtoken": secretToken,"local.PasswordResetDate":{$gt:Date.now()} });
+            const foundUser = await User.findOne({ "local.Passwordtoken": secretToken, "local.PasswordResetDate": { $gt: Date.now() } });
             if (!foundUser) {
                 return res.status(403).json({ error: 'Password reset token is invalid or has expired' });
 
             }
-            if (req.body.newpassword!=req.body.confirmnewpassword) {
+            if (req.body.newpassword != req.body.confirmnewpassword) {
                 return res.status(403).json({ error: 'check the passwords that you have entered' });
 
             }
             const salt = await bcrypt.genSalt(10);
             const passwordHash = await bcrypt.hash(req.body.newpassword, salt);
-          await foundUser.updateOne({
-              "local.password": passwordHash,
-              "local.Passwordtoken": undefined,
-              "local.PasswordResetDate": undefined
-          }, { new: true }
-          );
+            await foundUser.updateOne({
+                "local.password": passwordHash,
+                "local.Passwordtoken": undefined,
+                "local.PasswordResetDate": undefined
+            }, { new: true }
+            );
             res.status(200).json({ foundUser });
 
         } catch (error) {
