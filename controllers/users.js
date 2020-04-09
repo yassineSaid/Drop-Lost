@@ -8,7 +8,7 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'droplost2020@gmail.com',
-        pass: 'droplost@2020'
+        pass: 'DropLost@2020'
     }
 });
 signToken = user => {
@@ -64,12 +64,14 @@ module.exports = {
             }
         });
         const token = signToken(newUser)
-        res.status(200).json({ token: token });
+        
+        res.status(200).json({ success: true });
     },
     signIn: async (req, res, next) => {
         const token = signToken(req.user);
-        res.status(200).json({ token });
-        console.log('sucessful login');
+        
+        res.cookie('access_token',token)
+        res.status(200).json({ User:req.user });
     },
     secret: async (req, res, next) => {
         console.log('i managed to get here');

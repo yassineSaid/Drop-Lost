@@ -68,13 +68,7 @@ class SignUp extends React.Component {
       this.props.history.push('/social-apps/profile');
     }
   }
-   responseGoogle= (res) => {
-    console.log(res)
-     this.props.userGoogleSignIn(res.accessToken);
-  };
-  responseFacebook(res) {
-    console.log('responseFacebook', res);
-  }
+  
   render() {
     const { getFieldDecorator } = this.props.form;
     const { showMessage, loader, alertMessage } = this.props;

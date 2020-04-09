@@ -25,12 +25,12 @@ import {
 } from "../actions/Auth";
 
 const createUserWithEmailPasswordRequest = async (nom,prenom,ville,adresse,numero,email,password) =>
-  await  axios.post('http://localhost:5000/users/signUp',nom,prenom,ville,adresse,numero,email,password)
+  await  axios.post('http://localhost:5000/users/signUp',nom,prenom,ville,adresse,numero,email,password,{withCredentials:true})
     .then(authUser => authUser)
     .catch(error => error);
 
 const signInUserWithEmailPasswordRequest = async (email, password) =>
-  await   axios.post('http://localhost:5000/users/signIn',email,password)
+  await   axios.post('http://localhost:5000/users/signIn',email,password,{withCredentials:true})
     .then(authUser => authUser)
     .catch(error => error);
 
@@ -63,11 +63,10 @@ const signInUserWithTwitterRequest = async () =>
 function* createUserWithEmailPassword({payload}) {
   try {
     const signUpUser = yield call(createUserWithEmailPasswordRequest,payload);
-    if (signUpUser.message) {
+       if (signUpUser.message) {
       yield put(showAuthMessage("Email already exists"));
     } else {
-      localStorage.setItem('user_id', signUpUser.data.token);
-      yield put(userSignUpSuccess(signUpUser.data.token));
+      yield put(userSignUpSuccess(signUpUser.data));
     }
   } catch (error) {
     yield put(showAuthMessage(error));
@@ -96,7 +95,6 @@ function* signInUserWithFacebook() {
     if (signUpUser.message) {
       yield put(showAuthMessage(signUpUser.message));
     } else {
-      localStorage.setItem('user_id', signUpUser.user.uid);
       yield put(userFacebookSignInSuccess(signUpUser.user.uid));
     }
   } catch (error) {
@@ -111,7 +109,6 @@ function* signInUserWithGithub() {
     if (signUpUser.message) {
       yield put(showAuthMessage(signUpUser.message));
     } else {
-      localStorage.setItem('user_id', signUpUser.user.uid);
       yield put(userGithubSignInSuccess(signUpUser.user.uid));
     }
   } catch (error) {
@@ -130,7 +127,6 @@ function* signInUserWithTwitter() {
         yield put(showAuthMessage(signUpUser.message));
       }
     } else {
-      localStorage.setItem('user_id', signUpUser.user.uid);
       yield put(userTwitterSignInSuccess(signUpUser.user.uid));
     }
   } catch (error) {
@@ -144,9 +140,8 @@ function* signInUserWithEmailPassword({payload}) {
     if (signInUser.message) {
       yield put(showAuthMessage("Check your information or verify your account "));
     } else {
-      console.log(signInUser.data)
-      localStorage.setItem('user_id', signInUser.data.token);
-      yield put(userSignInSuccess(signInUser.data.token));
+      console.log(signInUser.data.User)
+      yield put(userSignInSuccess(signInUser.data.User));
     }
   } catch (error) {
     yield put(showAuthMessage(error));
