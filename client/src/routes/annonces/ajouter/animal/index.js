@@ -1,11 +1,10 @@
 import React from "react";
-import { Card } from "antd";
+import AnimalForm from "./AnimalForm";
 
 
 const Animal = () => {
   return (
-    <Card className="gx-card" title="Ajout d'une annonce pour un animal">
-    </Card>
+    <AnimalForm />
   );
 };
 

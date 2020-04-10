@@ -1,11 +1,10 @@
 import React from "react";
-import {Card} from "antd";
+import PersonneForm from "./PersonneForm";
 
 
 const Personne = () => {
   return (
-    <Card className="gx-card" title="Ajout d'une annonce pour une personne">
-    </Card>
+    <PersonneForm />
   );
 };
 

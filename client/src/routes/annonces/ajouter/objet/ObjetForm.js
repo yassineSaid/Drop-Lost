@@ -1,5 +1,8 @@
 import React from "react";
-import { Card, Cascader, Col, DatePicker, Form, Input, InputNumber, Select, TimePicker, Button, Switch } from "antd";
+import { Card, DatePicker, Form, Input, Select, Button, Switch, Upload, Icon } from "antd";
+import moment from "moment";
+import axios from "axios";
+import { JSDOM } from "jsdom";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -17,20 +20,56 @@ const formItemLayout = {
   },
 };
 
+function disabledDate(current) {
+  // Can not select days before today and today
+  return current && current >= moment().endOf('day');
+}
+
 
 class ObjetForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       description: "",
-      categorie: "",
-      trouve: false
+      categorie: null,
+      trouve: false,
+      date: null,
+      marque: null,
+      marques: [],
+      modeles: [],
+      modele: null
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleCategorieChange = this.handleCategorieChange.bind(this);
+    this.handleMarqueChange = this.handleMarqueChange.bind(this);
+    this.handleModeleChange = this.handleModeleChange.bind(this);
     this.handleTrouveChange = this.handleTrouveChange.bind(this);
+    this.handleDateChange = this.handleDateChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+
+    axios.get("https://api.allorigins.win/raw?url=https://www.trustit.tn/smartphone.html").then(
+      response => {
+        console.log(response)
+        //var dom=response;
+        const dom = new JSDOM(response.data);
+        const all = dom.window.document.querySelectorAll("div.main-container div.col-md-3")
+        const marques = []
+        all.forEach(element => {
+          let link = element.querySelector("a").href
+          let marque = element.querySelector("span.thumb-info-inner").textContent
+          let obj = {
+            link: link,
+            marque: marque
+          }
+          if (obj.marque !== "Autre") marques.push(obj)
+        })
+        console.log(marques);
+        this.setState({
+          marques: marques
+        })
+      }
+    )
   }
 
   handleInputChange(event) {
@@ -48,6 +87,43 @@ class ObjetForm extends React.Component {
     this.setState({
       categorie: value
     })
+    if (value !== "smartphone") {
+      this.setState({
+        marque: null,
+        modele: null
+      })
+    }
+    console.log(this.state)
+  }
+
+  handleMarqueChange(value) {
+    this.setState({
+      marque: this.state.marques[value].marque
+    })
+    axios.get("https://api.allorigins.win/raw?url=" + this.state.marques[value].link).then(
+      response => {
+        console.log(response)
+        //var dom=response;
+        const dom = new JSDOM(response.data);
+        const all = dom.window.document.querySelectorAll("span.thumb-info-inner")
+        const modeles = []
+        all.forEach(element => {
+          let modele = element.textContent
+          if (modele !== "Autre") modeles.push(modele)
+        })
+        console.log(modeles);
+        this.setState({
+          modeles: modeles
+        })
+      }
+    )
+    console.log(this.state)
+  }
+
+  handleModeleChange(value) {
+    this.setState({
+      modele: this.state.modeles[value]
+    })
     console.log(this.state)
   }
 
@@ -58,10 +134,25 @@ class ObjetForm extends React.Component {
     console.log(this.state)
   }
 
+  handleDateChange(date, dateS) {
+    this.setState({
+      date: dateS
+    })
+    console.log(this.state)
+  }
+
   handleSubmit = (e) => {
     e.preventDefault();
     console.log(this.state)
   }
+
+  normFile = (e) => {
+    console.log('Upload event:', e);
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e && e.fileList;
+  };
 
   render() {
     return (
@@ -97,12 +188,11 @@ class ObjetForm extends React.Component {
             hasFeedback
           >
             <Select
-              defaultValue="1"
               name="categorie"
               value={this.state.categorie}
               onChange={this.handleCategorieChange}
             >
-              <Option value="1">Smartphone</Option>
+              <Option value="smartphone">Smartphone</Option>
               <Option value="2">Sac à main</Option>
               <Option value="3">Sacoche</Option>
               <Option value="4">Lunettes de soleil</Option>
@@ -110,133 +200,72 @@ class ObjetForm extends React.Component {
             </Select>
           </FormItem>
 
-          <FormItem
+          {this.state.categorie === "smartphone" ? <FormItem
             {...formItemLayout}
-            label="Fail"
-            validateStatus="error"
-            help="Should be combination of numbers & alphabets"
-          >
-            <Input placeholder="unavailable choice" id="error" />
-          </FormItem>
-
-          <FormItem
-            {...formItemLayout}
-            label="Warning"
-            validateStatus="warning"
-          >
-            <Input placeholder="Warning" id="warning-1" />
-          </FormItem>
-
-          <FormItem
-            {...formItemLayout}
-            label="Validating"
+            label="Marque"
             hasFeedback
-            validateStatus="validating"
-            help="The information is being validated..."
+            validateStatus={this.state.marques.length!==0 ? "" : "validating"}
           >
-            <Input placeholder="I'm the content is being validated" id="validating" />
-          </FormItem>
-
-          <FormItem
-            {...formItemLayout}
-            label="Success"
-            hasFeedback
-            validateStatus="success"
-          >
-            <Input placeholder="I'm the content" id="success" />
-          </FormItem>
-
-          <FormItem
-            {...formItemLayout}
-            label="Warning"
-            hasFeedback
-            validateStatus="warning"
-          >
-            <Input placeholder="Warning" id="warning" />
-          </FormItem>
-
-          <FormItem
-            {...formItemLayout}
-            label="Fail"
-            hasFeedback
-            validateStatus="error"
-            help="Should be combination of numbers & alphabets"
-          >
-            <Input placeholder="unavailable choice" id="error-1" />
-          </FormItem>
-
-          <FormItem
-            {...formItemLayout}
-            label="Success"
-            hasFeedback
-            validateStatus="success"
-          >
-            <DatePicker style={{ width: '100%' }} />
-          </FormItem>
-
-          <FormItem
-            {...formItemLayout}
-            label="Warning"
-            hasFeedback
-            validateStatus="warning"
-          >
-            <TimePicker style={{ width: '100%' }} />
-          </FormItem>
-
-          <FormItem
-            {...formItemLayout}
-            label="Error"
-            hasFeedback
-            validateStatus="error"
-          >
-            <Select defaultValue="1">
-              <Option value="1">Option 1</Option>
-              <Option value="2">Option 2</Option>
-              <Option value="3">Option 3</Option>
+            <Select
+              name="marque"
+              value={this.state.marque}
+              onChange={this.handleMarqueChange}
+              disabled={this.state.marques.length!==0 ? false : true}
+            >
+              {this.state.marques.length!==0 ? this.state.marques.map(function (item, i) {
+                return <Option value={i} key={i}>{item.marque}</Option>
+              })
+              : null
+            }
             </Select>
-          </FormItem>
+          </FormItem> : null}
 
-          <FormItem
+          {this.state.marque !== null ? <FormItem
             {...formItemLayout}
-            label="Validating"
+            label="Modele"
             hasFeedback
-            validateStatus="validating"
-            help="The information is being validated..."
+            validateStatus={this.state.modeles.length!==0 ? "" : "validating"}
           >
-            <Cascader defaultValue={['1']} options={[]} />
+            <Select
+              name="modele"
+              value={this.state.modele}
+              onChange={this.handleModeleChange}
+              disabled={this.state.modeles.length!==0 ? false : true}
+            >
+              {this.state.modeles.length!==0 ? this.state.modeles.map(function (item, i) {
+                return <Option value={i} key={i}>{item}</Option>
+              })
+              : null
+            }
+            </Select>
+          </FormItem> : null}
+
+          <FormItem
+            {...formItemLayout}
+            label="Date"
+          >
+            <DatePicker
+              className="gx-mb-3 gx-w-100"
+              format="DD-MM-YYYY"
+              onChange={this.handleDateChange}
+              disabledDate={disabledDate}
+              placeholder={this.state.trouve ? "Date à laquelle vous avez trouvé l'objet" : "Date à laquelle vous avez perdu l'objet"}
+            />
           </FormItem>
 
           <FormItem
-            label="inline"
             {...formItemLayout}
+            label="Photos"
           >
-
-            <div className="ant-row gx-form-row0">
-              <Col xs={24} sm={11}>
-                <FormItem validateStatus="error" help="Please select the correct date">
-                  <DatePicker />
-                </FormItem>
-              </Col>
-              <Col xs={24} sm={2}>
-                <span style={{ display: 'inline-block', width: '100%', textAlign: 'center' }}>
-                  -
-          </span>
-              </Col>
-              <Col xs={24} sm={11}>
-                <FormItem>
-                  <DatePicker />
-                </FormItem>
-              </Col>
+            <div className="dropbox">
+              <Upload.Dragger name="files" action="/upload.do" multiple={true}>
+                <p className="ant-upload-drag-icon">
+                  <Icon type="inbox" />
+                </p>
+                <p className="ant-upload-text">Cliquer ici ou déplacer vos photos ici</p>
+                <p className="ant-upload-hint">Support for a single or bulk upload.</p>
+              </Upload.Dragger>
             </div>
-          </FormItem>
-
-          <FormItem
-            {...formItemLayout}
-            label="Success"
-            hasFeedback
-            validateStatus="success"
-          >
-            <InputNumber style={{ width: '100%' }} />
           </FormItem>
           <FormItem>
             <Button type="primary" htmlType="submit">Submit</Button>
