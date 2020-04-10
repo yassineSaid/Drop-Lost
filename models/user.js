@@ -10,6 +10,21 @@ const userSchema = new Schema({
         required: true
     },
     local: {
+        nom:{
+            type: String,
+        },
+        prenom:{
+            type: String,
+        },
+        ville:{
+            type: String,
+        },
+        adresse:{
+            type: String,
+        },
+        numero:{
+            type: Number,
+        },
         email: {
             type: String,
             lowercase: true

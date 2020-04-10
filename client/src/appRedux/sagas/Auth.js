@@ -4,8 +4,8 @@ import {
   auth,
   facebookAuthProvider,
   githubAuthProvider,
-  googleAuthProvider,
-  twitterAuthProvider
+  twitterAuthProvider,
+  googleAuthProvider
 } from "../../firebase/firebase";
 import {
   SIGNIN_FACEBOOK_USER,
@@ -24,13 +24,13 @@ import {
   userTwitterSignInSuccess
 } from "../actions/Auth";
 
-const createUserWithEmailPasswordRequest = async (email,password) =>
-  await  axios.post('http://localhost:5000/users/signUp',email,password)
+const createUserWithEmailPasswordRequest = async (nom,prenom,ville,adresse,numero,email,password) =>
+  await  axios.post('http://localhost:5000/users/signUp',nom,prenom,ville,adresse,numero,email,password,{withCredentials:true})
     .then(authUser => authUser)
     .catch(error => error);
 
 const signInUserWithEmailPasswordRequest = async (email, password) =>
-  await   axios.post('http://localhost:5000/users/signIn',email,password)
+  await   axios.post('http://localhost:5000/users/signIn',email,password,{withCredentials:true})
     .then(authUser => authUser)
     .catch(error => error);
 
@@ -39,11 +39,11 @@ const signOutRequest = async () =>
     .then(authUser => authUser)
     .catch(error => error);
 
-
 const signInUserWithGoogleRequest = async () =>
   await  auth.signInWithPopup(googleAuthProvider)
     .then(authUser => authUser)
     .catch(error => error);
+    
 
 const signInUserWithFacebookRequest = async () =>
   await  auth.signInWithPopup(facebookAuthProvider)
@@ -63,20 +63,20 @@ const signInUserWithTwitterRequest = async () =>
 function* createUserWithEmailPassword({payload}) {
   try {
     const signUpUser = yield call(createUserWithEmailPasswordRequest,payload);
-    if (signUpUser.message) {
-      yield put(showAuthMessage(signUpUser.message));
+       if (signUpUser.message) {
+      yield put(showAuthMessage("Email already exists"));
     } else {
-      localStorage.setItem('user_id', signUpUser.data.token);
-      yield put(userSignUpSuccess(signUpUser.data.token));
+      yield put(userSignUpSuccess(signUpUser.data));
     }
   } catch (error) {
     yield put(showAuthMessage(error));
   }
 }
 
-function* signInUserWithGoogle() {
-  try {
-    const signUpUser = yield call(signInUserWithGoogleRequest);
+function* signInUserWithGoogle(access_token) {
+ 
+   try {
+    const signUpUser = yield call(signInUserWithGoogleRequest,access_token.access_token);
     if (signUpUser.message) {
       yield put(showAuthMessage(signUpUser.message));
     } else {
@@ -85,7 +85,7 @@ function* signInUserWithGoogle() {
     }
   } catch (error) {
     yield put(showAuthMessage(error));
-  }
+  } 
 }
 
 
@@ -95,7 +95,6 @@ function* signInUserWithFacebook() {
     if (signUpUser.message) {
       yield put(showAuthMessage(signUpUser.message));
     } else {
-      localStorage.setItem('user_id', signUpUser.user.uid);
       yield put(userFacebookSignInSuccess(signUpUser.user.uid));
     }
   } catch (error) {
@@ -110,7 +109,6 @@ function* signInUserWithGithub() {
     if (signUpUser.message) {
       yield put(showAuthMessage(signUpUser.message));
     } else {
-      localStorage.setItem('user_id', signUpUser.user.uid);
       yield put(userGithubSignInSuccess(signUpUser.user.uid));
     }
   } catch (error) {
@@ -129,7 +127,6 @@ function* signInUserWithTwitter() {
         yield put(showAuthMessage(signUpUser.message));
       }
     } else {
-      localStorage.setItem('user_id', signUpUser.user.uid);
       yield put(userTwitterSignInSuccess(signUpUser.user.uid));
     }
   } catch (error) {
@@ -138,14 +135,13 @@ function* signInUserWithTwitter() {
 }
 
 function* signInUserWithEmailPassword({payload}) {
-  const {email, password} = payload;
   try {
     const signInUser = yield call(signInUserWithEmailPasswordRequest, payload);
     if (signInUser.message) {
       yield put(showAuthMessage("Check your information or verify your account "));
     } else {
-      localStorage.setItem('user_id', signInUser.data.token);
-      yield put(userSignUpSuccess(signInUser.data.token));
+      console.log(signInUser.data.User)
+      yield put(userSignInSuccess(signInUser.data.User));
     }
   } catch (error) {
     yield put(showAuthMessage(error));

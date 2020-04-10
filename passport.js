@@ -28,7 +28,7 @@ passport.use(new JwtStrategy({
 //Google Oauth
 passport.use('googleToken', new GooglePlusPassportStrategy({
     clientID: '132856096478-jo705a4g0tu8ungd07r1fhocu1d9ccp3.apps.googleusercontent.com',
-    clientSecret: 'ZrQKjQ-P0X9063PXlYsjjTxH'
+    clientSecret: 'dutTfySuv-pYEdlqV9orSVaP'
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         console.log('accessToken', accessToken);
@@ -100,7 +100,6 @@ passport.use(new LocalStrategy({
     try {
         //find the user 
         const user = await User.findOne({ "local.email": email });
-        console.log(user)
 
         //if not , handle it 
         if (!user) {
