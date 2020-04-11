@@ -91,13 +91,9 @@ class App extends Component {
     const {match, location, layoutType, navStyle, locale, authUser, initURL} = this.props;
 
     if (location.pathname === '/') {
-      if (authUser === null) {
-        return ( <Redirect to={'/signin'}/> );
-      } else if (initURL === '' || initURL === '/' || initURL === '/signin') {
+      if (initURL === '' || initURL === '/' ) {
         return ( <Redirect to={'/main/dashboard/crypto'}/> );
-      } else {
-        return ( <Redirect to={initURL}/> );
-      }
+      } 
     }
     this.setLayoutType(layoutType);
 
@@ -113,8 +109,9 @@ class App extends Component {
           <Switch>
             <Route exact path='/signin' component={SignIn}/>
             <Route exact path='/signup' component={SignUp}/>
-            <RestrictedRoute path={`${match.url}`} authUser={authUser}
-                             component={MainApp}/>
+            <Route  path={`${match.url}`}  component={MainApp}/>
+
+            
           </Switch>
         </IntlProvider>
       </LocaleProvider>
