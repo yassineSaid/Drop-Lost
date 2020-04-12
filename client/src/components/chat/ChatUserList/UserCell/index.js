@@ -9,7 +9,7 @@ const UserCell = ({chat, selectedSectionId, onSelectUser}) => {
       <div className="gx-chat-user-row">
         <div className="gx-chat-avatar">
           <div className="gx-status-pos">
-            <Avatar src={chat.thumb} className="gx-size-40" alt={chat.name}/>
+            <Avatar src={chat.thumb} className="gx-size-40" alt={chat.local.nom}/>
             <span className={`gx-status gx-small gx-${chat.status}`}/>
           </div>
         </div>

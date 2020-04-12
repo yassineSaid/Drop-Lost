@@ -1,4 +1,4 @@
-import {all, call, fork, put, takeEvery} from "redux-saga/effects";
+import { all, call, fork, put, takeEvery } from "redux-saga/effects";
 import axios from 'axios';
 import {
   auth,
@@ -16,7 +16,7 @@ import {
   SIGNOUT_USER,
   SIGNUP_USER
 } from "constants/ActionTypes";
-import {showAuthMessage, userSignInSuccess, userSignOutSuccess, userSignUpSuccess} from "../../appRedux/actions/Auth";
+import { showAuthMessage, userSignInSuccess, userSignOutSuccess, userSignUpSuccess } from "../../appRedux/actions/Auth";
 import {
   userFacebookSignInSuccess,
   userGithubSignInSuccess,
@@ -24,46 +24,47 @@ import {
   userTwitterSignInSuccess
 } from "../actions/Auth";
 
-const createUserWithEmailPasswordRequest = async (nom,prenom,ville,adresse,numero,email,password) =>
-  await  axios.post('http://localhost:5000/users/signUp',nom,prenom,ville,adresse,numero,email,password,{withCredentials:true})
+const createUserWithEmailPasswordRequest = async (nom, prenom, ville, adresse, numero, email, password) =>
+  await axios.post('http://localhost:5000/users/signUp', nom, prenom, ville, adresse, numero, email, password, { withCredentials: true })
     .then(authUser => authUser)
     .catch(error => error);
 
-const signInUserWithEmailPasswordRequest = async (email, password) =>
-  await   axios.post('http://localhost:5000/users/signIn',email,password,{withCredentials:true})
+const signInUserWithEmailPasswordRequest = async (email, password) => {
+  await axios.post('http://localhost:5000/users/signIn', email, { withCredentials: true })
     .then(authUser => authUser)
-    .catch(error => error);
+    .catch(error => error)
+};
 
 const signOutRequest = async () =>
-  await  auth.signOut()
+  await auth.signOut()
     .then(authUser => authUser)
     .catch(error => error);
 
 const signInUserWithGoogleRequest = async () =>
-  await  auth.signInWithPopup(googleAuthProvider)
+  await auth.signInWithPopup(googleAuthProvider)
     .then(authUser => authUser)
     .catch(error => error);
-    
+
 
 const signInUserWithFacebookRequest = async () =>
-  await  auth.signInWithPopup(facebookAuthProvider)
+  await auth.signInWithPopup(facebookAuthProvider)
     .then(authUser => authUser)
     .catch(error => error);
 
 const signInUserWithGithubRequest = async () =>
-  await  auth.signInWithPopup(githubAuthProvider)
+  await auth.signInWithPopup(githubAuthProvider)
     .then(authUser => authUser)
     .catch(error => error);
 
 const signInUserWithTwitterRequest = async () =>
-  await  auth.signInWithPopup(twitterAuthProvider)
+  await auth.signInWithPopup(twitterAuthProvider)
     .then(authUser => authUser)
     .catch(error => error);
 
-function* createUserWithEmailPassword({payload}) {
+function* createUserWithEmailPassword({ payload }) {
   try {
-    const signUpUser = yield call(createUserWithEmailPasswordRequest,payload);
-       if (signUpUser.message) {
+    const signUpUser = yield call(createUserWithEmailPasswordRequest, payload);
+    if (signUpUser.message) {
       yield put(showAuthMessage("Email already exists"));
     } else {
       yield put(userSignUpSuccess(signUpUser.data));
@@ -74,9 +75,9 @@ function* createUserWithEmailPassword({payload}) {
 }
 
 function* signInUserWithGoogle(access_token) {
- 
-   try {
-    const signUpUser = yield call(signInUserWithGoogleRequest,access_token.access_token);
+
+  try {
+    const signUpUser = yield call(signInUserWithGoogleRequest, access_token.access_token);
     if (signUpUser.message) {
       yield put(showAuthMessage(signUpUser.message));
     } else {
@@ -85,7 +86,7 @@ function* signInUserWithGoogle(access_token) {
     }
   } catch (error) {
     yield put(showAuthMessage(error));
-  } 
+  }
 }
 
 
@@ -134,7 +135,7 @@ function* signInUserWithTwitter() {
   }
 }
 
-function* signInUserWithEmailPassword({payload}) {
+function* signInUserWithEmailPassword({ payload }) {
   try {
     const signInUser = yield call(signInUserWithEmailPasswordRequest, payload);
     if (signInUser.message) {
@@ -194,10 +195,10 @@ export function* signOutUser() {
 
 export default function* rootSaga() {
   yield all([fork(signInUser),
-    fork(createUserAccount),
-    fork(signInWithGoogle),
-    fork(signInWithFacebook),
-    fork(signInWithTwitter),
-    fork(signInWithGithub),
-    fork(signOutUser)]);
+  fork(createUserAccount),
+  fork(signInWithGoogle),
+  fork(signInWithFacebook),
+  fork(signInWithTwitter),
+  fork(signInWithGithub),
+  fork(signOutUser)]);
 }

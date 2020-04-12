@@ -261,9 +261,11 @@ class Chat extends Component {
       users: []
     }
 
-    axios.get("http://localhost:5000/api/chat/users").then(
+    axios.get("http://localhost:5000/api/chat/users",{withCredentials: true}).then(
       response => {
-        console.log(response)
+        this.setState({
+          users : response.data
+        })
       }
     )
 

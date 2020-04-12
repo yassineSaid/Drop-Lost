@@ -74,8 +74,11 @@ module.exports = {
     },
     signIn: async (req, res, next) => {
         const token = signToken(req.user);
-        
-        res.cookie('access_token',token)
+        res.cookie('access_token',token);
+        res.header('Access-Control-Allow-Credentials', true);
+        res.header('Access-Control-Allow-Origin', req.headers.origin);
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,UPDATE,OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
         res.status(200).json({ User:req.user });
     },
     secret: async (req, res, next) => {
