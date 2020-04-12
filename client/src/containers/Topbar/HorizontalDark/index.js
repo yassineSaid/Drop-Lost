@@ -2,11 +2,9 @@ import React, {Component} from "react";
 import {Button, Dropdown, Icon, Layout, Menu, message, Popover, Select} from 'antd';
 import {connect} from "react-redux";
 import CustomScrollbars from "util/CustomScrollbars";
-import { Redirect } from "react-router-dom";
 
 import languageData from "../languageData";
 import SearchBox from "components/SearchBox";
-import UserInfo from "components/UserInfo";
 import AppNotification from "components/AppNotification";
 import MailNotification from "components/MailNotification";
 import {Link} from "react-router-dom";

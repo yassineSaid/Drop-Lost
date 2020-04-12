@@ -1,12 +1,20 @@
 import React, { Component } from "react";
 import { Button, Select, Form, Icon, Input } from "antd";
-import { Link } from "react-router-dom";
-
+import { connect } from "react-redux";
+import {
+  hideMessage,
+  showAuthLoader,
+  userFacebookSignIn,
+  userGithubSignIn,
+  userGoogleSignIn,
+  userSignUp,
+  userTwitterSignIn
+} from "appRedux/actions/Auth";
 const FormItem = Form.Item;
 const Option = Select.Option;
 
 class SignUP extends Component {
-  state = {
+ state = {
     confirmDirty: false,
   };
 
@@ -14,7 +22,12 @@ class SignUP extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      console.log("values", values)
+      if (!err) {
+        console.log('Received values of form: ', values);
+        this.props.showAuthLoader();
+
+        this.props.userSignUp(values);
+      }
     });
   };
   handleConfirmBlur = (e) => {
@@ -224,5 +237,17 @@ class SignUP extends Component {
 }
 
 const WrappedNormalSignUpForm = Form.create()(SignUP);
+const mapStateToProps = ({ auth }) => {
+  const { loader, alertMessage, showMessage, authUser } = auth;
+  return { loader, alertMessage, showMessage, authUser }
+};
 
-export default WrappedNormalSignUpForm;
+export default connect(mapStateToProps, {
+  userSignUp,
+  hideMessage,
+  showAuthLoader,
+  userFacebookSignIn,
+  userGoogleSignIn,
+  userGithubSignIn,
+  userTwitterSignIn
+})(WrappedNormalSignUpForm);

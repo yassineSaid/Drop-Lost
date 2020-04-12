@@ -23,19 +23,7 @@ import {
   NAV_STYLE_INSIDE_HEADER_HORIZONTAL
 } from "../../constants/ThemeSetting";
 
-const RestrictedRoute = ({component: Component, authUser, ...rest}) =>
-  <Route
-    {...rest}
-    render={props =>
-      authUser
-        ? <Component {...props} />
-        : <Redirect
-          to={{
-            pathname: '/signin',
-            state: {from: props.location}
-          }}
-        />}
-  />;
+
 
 
 class App extends Component {
@@ -88,7 +76,7 @@ class App extends Component {
   }
 
   render() {
-    const {match, location, layoutType, navStyle, locale, authUser, initURL} = this.props;
+    const {match, location, layoutType, navStyle, locale, initURL} = this.props;
 
     if (location.pathname === '/') {
       if (initURL === '' || initURL === '/' ) {
