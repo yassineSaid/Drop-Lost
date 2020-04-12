@@ -5,26 +5,41 @@ const User = require('./models/user')
 const LocalStrategy = require('passport-local').Strategy;
 const GooglePlusPassportStrategy = require('passport-google-plus-token');
 const FacebookTokenStrategy = require('passport-facebook-token');
+const cookieExtractor = req => {
+    let token = null;
+    if (req && req.cookies) {
 
+      token = req.cookies['access_token'];
+    }
+
+    return token;
+  }
 // JSON web tokens strategy
 passport.use(new JwtStrategy({
-    jwtFromRequest: ExtractJwt.fromHeader('auth'),
-    secretOrKey: 'DropLostToken'
-}, async (payload, done) => {
-    try {
-        //find the user in token
-        const user = await User.findById(payload.sub);
-        if (!user) {
-            return done(null, false);
-        }
 
-        // otherwise return the user
-        done(null, user);
-    } catch (error) {
-        done(error, false);
+  jwtFromRequest: cookieExtractor,
+
+    secretOrKey: 'DropLostToken',
+      passReqToCallback: true
+}, async (req, payload, done) => {
+  try {
+    // Find the user specified in token
+    const user = await User.findById(payload.sub);
+
+    // If user doesn't exists, handle it
+    if (!user) {
+
+      return done(null, false);
+
     }
-}));
 
+    // Otherwise, return the user
+    req.user = user;
+    done(null, user);
+  } catch(error) {
+    done(error, false);
+  }
+}));
 //Google Oauth
 passport.use('googleToken', new GooglePlusPassportStrategy({
     clientID: '132856096478-jo705a4g0tu8ungd07r1fhocu1d9ccp3.apps.googleusercontent.com',

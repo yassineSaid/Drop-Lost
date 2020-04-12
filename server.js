@@ -3,7 +3,11 @@ const connectDB = require("./config/db");
 const path = require("path");
 const cors = require("cors");
 const bodyparser = require('body-parser');
+var cookieParser = require('cookie-parser')
+
 const app = express();
+app.use(cookieParser())
+
 app.use(cors({
   origin:'http://localhost:3000',
   credentials:true

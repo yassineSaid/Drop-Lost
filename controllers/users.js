@@ -184,6 +184,10 @@ module.exports = {
 
         }
 
-    }
+    },
+     checkAuth: async (req, res, next) => {
+    res.json({ User: req.user });
+  }
+
 
 }
