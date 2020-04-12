@@ -1,7 +1,17 @@
 import React, {Component} from "react";
+import {connect} from "react-redux";
+
 import {Button, Checkbox, Form, Icon, Input} from "antd";
 import {Link} from "react-router-dom";
-
+import {
+  hideMessage,
+  showAuthLoader,
+  userFacebookSignIn,
+  userGithubSignIn,
+  userGoogleSignIn,
+  userSignIn,
+  userTwitterSignIn
+} from "appRedux/actions/Auth";
 const FormItem = Form.Item;
 
 class SignIn extends Component {
@@ -10,9 +20,13 @@ class SignIn extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      console.log("values", values)
-    });
+
+        if (!err) {
+        this.props.userSignIn(values);
+      } 
+    }); 
   };
+
 
   render() {
 
@@ -42,15 +56,7 @@ class SignIn extends Component {
                        placeholder="Password"/>
               )}
             </FormItem>
-            <FormItem>
-              {getFieldDecorator('remember', {
-                valuePropName: 'checked',
-                initialValue: true,
-              })(
-                <Checkbox>Remember me</Checkbox>
-              )}
-              <Link className="gx-login-form-forgot" to="/custom-views/user-auth/forgot-password">Forgot password</Link>
-            </FormItem>
+          
             <FormItem className="gx-text-center">
               <Button type="primary" htmlType="submit">
                 Log in
@@ -64,5 +70,16 @@ class SignIn extends Component {
 }
 
 const WrappedNormalLoginForm = Form.create()(SignIn);
-
-export default WrappedNormalLoginForm;
+const mapStateToProps = ({auth}) => {
+  const {loader, alertMessage, showMessage, authUser} = auth;
+  return {loader, alertMessage, showMessage, authUser}
+};
+export default connect(mapStateToProps, {
+  userSignIn,
+  hideMessage,
+  showAuthLoader,
+  userFacebookSignIn,
+  userGoogleSignIn,
+  userGithubSignIn,
+  userTwitterSignIn
+})(WrappedNormalLoginForm);

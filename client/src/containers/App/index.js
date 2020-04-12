@@ -94,6 +94,9 @@ class App extends Component {
       if (initURL === '' || initURL === '/' ) {
         return ( <Redirect to={'/main/dashboard/crypto'}/> );
       } 
+      else if(this.props.authUser!==null){
+        return ( <Redirect to={'/main/dashboard/crypto'}/> );
+      }
     }
     this.setLayoutType(layoutType);
 
