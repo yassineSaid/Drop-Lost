@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {Button, Dropdown, Icon, Layout, Menu, message, Popover, Select} from 'antd';
 import {connect} from "react-redux";
 import CustomScrollbars from "util/CustomScrollbars";
+import { Redirect } from "react-router-dom";
 
 import languageData from "../languageData";
 import SearchBox from "components/SearchBox";
@@ -73,7 +74,10 @@ class HorizontalDark extends Component {
                 <p className="gx-mb-0 gx-text-truncate"><IntlMessages id="app.announced"/></p>
               </div>
             
-              
+               <ul className="gx-login-list">
+                <li><Link to="/custom-views/user-auth/sign-in">Sign In</Link></li>
+                <li><Link to="/custom-views/user-auth/sign-up">Sign Up</Link></li>
+              </ul>
               
             </div>
           </div>
