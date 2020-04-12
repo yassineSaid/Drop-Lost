@@ -5,13 +5,13 @@ import CustomScrollbars from "util/CustomScrollbars";
 
 import languageData from "../languageData";
 import SearchBox from "components/SearchBox";
-import UserInfo from "components/UserInfo";
 import AppNotification from "components/AppNotification";
 import MailNotification from "components/MailNotification";
 import {Link} from "react-router-dom";
 import HorizontalNav from "../HorizontalNav";
 import {switchLanguage, toggleCollapsedSideNav} from "../../../appRedux/actions/Setting";
 import IntlMessages from "../../../util/IntlMessages";
+import {userSignOut} from "appRedux/actions/Auth";
 
 const {Header} = Layout;
 
@@ -58,7 +58,7 @@ class HorizontalDark extends Component {
     });
   };
 
-
+ 
   render() {
     const {locale, navCollapsed} = this.props;
 
@@ -71,10 +71,12 @@ class HorizontalDark extends Component {
                 <i className="icon icon-alert gx-mr-3"/>
                 <p className="gx-mb-0 gx-text-truncate"><IntlMessages id="app.announced"/></p>
               </div>
-              <ul className="gx-login-list">
-                <li>Login</li>
-                <li>Signup</li>
+            
+               <ul className="gx-login-list">
+                <li><Link to="/custom-views/user-auth/sign-in">Sign In</Link></li>
+                <li><Link to="/custom-views/user-auth/sign-up">Sign Up</Link></li>
               </ul>
+              
             </div>
           </div>
         </div>
@@ -151,7 +153,6 @@ class HorizontalDark extends Component {
               </span>
                   </Popover>
                 </li>
-                <li className="gx-user-nav"><UserInfo/></li>
               </ul>
             </div>
           </div>
@@ -177,4 +178,4 @@ const mapStateToProps = ({settings}) => {
   const {locale, navCollapsed} = settings;
   return {locale, navCollapsed}
 };
-export default connect(mapStateToProps, {toggleCollapsedSideNav, switchLanguage})(HorizontalDark);
+export default connect(mapStateToProps, {userSignOut,toggleCollapsedSideNav, switchLanguage})(HorizontalDark);

@@ -142,6 +142,8 @@ function* signInUserWithEmailPassword({payload}) {
     } else {
       console.log(signInUser.data.User)
       yield put(userSignInSuccess(signInUser.data.User));
+      localStorage.setItem('User', signInUser.data.User._id);
+
     }
   } catch (error) {
     yield put(showAuthMessage(error));
@@ -152,7 +154,7 @@ function* signOut() {
   try {
     const signOutUser = yield call(signOutRequest);
     if (signOutUser === undefined) {
-      localStorage.removeItem('user_id');
+      localStorage.removeItem('User');
       yield put(userSignOutSuccess(signOutUser));
     } else {
       yield put(showAuthMessage(signOutUser.message));

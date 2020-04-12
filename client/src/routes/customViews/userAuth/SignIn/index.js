@@ -1,6 +1,18 @@
 import React, {Component} from "react";
-import {Button, Checkbox, Form, Icon, Input} from "antd";
-import {Link} from "react-router-dom";
+import {connect} from "react-redux";
+
+import {Button, Form, Icon, Input,message} from "antd";
+import {
+  hideMessage,
+  showAuthLoader,
+  userFacebookSignIn,
+  userGithubSignIn,
+  userGoogleSignIn,
+  userSignIn,
+  userTwitterSignIn
+} from "appRedux/actions/Auth";
+import IntlMessages from "util/IntlMessages";
+import CircularProgress from "components/CircularProgress/index";
 
 const FormItem = Form.Item;
 
@@ -10,13 +22,30 @@ class SignIn extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      console.log("values", values)
-    });
+
+      if (!err) {
+        this.props.showAuthLoader();
+        this.props.userSignIn(values);
+      } 
+    }); 
   };
 
-  render() {
 
+  componentDidUpdate() {
+    if (this.props.showMessage) {
+      setTimeout(() => {
+        this.props.hideMessage();
+      }, 100);
+    }
+    if (this.props.authUser !== null) {
+      this.props.history.push('/');
+    }
+  }
+
+  render() {
     const {getFieldDecorator} = this.props.form;
+    const {showMessage, loader, alertMessage} = this.props;
+
 
     return (
       <div className="gx-login-container">
@@ -42,15 +71,7 @@ class SignIn extends Component {
                        placeholder="Password"/>
               )}
             </FormItem>
-            <FormItem>
-              {getFieldDecorator('remember', {
-                valuePropName: 'checked',
-                initialValue: true,
-              })(
-                <Checkbox>Remember me</Checkbox>
-              )}
-              <Link className="gx-login-form-forgot" to="/custom-views/user-auth/forgot-password">Forgot password</Link>
-            </FormItem>
+          
             <FormItem className="gx-text-center">
               <Button type="primary" htmlType="submit">
                 Log in
@@ -58,11 +79,29 @@ class SignIn extends Component {
             </FormItem>
           </Form>
         </div>
+        {loader ?
+              <div className="gx-loader-view">
+                <CircularProgress/>
+              </div> : null}
+            {showMessage ?
+              message.error(alertMessage.toString()) : null}
       </div>
+      
     );
   }
 }
 
 const WrappedNormalLoginForm = Form.create()(SignIn);
-
-export default WrappedNormalLoginForm;
+const mapStateToProps = ({auth}) => {
+  const {loader, alertMessage, showMessage, authUser} = auth;
+  return {loader, alertMessage, showMessage, authUser}
+};
+export default connect(mapStateToProps, {
+  userSignIn,
+  hideMessage,
+  showAuthLoader,
+  userFacebookSignIn,
+  userGoogleSignIn,
+  userGithubSignIn,
+  userTwitterSignIn
+})(WrappedNormalLoginForm);

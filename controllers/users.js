@@ -48,15 +48,20 @@ module.exports = {
 
         });
         await newUser.save();
-        const html = 'Hi there ,<br>thank you for registring<br> please verify you account by clicking here <br>Token:<b>' + st + '</b>'
-
-        var mailOptions = {
-            from: 'DropLostAdmin@gmail.com',
+        const emailData = {
+            from: "DropLostAdmin@gmail.com",
             to: email,
-            subject: 'Please verify you mail',
-            text: html
-        };
-        transporter.sendMail(mailOptions, function (error, info) {
+            subject: 'Account activation link',
+            html: `
+                      <h1>Please use the following to activate your account</h1>
+                      <p>http://localhost:3000/users/activate/${st}</p>
+                      <hr />
+                      <p>This email may containe sensetive information</p>
+                      
+                  `
+          };
+        
+        transporter.sendMail(emailData, function (error, info) {
             if (error) {
                 console.log(error);
             } else {
