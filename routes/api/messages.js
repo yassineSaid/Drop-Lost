@@ -22,7 +22,8 @@ let jwtUser = null;
 // Token verfication middleware
 router.use(function(req, res, next) {
     try {
-        jwtUser = jwt.verify(verify(req), keys.jwtSecret);
+        token = req.headers.cookie.split('=')[1];
+        jwtUser = jwt.verify(token, keys.jwtSecret);
         next();
     } catch (err) {
         console.log(err);
@@ -37,7 +38,10 @@ router.use(function(req, res, next) {
 //get users list to interact with for the logged in user
 router.get('/users', (req, res) => {
     try {
-        let jwtUser = jwt.verify(verify(req), keys.jwtSecret);
+        //let jwtUser = jwt.verify(verify(req), keys.jwtSecret);
+        token = req.headers.cookie.split('=')[1];
+        let jwtUser = jwt.verify(token, keys.jwtSecret);
+        
         let id = mongoose.Types.ObjectId(jwtUser.sub);
 
         User.aggregate()
