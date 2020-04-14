@@ -18,5 +18,5 @@ router.route('/oauth/google').post(passport.authenticate('googleToken', { sessio
 router.route('/signIn').post(validateBody(schemas.SignInauthSchema), passport.authenticate('local', { session: false }), UsersContoller.signIn);
 
 router.route('/secret').get(passport.authenticate('jwt', { session: false }), UsersContoller.secret);
-
+router.route('/status').get(passport.authenticate('jwt', { session: false }), UsersContoller.checkAuth);
 module.exports = router;

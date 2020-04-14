@@ -2,19 +2,20 @@ import React, {Component} from "react";
 import {Avatar, Button, Drawer, Input, Tabs} from "antd";
 import CustomScrollbars from "util/CustomScrollbars";
 import Moment from "moment";
-
+import axios from 'axios';
 import ChatUserList from "components/chat/ChatUserList";
 import conversationList from "./data/conversationList";
 import Conversation from "components/chat/Conversation/index";
 import users from "./data/chatUsers";
+import usersContact from "./data/contactUsers";
 import ContactList from "components/chat/ContactList/index";
 import IntlMessages from "util/IntlMessages";
 import SearchBox from "components/SearchBox";
 import CircularProgress from "../../../components/CircularProgress/index";
 
 const TabPane = Tabs.TabPane;
-
 class Chat extends Component {
+
   filterContact = (userName) => {
     if (userName === '') {
       return users.filter(user => !user.recent);
@@ -251,13 +252,24 @@ class Chat extends Component {
       selectedTabIndex: 1,
       userState: 1,
       searchChatUser: '',
-      contactList: users.filter((user) => !user.recent),
+      contactList: usersContact,
       selectedUser: null,
       message: '',
       chatUsers: users.filter((user) => user.recent),
       conversationList: conversationList,
       conversation: null
     }
+
+    axios.get("http://localhost:5000/api/chat/test").then(
+      response => {
+        this.setState({
+          contactList: response.data
+        })
+        console.log(this.state.contactList)
+      }
+    )
+
+
   }
 
   submitComment() {

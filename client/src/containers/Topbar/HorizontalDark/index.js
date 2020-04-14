@@ -12,7 +12,6 @@ import HorizontalNav from "../HorizontalNav";
 import {switchLanguage, toggleCollapsedSideNav} from "../../../appRedux/actions/Setting";
 import IntlMessages from "../../../util/IntlMessages";
 import {userSignOut} from "appRedux/actions/Auth";
-
 const {Header} = Layout;
 
 const Option = Select.Option;

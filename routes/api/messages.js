@@ -6,7 +6,7 @@ const keys = require('../../config/default');
 const User = require('../../models/user');
 const Message = require('../../models/Message');
 const Conversation = require('../../models/Conversation');
-
+const data = require('./users.json')
 
 //verify token
 const verify = req => {
@@ -20,9 +20,10 @@ const verify = req => {
 
 let jwtUser = null;
 // Token verfication middleware
-router.use(function(req, res, next) {
+/*router.use(function(req, res, next) {
     try {
-        jwtUser = jwt.verify(verify(req), keys.jwtSecret);
+        token = req.headers.cookie.split('=')[1];
+        jwtUser = jwt.verify(token, keys.jwtSecret);
         next();
     } catch (err) {
         console.log(err);
@@ -30,14 +31,17 @@ router.use(function(req, res, next) {
         res.end(JSON.stringify({ message: 'Unauthorized' }));
         res.sendStatus(401);
     }
-});
+});*/
 
 
 
 //get users list to interact with for the logged in user
 router.get('/users', (req, res) => {
     try {
-        let jwtUser = jwt.verify(verify(req), keys.jwtSecret);
+        //let jwtUser = jwt.verify(verify(req), keys.jwtSecret);
+        token = req.headers.cookie.split('=')[1];
+        let jwtUser = jwt.verify(token, keys.jwtSecret);
+        
         let id = mongoose.Types.ObjectId(jwtUser.sub);
 
         User.aggregate()
@@ -208,6 +212,10 @@ router.get('/conversations/query', (req, res) => {
                 res.send(messages);
             }
         });
+});
+
+router.get('/test', (req, res) => {
+    res.send(data);
 });
 
 module.exports = router;
