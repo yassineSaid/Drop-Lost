@@ -29,11 +29,10 @@ const createUserWithEmailPasswordRequest = async (nom, prenom, ville, adresse, n
     .then(authUser => authUser)
     .catch(error => error);
 
-const signInUserWithEmailPasswordRequest = async (email, password) => {
-  await axios.post('http://localhost:5000/users/signIn', email, { withCredentials: true })
-    .then(authUser => authUser)
-    .catch(error => error)
-};
+const signInUserWithEmailPasswordRequest = async (payload) =>
+  await axios.post('http://localhost:5000/users/signIn', payload, { withCredentials: true })
+    .then((authUser) =>  {return authUser} )
+    .catch(error => error);
 
 const signOutRequest = async () =>
   await auth.signOut()
@@ -141,7 +140,6 @@ function* signInUserWithEmailPassword({ payload }) {
     if (signInUser.message) {
       yield put(showAuthMessage("Check your information or verify your account "));
     } else {
-      console.log(signInUser.data.User)
       yield put(userSignInSuccess(signInUser.data.User));
       localStorage.setItem('User', signInUser.data.User._id);
 

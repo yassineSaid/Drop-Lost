@@ -6,7 +6,7 @@ const keys = require('../../config/default');
 const User = require('../../models/user');
 const Message = require('../../models/Message');
 const Conversation = require('../../models/Conversation');
-
+const data = require('./users.json')
 
 //verify token
 const verify = req => {
@@ -20,7 +20,7 @@ const verify = req => {
 
 let jwtUser = null;
 // Token verfication middleware
-router.use(function(req, res, next) {
+/*router.use(function(req, res, next) {
     try {
         token = req.headers.cookie.split('=')[1];
         jwtUser = jwt.verify(token, keys.jwtSecret);
@@ -31,7 +31,7 @@ router.use(function(req, res, next) {
         res.end(JSON.stringify({ message: 'Unauthorized' }));
         res.sendStatus(401);
     }
-});
+});*/
 
 
 
@@ -212,6 +212,10 @@ router.get('/conversations/query', (req, res) => {
                 res.send(messages);
             }
         });
+});
+
+router.get('/test', (req, res) => {
+    res.send(data);
 });
 
 module.exports = router;

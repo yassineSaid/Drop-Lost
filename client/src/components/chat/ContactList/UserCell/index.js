@@ -16,7 +16,7 @@ const UserCell = ({onSelectUser, selectedSectionId, user}) => {
         </div>
 
         <div className="gx-chat-contact-col">
-          <div className="h4 gx-name">{user.local.nom}</div>
+          <div className="h4 gx-name">{user.name}</div>
           <div className="gx-chat-info-des gx-text-truncate">{user.mood.substring(0, 40) + "..."}</div>
         </div>
       </div>
