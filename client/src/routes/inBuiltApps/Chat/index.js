@@ -252,7 +252,7 @@ class Chat extends Component {
       selectedTabIndex: 1,
       userState: 1,
       searchChatUser: '',
-      contactList: usersContact,
+      contactList: [],
       selectedUser: null,
       message: '',
       chatUsers: users.filter((user) => user.recent),
@@ -260,7 +260,7 @@ class Chat extends Component {
       conversation: null
     }
 
-    axios.get("http://localhost:5000/api/chat/test").then(
+    axios.get("http://localhost:5000/api/chat/users" , {withCredentials:true}).then(
       response => {
         this.setState({
           contactList: response.data

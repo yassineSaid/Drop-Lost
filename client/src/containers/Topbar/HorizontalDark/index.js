@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {Button, Dropdown, Icon, Layout, Menu, message, Popover, Select} from 'antd';
 import {connect} from "react-redux";
 import CustomScrollbars from "util/CustomScrollbars";
+import UserInfo from "components/UserInfo";
 
 import languageData from "../languageData";
 import SearchBox from "components/SearchBox";
@@ -72,8 +73,8 @@ class HorizontalDark extends Component {
               </div>
             
                <ul className="gx-login-list">
-                <li><Link to="/custom-views/user-auth/sign-in">Sign In</Link></li>
-                <li><Link to="/custom-views/user-auth/sign-up">Sign Up</Link></li>
+                <li><Link to="/signin">Sign In</Link></li>
+                <li><Link to="/signup">Sign Up</Link></li>
               </ul>
               
             </div>
@@ -152,6 +153,8 @@ class HorizontalDark extends Component {
               </span>
                   </Popover>
                 </li>
+                <li className="gx-user-nav"><UserInfo/></li>
+
               </ul>
             </div>
           </div>

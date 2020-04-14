@@ -72,6 +72,14 @@ module.exports = {
         
         res.status(200).json({ success: true });
     },
+        
+
+  signOut: async (req, res, next) => {
+    res.clearCookie('access_token');
+    // console.log('I managed to get here!');
+    res.json({ success: true });
+  },
+
     signIn: async (req, res, next) => {
         const token = signToken(req.user);
         res.cookie('access_token',token);

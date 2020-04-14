@@ -35,7 +35,7 @@ const signInUserWithEmailPasswordRequest = async (payload) =>
     .catch(error => error);
 
 const signOutRequest = async () =>
-  await auth.signOut()
+  await axios.get('http://localhost:5000/users/signout', { withCredentials: true })
     .then(authUser => authUser)
     .catch(error => error);
 
@@ -152,11 +152,13 @@ function* signInUserWithEmailPassword({ payload }) {
 function* signOut() {
   try {
     const signOutUser = yield call(signOutRequest);
-    if (signOutUser === undefined) {
+    if (signOutUser ) {
       localStorage.removeItem('User');
       yield put(userSignOutSuccess(signOutUser));
     } else {
       yield put(showAuthMessage(signOutUser.message));
+      this.props.history.push('/main/dashboard/crypto');
+
     }
   } catch (error) {
     yield put(showAuthMessage(error));

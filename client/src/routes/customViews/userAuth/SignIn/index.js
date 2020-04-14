@@ -11,7 +11,6 @@ import {
   userSignIn,
   userTwitterSignIn
 } from "appRedux/actions/Auth";
-import IntlMessages from "util/IntlMessages";
 import CircularProgress from "components/CircularProgress/index";
 
 const FormItem = Form.Item;
