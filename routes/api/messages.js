@@ -220,6 +220,4 @@ router.get('/conversations/query', (req, res) => {
         });
 });
 
-
-
 module.exports = router;
