@@ -3,7 +3,8 @@ const JWT = require('jsonwebtoken');
 var randomstring = require("randomstring");
 const nodemailer = require('nodemailer');
 var bcrypt = require('bcryptjs');
-
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client("132856096478-jo705a4g0tu8ungd07r1fhocu1d9ccp3.apps.googleusercontent.com");
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -94,13 +95,53 @@ module.exports = {
         res.status(200).json({ secret: "resource" });
     },
     googleOAuth: async (req, res, next) => {
-        const token = signToken(req.user);
-        res.status(200).json({ token });
+        const { idToken } = req.body;
+
+        client.verifyIdToken({idToken,audience:"132856096478-jo705a4g0tu8ungd07r1fhocu1d9ccp3.apps.googleusercontent.com"})
+        .then(response =>{
+            const { email_verified, given_name,family_name, email } = response.payload;
+            if(email_verified){
+                User.findOne({$or:[{"local.email": email},{"google.email":email}]}).exec((err, user) => {
+                    if(user){
+                        const token = signToken(user);
+                        res.cookie('G_AUTHUSER_H',token);
+                        res.status(200).json({ user });
+                    }
+                    else{
+                        let newUser = new User({
+                            method: 'google',
+                            google: {
+                                nom:given_name,
+                                prenom:family_name,
+                                email: email
+                            }
+                
+                        });
+                        newUser.save((err, data) => {
+                            if (err) {
+                                console.log('ERROR GOOGLE LOGIN ON USER SAVE', err);
+                                return res.status(400).json({
+                                  error: 'User signup failed with google'
+                                });
+                              }
+                              const token = signToken(newUser);
+                              res.cookie('G_AUTHUSER_H',token);
+                              res.status(200).json({ user });
+
+        
+                        })
+                    }
+                })
+            }else {
+                return res.status(400).json({
+                  error: 'Google login failed. Try again'
+                });
+              }
+            
+        })
     },
     facebookOAuth: async (req, res, next) => {
-        const token = signToken(req.user);
-        res.status(200).json({ token });
-
+        
     },
     verify: async (req, res, next) => {
         try {

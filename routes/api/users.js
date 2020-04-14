@@ -14,7 +14,7 @@ router.route('/forget').post(UsersContoller.forget);
 router.route('/resetPassword').get(UsersContoller.resetPassword);
 
 router.route('/oauth/facebook').post(passport.authenticate('facebookToken', { session: false }), UsersContoller.facebookOAuth);
-router.route('/oauth/google').post(passport.authenticate('googleToken', { session: false }), UsersContoller.googleOAuth);
+router.route('/oauth/google').post( UsersContoller.googleOAuth);
 router.route('/signIn').post(validateBody(schemas.SignInauthSchema), passport.authenticate('local', { session: false }), UsersContoller.signIn);
 router.route('/signout')
   .get(passport.authenticate('jwt', { session: false }), UsersContoller.signOut);

@@ -2,6 +2,8 @@ import React from "react";
 import {Button, Form, Icon, Input, message} from "antd";
 import {connect} from "react-redux";
 import {Link} from "react-router-dom";
+import axios from 'axios';
+import { GoogleLogin } from 'react-google-login';
 
 import {
   hideMessage,
@@ -18,7 +20,24 @@ import CircularProgress from "components/CircularProgress/index";
 const FormItem = Form.Item;
 
 class SignIn extends React.Component {
-
+  sendGoogleToken = tokenId => {
+    axios
+      .post('http://localhost:5000/users/oauth/google', {
+        idToken: tokenId
+      },{ withCredentials: true })
+      .then(localStorage.setItem("User",tokenId))
+      .catch(error => error);
+      
+      
+  };
+  responseGoogle = response => {
+    console.log(response);
+    this.sendGoogleToken(response.tokenId);
+    if (localStorage.getItem("User")!== null) {
+      this.props.history.push('/main/dashboard/crypto');
+    }
+  
+  };
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
@@ -29,17 +48,17 @@ class SignIn extends React.Component {
       } 
     }); 
   };
-
   componentDidUpdate() {
     if (this.props.showMessage) {
       setTimeout(() => {
         this.props.hideMessage();
       }, 100);
     }
-    if (this.props.authUser !== null) {
+    if (localStorage.getItem("User")!== null) {
       this.props.history.push('/main/dashboard/crypto');
     }
   }
+ 
 
   render() {
     const {getFieldDecorator} = this.props.form;
@@ -92,12 +111,13 @@ class SignIn extends React.Component {
                 <div className="gx-flex-row gx-justify-content-between">
                   <span>or connect with</span>
                   <ul className="gx-social-link">
-                    <li>
-                      <Icon type="google" onClick={() => {
-                        this.props.showAuthLoader();
-                        this.props.userGoogleSignIn();
-                      }}/>
-                    </li>
+                  <GoogleLogin
+    clientId="132856096478-jo705a4g0tu8ungd07r1fhocu1d9ccp3.apps.googleusercontent.com"
+    buttonText="Login"
+    onSuccess={this.responseGoogle}
+    onFailure={this.responseGoogle}
+    cookiePolicy={'single_host_origin'}
+  />,
                     <li>
                       <Icon type="facebook" onClick={() => {
                         this.props.showAuthLoader();
