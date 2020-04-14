@@ -54,7 +54,7 @@ module.exports = {
             subject: 'Account activation link',
             html: `
                       <h1>Please use the following to activate your account</h1>
-                      <p>http://localhost:3000/users/activate/${st}</p>
+                      <p>http://localhost:3000/custom-views/user-auth/lock-screen/${st}</p>
                       <hr />
                       <p>This email may containe sensetive information</p>
                       

@@ -1,8 +1,8 @@
 import React, {Component} from "react";
-import {Avatar, Button, Form, Input} from "antd";
-import IntlMessages from "util/IntlMessages";
+import {Form} from "antd";
+import axios from 'axios';
+import ProjectWidget from "components/Widgets/ProjectWidget";
 
-const FormItem = Form.Item;
 
 
 class LockScreen extends Component {
@@ -15,37 +15,24 @@ class LockScreen extends Component {
       }
     });
   };
+  componentDidMount() {
+    console.log('I am mounted!');
+    const { match: { params } } = this.props;
+    console.log(params)
+    axios.post('http://localhost:5000/users/verify', params)
+    .then(console.log("done") )
+    .catch(error => error);
+
+    
+  }
 
   render() {
-    const {getFieldDecorator} = this.props.form;
 
     return (
       <div className="gx-login-container">
         <div className="gx-login-content gx-text-center">
 
-          <div className="gx-login-header">
-            <Avatar shape="circle" className="gx-size-120" src='https://via.placeholder.com/150x150'/>
-          </div>
-          <div className="gx-mb-4">
-            <h3>John Smith</h3>
-            <p><IntlMessages id="appModule.enterPasswordUnlock"/></p>
-          </div>
-
-          <Form onSubmit={this.handleSubmit} className="gx-login-form gx-form-row0">
-            <FormItem>
-              {getFieldDecorator('password', {
-                rules: [{required: true, message: 'Please input your Password!'}],
-              })(
-                <Input type="password" placeholder="Password"/>
-              )}
-            </FormItem>
-
-            <FormItem>
-              <Button type="primary" htmlType="submit">
-                <IntlMessages id="app.userAuth.unLock"></IntlMessages>
-              </Button>
-            </FormItem>
-          </Form>
+        <ProjectWidget/>
 
         </div>
       </div>
