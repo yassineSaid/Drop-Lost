@@ -29,9 +29,9 @@ class AnimalForm extends React.Component {
     super(props);
     this.state = {
       description: "",
-      type: "",
+      type: "chat",
       trouve: false,
-      date: null,
+      date: moment().format("DD-MM-YYYY"),
       nom: "",
     };
 
@@ -143,14 +143,14 @@ class AnimalForm extends React.Component {
             hasFeedback
           >
             <Select
-              defaultValue="1"
+              defaultValue="chat"
               name="type"
-              value={this.state.categorie}
+              value={this.state.type}
               onChange={this.handleTypeChange}
             >
-              <Option value="1">Chat</Option>
-              <Option value="2">Chien</Option>
-              <Option value="3">Autre</Option>
+              <Option value="chat">Chat</Option>
+              <Option value="chien">Chien</Option>
+              <Option value="autre">Autre</Option>
             </Select>
           </FormItem>
 
@@ -161,6 +161,7 @@ class AnimalForm extends React.Component {
             <DatePicker
               className="gx-mb-3 gx-w-100"
               format="DD-MM-YYYY"
+              value={moment(this.state.date,"DD-MM-YYYY")}
               onChange={this.handleDateChange}
               disabledDate={disabledDate}
               placeholder={this.state.trouve ? "Date à laquelle vous avez trouvé l'animal" : "Date à laquelle vous avez perdu l'animal"}

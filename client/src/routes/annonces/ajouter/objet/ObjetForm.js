@@ -3,6 +3,7 @@ import { Card, DatePicker, Form, Input, Select, Button, Switch, Upload, Icon } f
 import moment from "moment";
 import axios from "axios";
 import { JSDOM } from "jsdom";
+import {ajouterAnnonce} from "../../../../requests/annonces"
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -19,7 +20,13 @@ const formItemLayout = {
     lg: { span: 12 },
   },
 };
-
+const electronique = ["Appareil photo", "Chargeur/cable", "Clé USB/disque de stockage", "Écouteur", "Ordinateur portable", "Tablette", "Autre"]
+const document = ["Argent comptant", "Pièce d'identité", "Portefeuille", "Sac à main", "Autre"]
+const cle = ["Carte d'accès", "Clé d'auto", "Clé cadenas", "Autre"]
+const lunette = ["Lunette de vue", "Lunette de soleil", "Autre"]
+const outils = ["Autre"]
+const vetement = ["Chapeau, Casquette", "Foulard", "Gants", "Gilet", "Manteau, Veste", "Soulier, Botte", "Vêtements de sport"]
+const autre= ["autre"]
 function disabledDate(current) {
   // Can not select days before today and today
   return current && current >= moment().endOf('day');
@@ -33,15 +40,18 @@ class ObjetForm extends React.Component {
       description: "",
       categorie: null,
       trouve: false,
-      date: null,
+      date: moment().format("DD-MM-YYYY"),
       marque: null,
       marques: [],
       modeles: [],
-      modele: null
+      modele: null,
+      sousCategorieArray: null,
+      sousCategorie: null
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleCategorieChange = this.handleCategorieChange.bind(this);
+    this.handleSousCategorieChange = this.handleSousCategorieChange.bind(this);
     this.handleMarqueChange = this.handleMarqueChange.bind(this);
     this.handleModeleChange = this.handleModeleChange.bind(this);
     this.handleTrouveChange = this.handleTrouveChange.bind(this);
@@ -92,7 +102,32 @@ class ObjetForm extends React.Component {
         marque: null,
         modele: null
       })
+      var sousCategorie = []
+      if (value === "electronique") sousCategorie = electronique
+      else if (value === "cle") sousCategorie = cle
+      else if (value === "document") sousCategorie = document
+      else if (value === "lunette") sousCategorie = lunette
+      else if (value === "outils") sousCategorie = outils
+      else if (value === "vetement") sousCategorie = vetement
+      else if (value === "autre") sousCategorie = autre
+      this.setState({
+        sousCategorieArray: sousCategorie,
+        sousCategorie: sousCategorie[0]
+      })
     }
+    else {
+      this.setState({
+        sousCategorie: null,
+        sousCategorieArray: null
+      })
+    }
+    console.log(this.state)
+  }
+
+  handleSousCategorieChange(value) {
+    this.setState({
+      sousCategorie: value
+    })
     console.log(this.state)
   }
 
@@ -143,6 +178,21 @@ class ObjetForm extends React.Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
+    var annonce = {
+      type: "objet",
+      trouve: this.state.trouve,
+      description: this.state.description,
+      date: this.state.date,
+      objet: {
+        categorie: this.state.categorie,
+        sousCategorie: this.state.sousCategorie,
+        marque: this.state.marque,
+        modele: this.state.modele
+      }
+    }
+    ajouterAnnonce(annonce).then(response => {
+      console.log(response)
+    })
     console.log(this.state)
   }
 
@@ -193,10 +243,13 @@ class ObjetForm extends React.Component {
               onChange={this.handleCategorieChange}
             >
               <Option value="smartphone">Smartphone</Option>
-              <Option value="2">Sac à main</Option>
-              <Option value="3">Sacoche</Option>
-              <Option value="4">Lunettes de soleil</Option>
-              <Option value="5">Lunettes de vue</Option>
+              <Option value="electronique">Appareil éléctronique</Option>
+              <Option value="document">Argent, document personnel, pièce d'identité</Option>
+              <Option value="cle">Clé, cadenas, carte d'accès</Option>
+              <Option value="lunette">Lunette</Option>
+              <Option value="outils">Outils</Option>
+              <Option value="vetement">Vêtement</Option>
+              <Option value="autre">Autre</Option>
             </Select>
           </FormItem>
 
@@ -204,39 +257,55 @@ class ObjetForm extends React.Component {
             {...formItemLayout}
             label="Marque"
             hasFeedback
-            validateStatus={this.state.marques.length!==0 ? "" : "validating"}
+            validateStatus={this.state.marques.length !== 0 ? "" : "validating"}
           >
             <Select
               name="marque"
               value={this.state.marque}
               onChange={this.handleMarqueChange}
-              disabled={this.state.marques.length!==0 ? false : true}
+              disabled={this.state.marques.length !== 0 ? false : true}
             >
-              {this.state.marques.length!==0 ? this.state.marques.map(function (item, i) {
+              {this.state.marques.length !== 0 ? this.state.marques.map(function (item, i) {
                 return <Option value={i} key={i}>{item.marque}</Option>
               })
-              : null
-            }
+                : null
+              }
             </Select>
-          </FormItem> : null}
+          </FormItem> : this.state.sousCategorie!== null ?
+            <FormItem
+              {...formItemLayout}
+              label="Sous catégorie"
+              hasFeedback
+            >
+              <Select
+                name="sousCategorie"
+                value={this.state.sousCategorie}
+                onChange={this.handleSousCategorieChange}
+              >
+                {this.state.sousCategorieArray.map(function(item,i){
+                  return <Option value={i} key={i}>{item}</Option>
+                })}
+              </Select>
+            </FormItem>
+          : null }
 
           {this.state.marque !== null ? <FormItem
             {...formItemLayout}
             label="Modele"
             hasFeedback
-            validateStatus={this.state.modeles.length!==0 ? "" : "validating"}
+            validateStatus={this.state.modeles.length !== 0 ? "" : "validating"}
           >
             <Select
               name="modele"
               value={this.state.modele}
               onChange={this.handleModeleChange}
-              disabled={this.state.modeles.length!==0 ? false : true}
+              disabled={this.state.modeles.length !== 0 ? false : true}
             >
-              {this.state.modeles.length!==0 ? this.state.modeles.map(function (item, i) {
+              {this.state.modeles.length !== 0 ? this.state.modeles.map(function (item, i) {
                 return <Option value={i} key={i}>{item}</Option>
               })
-              : null
-            }
+                : null
+              }
             </Select>
           </FormItem> : null}
 
@@ -247,6 +316,7 @@ class ObjetForm extends React.Component {
             <DatePicker
               className="gx-mb-3 gx-w-100"
               format="DD-MM-YYYY"
+              value={moment(this.state.date,"DD-MM-YYYY")}
               onChange={this.handleDateChange}
               disabledDate={disabledDate}
               placeholder={this.state.trouve ? "Date à laquelle vous avez trouvé l'objet" : "Date à laquelle vous avez perdu l'objet"}
