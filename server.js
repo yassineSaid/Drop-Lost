@@ -9,6 +9,7 @@ app.use(cors({
   credentials:true
 }));
 var usersRouter = require('./routes/api/users');
+var annoncesRouter = require('./routes/api/annonces');
 
 // Connect Database
 connectDB();
@@ -22,6 +23,7 @@ app.use('/users', usersRouter);
 app.use('/signUp', usersRouter);
 app.use('/signIn', usersRouter);
 app.use('/secret', usersRouter);
+app.use('/api/annonces', annoncesRouter)
 // Serve static assets in production
 if (process.env.NODE_ENV === "production") {
   // Set static folder

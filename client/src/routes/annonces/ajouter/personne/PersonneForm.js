@@ -33,7 +33,7 @@ class PersonneForm extends React.Component {
       description: "",
       type: "",
       trouve: false,
-      date: null,
+      date: moment().format("DD-MM-YYYY"),
       nom: "",
       sexe: "homme",
       age: null
@@ -164,6 +164,7 @@ class PersonneForm extends React.Component {
             <DatePicker
               className="gx-mb-3 gx-w-100"
               format="DD-MM-YYYY"
+              value={moment(this.state.date,"DD-MM-YYYY")}
               onChange={this.handleDateChange}
               disabledDate={disabledDate}
               placeholder={this.state.trouve ? "Date à laquelle vous avez trouvé la personne" : "Date à laquelle vous avez perdu la personne"}
