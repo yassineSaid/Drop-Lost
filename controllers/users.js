@@ -25,7 +25,7 @@ module.exports = {
 
         const {nom,prenom,ville,adresse,numero, email, password } = req.value.body;
         // check if user already exists
-        const foundUser = await User.findOne({ "local.email": email });
+        const foundUser = await User.findOne({ "email": email });
         if (foundUser) {
             return res.status(403).json({ error: 'email already exists' });
         }
@@ -34,7 +34,7 @@ module.exports = {
         // create new user 
         const newUser = new User({
             method: 'local',
-            local: {
+            
                 nom: nom,
                 prenom: prenom,
                 ville: ville,
@@ -44,7 +44,7 @@ module.exports = {
                 password: password,
                 Isactive: false,
                 secretToken: st
-            }
+            
 
 
         });
@@ -101,7 +101,7 @@ module.exports = {
         .then(response =>{
             const { email_verified, given_name,family_name, email } = response.payload;
             if(email_verified){
-                User.findOne({$or:[{"local.email": email},{"google.email":email}]}).exec((err, user) => {
+                User.findOne({"email": email}).exec((err, user) => {
                     if(user){
                         const token = signToken(user);
                         res.cookie('G_AUTHUSER_H',token);
@@ -110,11 +110,11 @@ module.exports = {
                     else{
                         let newUser = new User({
                             method: 'google',
-                            google: {
+                            
                                 nom:given_name,
                                 prenom:family_name,
                                 email: email
-                            }
+                            
                 
                         });
                         newUser.save((err, data) => {
@@ -147,15 +147,15 @@ module.exports = {
         try {
             const secretToken = req.body.secretToken;
             console.log(secretToken)
-            const foundUser = await User.findOne({ "local.secretToken": secretToken });
+            const foundUser = await User.findOne({ "secretToken": secretToken });
             if (!foundUser) {
                 return res.status(403).json({ error: 'No account found' });
 
             }
 
             await foundUser.updateOne({
-                "local.secretToken": "",
-                "local.Isactive": true
+                "secretToken": "",
+                "Isactive": true
             }, { new: true }
             );
 
@@ -173,15 +173,15 @@ module.exports = {
         try {
             const email = req.body.email;
             console.log(email)
-            const foundUser = await User.findOne({ "local.email": email });
+            const foundUser = await User.findOne({ "email": email });
             if (!foundUser) {
                 return res.status(403).json({ error: 'No account found' });
 
             }
             st = randomstring.generate();
             await foundUser.updateOne({
-                "local.Passwordtoken": st,
-                "local.PasswordResetDate": Date.now() + 3600000
+                "Passwordtoken": st,
+                "PasswordResetDate": Date.now() + 3600000
             }, { new: true }
             );
             const html = 'Hi there ,click here to reset your password ' + st + '</b>'
@@ -212,7 +212,7 @@ module.exports = {
         try {
             const secretToken = req.body.secretToken;
             console.log(secretToken)
-            const foundUser = await User.findOne({ "local.Passwordtoken": secretToken, "local.PasswordResetDate": { $gt: Date.now() } });
+            const foundUser = await User.findOne({ "Passwordtoken": secretToken, "PasswordResetDate": { $gt: Date.now() } });
             if (!foundUser) {
                 return res.status(403).json({ error: 'Password reset token is invalid or has expired' });
 
@@ -224,9 +224,9 @@ module.exports = {
             const salt = await bcrypt.genSalt(10);
             const passwordHash = await bcrypt.hash(req.body.newpassword, salt);
             await foundUser.updateOne({
-                "local.password": passwordHash,
-                "local.Passwordtoken": undefined,
-                "local.PasswordResetDate": undefined
+                "password": passwordHash,
+                "Passwordtoken": undefined,
+                "PasswordResetDate": undefined
             }, { new: true }
             );
             res.status(200).json({ foundUser });

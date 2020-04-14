@@ -114,7 +114,7 @@ passport.use(new LocalStrategy({
 }, async (email, password, done) => {
     try {
         //find the user 
-        const user = await User.findOne({ "local.email": email });
+        const user = await User.findOne({ "email": email });
 
         //if not , handle it 
         if (!user) {
@@ -129,8 +129,8 @@ passport.use(new LocalStrategy({
             console.log("is match " + isMatch)
             return done(null, false);
         }
-        if (!user.local.Isactive) {
-            console.log("is active " + user.local.Isactive)
+        if (!user.Isactive) {
+            console.log("is active " + user.Isactive)
             return done(null, false);
         }
         //Otherwise , return the user

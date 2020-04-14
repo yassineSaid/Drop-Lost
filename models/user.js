@@ -9,7 +9,7 @@ const userSchema = new Schema({
         enum: ['local', 'google', 'facebook'],
         required: true
     },
-    local: {
+    
         nom:{
             type: String,
         },
@@ -45,28 +45,9 @@ const userSchema = new Schema({
         PasswordResetDate: {
             type:Date
         }
-    },
-    google: {
-        nom:{
-            type: String,
-        },
-        prenom:{
-            type: String,
-        },
-        email: {
-            type: String,
-            lowercase: true
-        }
-    },
-    facebook: {
-        id: {
-            type: String
-        },
-        email: {
-            type: String,
-            lowercase: true
-        }
-    }
+    
+    
+    
 
 
 });
@@ -80,10 +61,11 @@ userSchema.pre('save', async function (next) {
         console.log("called!!!")
         //generate a salt
         const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(this.local.password, salt);
+        console.log(this.password)
+        const passwordHash = await bcrypt.hash(this.password, salt);
         console.log(passwordHash);
-        this.local.password = passwordHash;
-        console.log(this.local.password);
+        this.password = passwordHash;
+        console.log(this.password);
         next();
     } catch (error) {
         next(error);
@@ -92,7 +74,7 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.isValidPassword = async function (newPass) {
     try {
 
-        return await bcrypt.compare(newPass, this.local.password)
+        return await bcrypt.compare(newPass, this.password)
 
     } catch (error) {
         throw new Error(error);
