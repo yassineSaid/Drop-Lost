@@ -6,7 +6,6 @@ const keys = require('../../config/default');
 const User = require('../../models/user');
 const Message = require('../../models/Message');
 const Conversation = require('../../models/Conversation');
-const data = require('./users.json')
 
 //verify token
 const verify = req => {
@@ -20,7 +19,7 @@ const verify = req => {
 
 let jwtUser = null;
 // Token verfication middleware
-/*router.use(function(req, res, next) {
+router.use(function(req, res, next) {
     try {
         token = req.headers.cookie.split('=')[1];
         jwtUser = jwt.verify(token, keys.jwtSecret);
@@ -31,7 +30,7 @@ let jwtUser = null;
         res.end(JSON.stringify({ message: 'Unauthorized' }));
         res.sendStatus(401);
     }
-});*/
+});
 
 
 
@@ -62,7 +61,14 @@ router.get('/users', (req, res) => {
                     res.end(JSON.stringify({ message: 'Failure' }));
                     res.sendStatus(500);
                 } else {
-                    res.send(users);
+                    const usersf = users.map(user => {
+                        return ({...user,
+                        thumb : "https://via.placeholder.com/150x150",
+                        status : "away",
+                        matchedOn: "Object lost or found",
+                        })
+                    })
+                    res.send(usersf);
                 }
             });
     } catch (err) {
@@ -212,10 +218,6 @@ router.get('/conversations/query', (req, res) => {
                 res.send(messages);
             }
         });
-});
-
-router.get('/test', (req, res) => {
-    res.send(data);
 });
 
 module.exports = router;
