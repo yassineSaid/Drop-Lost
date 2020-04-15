@@ -1,9 +1,10 @@
 import React from "react";
-import {Button, Form, Icon, Input, message} from "antd";
-import {connect} from "react-redux";
-import {Link} from "react-router-dom";
+import { Button, Form, Icon, Input, message } from "antd";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 import axios from 'axios';
 import { GoogleLogin } from 'react-google-login';
+import FacebookLogin from 'react-facebook-login';
 
 import {
   hideMessage,
@@ -18,35 +19,52 @@ import IntlMessages from "util/IntlMessages";
 import CircularProgress from "components/CircularProgress/index";
 
 const FormItem = Form.Item;
-
 class SignIn extends React.Component {
+
+  sendFacebookToken = (userID, accessToken) => {
+    axios
+      .post("http://localhost:5000/users/oauth/facebook", {
+        userID,
+        accessToken
+      }
+        , { withCredentials: true })
+      .then(localStorage.setItem("User", userID))
+      .catch(error => error);
+  };
+  responseFacebook = response => {
+    console.log(response);
+    this.sendFacebookToken(response.userID, response.accessToken)
+    if (localStorage.getItem("User") !== null) {
+      this.props.history.push('/main/dashboard/crypto');
+    }
+  };
   sendGoogleToken = tokenId => {
     axios
       .post('http://localhost:5000/users/oauth/google', {
         idToken: tokenId
-      },{ withCredentials: true })
-      .then(localStorage.setItem("User",tokenId))
+      }, { withCredentials: true })
+      .then(localStorage.setItem("User", tokenId))
       .catch(error => error);
-      
-      
+
+
   };
   responseGoogle = response => {
     console.log(response);
     this.sendGoogleToken(response.tokenId);
-    if (localStorage.getItem("User")!== null) {
+    if (localStorage.getItem("User") !== null) {
       this.props.history.push('/main/dashboard/crypto');
     }
-  
+
   };
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
 
-        if (!err) {
+      if (!err) {
         this.props.showAuthLoader();
         this.props.userSignIn(values);
-      } 
-    }); 
+      }
+    });
   };
   componentDidUpdate() {
     if (this.props.showMessage) {
@@ -54,15 +72,15 @@ class SignIn extends React.Component {
         this.props.hideMessage();
       }, 100);
     }
-    if (localStorage.getItem("User")!== null) {
+    if (localStorage.getItem("User") !== null) {
       this.props.history.push('/main/dashboard/crypto');
     }
   }
- 
+
 
   render() {
-    const {getFieldDecorator} = this.props.form;
-    const {showMessage, loader, alertMessage} = this.props;
+    const { getFieldDecorator } = this.props.form;
+    const { showMessage, loader, alertMessage } = this.props;
 
     return (
       <div className="gx-app-login-wrap">
@@ -70,15 +88,15 @@ class SignIn extends React.Component {
           <div className="gx-app-login-main-content">
             <div className="gx-app-logo-content">
               <div className="gx-app-logo-content-bg">
-                <img src="https://via.placeholder.com/272x395" alt='Neature'/>
+                <img src="https://via.placeholder.com/272x395" alt='Neature' />
               </div>
               <div className="gx-app-logo-wid">
-                <h1><IntlMessages id="app.userAuth.signIn"/></h1>
-                <p><IntlMessages id="app.userAuth.bySigning"/></p>
-                <p><IntlMessages id="app.userAuth.getAccount"/></p>
+                <h1><IntlMessages id="app.userAuth.signIn" /></h1>
+                <p><IntlMessages id="app.userAuth.bySigning" /></p>
+                <p><IntlMessages id="app.userAuth.getAccount" /></p>
               </div>
               <div className="gx-app-logo">
-                <img alt="example" src={require("assets/images/logo.png")}/>
+                <img alt="example" src={require("assets/images/logo.png")} />
               </div>
             </div>
             <div className="gx-app-login-content">
@@ -90,53 +108,38 @@ class SignIn extends React.Component {
                       required: true, type: 'email', message: 'The input is not valid E-mail!',
                     }],
                   })(
-                    <Input placeholder="Email"/>
+                    <Input placeholder="Email" />
                   )}
                 </FormItem>
                 <FormItem>
                   {getFieldDecorator('password', {
-                    rules: [{required: true, message: 'Please input your Password!'}],
+                    rules: [{ required: true, message: 'Please input your Password!' }],
                   })(
-                    <Input type="password" placeholder="Password"/>
+                    <Input type="password" placeholder="Password" />
                   )}
                 </FormItem>
-              
+
                 <FormItem>
                   <Button type="primary" className="gx-mb-0" htmlType="submit">
-                    <IntlMessages id="app.userAuth.signIn"/>
+                    <IntlMessages id="app.userAuth.signIn" />
                   </Button>
-                  <span><IntlMessages id="app.userAuth.or"/></span> <Link to="/signup"><IntlMessages
-                  id="app.userAuth.signUp"/></Link>
+                  <span><IntlMessages id="app.userAuth.or" /></span> <Link to="/signup"><IntlMessages
+                    id="app.userAuth.signUp" /></Link>
                 </FormItem>
                 <div className="gx-flex-row gx-justify-content-between">
                   <span>or connect with</span>
-                  <ul className="gx-social-link">
-                  <GoogleLogin
-    clientId="132856096478-jo705a4g0tu8ungd07r1fhocu1d9ccp3.apps.googleusercontent.com"
-    buttonText="Login"
-    onSuccess={this.responseGoogle}
-    onFailure={this.responseGoogle}
-    cookiePolicy={'single_host_origin'}
-  />,
-                    <li>
-                      <Icon type="facebook" onClick={() => {
-                        this.props.showAuthLoader();
-                        this.props.userFacebookSignIn();
-                      }}/>
-                    </li>
-                    <li>
-                      <Icon type="github" onClick={() => {
-                        this.props.showAuthLoader();
-                        this.props.userGithubSignIn();
-                      }}/>
-                    </li>
-                    <li>
-                      <Icon type="twitter" onClick={() => {
-                        this.props.showAuthLoader();
-                        this.props.userTwitterSignIn();
-                      }}/>
-                    </li>
-                  </ul>
+                    <GoogleLogin
+                      clientId="132856096478-jo705a4g0tu8ungd07r1fhocu1d9ccp3.apps.googleusercontent.com"
+                      buttonText="Login"
+                      onSuccess={this.responseGoogle}
+                      onFailure={this.responseGoogle}
+                      cookiePolicy={'single_host_origin'}
+                    />
+                    <FacebookLogin
+                      appId="212504969965178"
+                      callback={this.responseFacebook} />
+                  
+                  
                 </div>
                 <span
                   className="gx-text-light gx-fs-sm"> demo user email: 'demo@example.com' and password: 'demo#123'</span>
@@ -145,7 +148,7 @@ class SignIn extends React.Component {
 
             {loader ?
               <div className="gx-loader-view">
-                <CircularProgress/>
+                <CircularProgress />
               </div> : null}
             {showMessage ?
               message.error(alertMessage.toString()) : null}
@@ -158,9 +161,9 @@ class SignIn extends React.Component {
 
 const WrappedNormalLoginForm = Form.create()(SignIn);
 
-const mapStateToProps = ({auth}) => {
-  const {loader, alertMessage, showMessage, authUser} = auth;
-  return {loader, alertMessage, showMessage, authUser}
+const mapStateToProps = ({ auth }) => {
+  const { loader, alertMessage, showMessage, authUser } = auth;
+  return { loader, alertMessage, showMessage, authUser }
 };
 
 export default connect(mapStateToProps, {

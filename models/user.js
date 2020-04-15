@@ -55,17 +55,12 @@ const userSchema = new Schema({
 userSchema.pre('save', async function (next) {
     try {
         if (this.method != 'local') {
-            console.log(this.method)
             next();
         }
-        console.log("called!!!")
         //generate a salt
         const salt = await bcrypt.genSalt(10);
-        console.log(this.password)
         const passwordHash = await bcrypt.hash(this.password, salt);
-        console.log(passwordHash);
         this.password = passwordHash;
-        console.log(this.password);
         next();
     } catch (error) {
         next(error);

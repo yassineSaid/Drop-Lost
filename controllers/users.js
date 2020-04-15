@@ -1,5 +1,7 @@
 const User = require('../models/user');
 const JWT = require('jsonwebtoken');
+const fetch = require('node-fetch');
+
 var randomstring = require("randomstring");
 const nodemailer = require('nodemailer');
 var bcrypt = require('bcryptjs');
@@ -104,7 +106,7 @@ module.exports = {
                 User.findOne({"email": email}).exec((err, user) => {
                     if(user){
                         const token = signToken(user);
-                        res.cookie('G_AUTHUSER_H',token);
+                        res.cookie('access_token',token);
                         res.status(200).json({ user });
                     }
                     else{
@@ -125,7 +127,7 @@ module.exports = {
                                 });
                               }
                               const token = signToken(newUser);
-                              res.cookie('G_AUTHUSER_H',token);
+                              res.cookie('access_token',token);
                               res.status(200).json({ user });
 
         
@@ -141,12 +143,55 @@ module.exports = {
         })
     },
     facebookOAuth: async (req, res, next) => {
-        
+  const { userID, accessToken } = req.body;
+  const url = `https://graph.facebook.com/v2.11/${userID}/?fields=id,name,email&access_token=${accessToken}`
+        return(
+                fetch(url,{
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(response => {
+                    const { email, name } = response;
+                    User.findOne({"email": email}).exec((err, user) => {
+                        if(user){
+                            const token = signToken(user);
+                            res.cookie('access_token',token);
+                            res.status(200).json({ user });
+                        }
+                        else{
+                            let newUser = new User({
+                                method: 'facebook',
+                                
+                                    nom:name,
+                                    email: email
+                                
+                    
+                            });
+                            newUser.save((err, data) => {
+                                if (err) {
+                                    console.log('ERROR FAcebook LOGIN ON USER SAVE', err);
+                                    return res.status(400).json({
+                                      error: 'User signup failed with FAcebook'
+                                    });
+                                  }
+                                  const token = signToken(newUser);
+                                  res.cookie('access_token',token);
+                                  res.status(200).json({ token });
+    
+            
+                            })
+                        }
+                    })
+                }).catch(error => {
+                    res.json({
+                      error: 'Facebook login failed. Try later'
+                    });
+                  })
+        )
     },
     verify: async (req, res, next) => {
         try {
             const secretToken = req.body.secretToken;
-            console.log(secretToken)
             const foundUser = await User.findOne({ "secretToken": secretToken });
             if (!foundUser) {
                 return res.status(403).json({ error: 'No account found' });
@@ -172,7 +217,6 @@ module.exports = {
     forget: async (req, res, next) => {
         try {
             const email = req.body.email;
-            console.log(email)
             const foundUser = await User.findOne({ "email": email });
             if (!foundUser) {
                 return res.status(403).json({ error: 'No account found' });
@@ -211,7 +255,6 @@ module.exports = {
     resetPassword: async (req, res, next) => {
         try {
             const secretToken = req.body.secretToken;
-            console.log(secretToken)
             const foundUser = await User.findOne({ "Passwordtoken": secretToken, "PasswordResetDate": { $gt: Date.now() } });
             if (!foundUser) {
                 return res.status(403).json({ error: 'Password reset token is invalid or has expired' });
