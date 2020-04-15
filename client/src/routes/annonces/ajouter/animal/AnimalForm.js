@@ -78,7 +78,7 @@ class AnimalForm extends React.Component {
 
   handleDateChange(date, dateS) {
     this.setState({
-      date: dateS
+      date: date
     })
     console.log(this.state)
   }
@@ -161,7 +161,7 @@ class AnimalForm extends React.Component {
             <DatePicker
               className="gx-mb-3 gx-w-100"
               format="DD-MM-YYYY"
-              value={moment(this.state.date,"DD-MM-YYYY")}
+              defaultValue={moment(this.state.date,"DD-MM-YYYY")}
               onChange={this.handleDateChange}
               disabledDate={disabledDate}
               placeholder={this.state.trouve ? "Date à laquelle vous avez trouvé l'animal" : "Date à laquelle vous avez perdu l'animal"}

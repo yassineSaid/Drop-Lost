@@ -1,9 +1,9 @@
 import React from "react";
-import { Card, DatePicker, Form, Input, Select, Button, Switch, Upload, Icon } from "antd";
+import { Card, DatePicker, Form, Input, Select, Button, Switch, Upload, Icon, Modal } from "antd";
 import moment from "moment";
 import axios from "axios";
 import { JSDOM } from "jsdom";
-import {ajouterAnnonce} from "../../../../requests/annonces"
+import {ajouterAnnonce,matchAnnonce} from "../../../../requests/annonces"
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -171,7 +171,7 @@ class ObjetForm extends React.Component {
 
   handleDateChange(date, dateS) {
     this.setState({
-      date: dateS
+      date: date
     })
     console.log(this.state)
   }
@@ -182,7 +182,7 @@ class ObjetForm extends React.Component {
       type: "objet",
       trouve: this.state.trouve,
       description: this.state.description,
-      date: this.state.date,
+      date: moment(this.state.date,"DD-MM-YYYY"),
       objet: {
         categorie: this.state.categorie,
         sousCategorie: this.state.sousCategorie,
@@ -191,7 +191,21 @@ class ObjetForm extends React.Component {
       }
     }
     ajouterAnnonce(annonce).then(response => {
-      console.log(response)
+      if (response.done){
+        Modal.success({
+          content: 'Votre annonce a bien été ajoutée',
+        });
+        console.log(response)
+        matchAnnonce({id: response.response.data.result._id}).then(response => {
+          console.log(response)
+        })
+      }
+      else if (response.response.response.status === 401) {
+        Modal.error({
+          content: 'Vous devez vous connecter pour pouvoir poster cette annonce <a href="'+window.location.origin+'/signin">Connexion</a>',
+        });
+      }
+
     })
     console.log(this.state)
   }
@@ -316,7 +330,7 @@ class ObjetForm extends React.Component {
             <DatePicker
               className="gx-mb-3 gx-w-100"
               format="DD-MM-YYYY"
-              value={moment(this.state.date,"DD-MM-YYYY")}
+              defaultValue={moment(this.state.date,"DD-MM-YYYY")}
               onChange={this.handleDateChange}
               disabledDate={disabledDate}
               placeholder={this.state.trouve ? "Date à laquelle vous avez trouvé l'objet" : "Date à laquelle vous avez perdu l'objet"}

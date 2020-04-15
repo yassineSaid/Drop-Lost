@@ -71,6 +71,10 @@ const annonceSchema = new Schema({
     personne: {
         type: personnesSchema
     },
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'user',
+    }
 });
 function isNullOrEmpty(value) { 
     if (value == null ||  
@@ -82,7 +86,6 @@ function isNullOrEmpty(value) {
     } 
 } 
 function validateObjet(objet) {
-    console.log(objet)
     if (objet.categorie === "smartphone" && (isNullOrEmpty(objet.marque) || isNullOrEmpty(objet.modele))) {
         return false
     }
