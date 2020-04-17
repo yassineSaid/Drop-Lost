@@ -1,5 +1,6 @@
 const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
+const AnonymousStrategy = require('passport-anonymous').Strategy;
 const { ExtractJwt } = require('passport-jwt');
 const User = require('./models/user')
 const LocalStrategy = require('passport-local').Strategy;
@@ -9,36 +10,62 @@ const cookieExtractor = req => {
     let token = null;
     if (req && req.cookies) {
 
-      token = req.cookies['access_token'];
+        token = req.cookies['access_token'];
     }
 
     return token;
-  }
+}
 // JSON web tokens strategy
 passport.use(new JwtStrategy({
 
-  jwtFromRequest: cookieExtractor,
+    jwtFromRequest: cookieExtractor,
 
     secretOrKey: 'DropLostToken',
-      passReqToCallback: true
+    passReqToCallback: true
 }, async (req, payload, done) => {
-  try {
-    // Find the user specified in token
-    const user = await User.findById(payload.sub);
+    try {
+        // Find the user specified in token
+        const user = await User.findById(payload.sub);
 
-    // If user doesn't exists, handle it
-    if (!user) {
+        // If user doesn't exists, handle it
+        if (!user) {
 
-      return done(null, false);
+            return done(null, false);
 
+        }
+
+        // Otherwise, return the user
+        req.user = user;
+        done(null, user);
+    } catch (error) {
+        done(error, false);
     }
+}));
+// JSON web tokens strategy
+passport.use(new AnonymousStrategy({
 
-    // Otherwise, return the user
-    req.user = user;
-    done(null, user);
-  } catch(error) {
-    done(error, false);
-  }
+    jwtFromRequest: cookieExtractor,
+
+    secretOrKey: 'DropLostToken',
+    passReqToCallback: true
+}, async (req, payload, done) => {
+    try {
+        // Find the user specified in token
+        const user = await User.findById(payload.sub);
+
+        // If user doesn't exists, handle it
+        if (!user) {
+
+            return done(null, false);
+
+        }
+
+        // Otherwise, return the user
+        req.user = user;
+        done(null, user);
+    } catch (error) {
+        done(error, false);
+    }
 }));
 //Google Oauth
 passport.use('googleToken', new GooglePlusPassportStrategy({
