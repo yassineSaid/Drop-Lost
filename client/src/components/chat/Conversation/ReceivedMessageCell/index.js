@@ -1,7 +1,11 @@
 import React from "react";
 import {Avatar} from "antd";
+import moment from 'moment'
+import 'moment/locale/fr'
+
 
 const ReceivedMessageCell = ({conversation, user}) => {
+  moment.locale('fr');
   return (
     <div className="gx-chat-item">
 
@@ -10,8 +14,8 @@ const ReceivedMessageCell = ({conversation, user}) => {
 
       <div className="gx-bubble-block">
         <div className="gx-bubble">
-          <div className="gx-message">{conversation.message}</div>
-          <div className="gx-time gx-text-muted gx-text-right gx-mt-2">{conversation.sentAt}</div>
+          <div className="gx-message">{conversation.body}</div>
+          <div className="gx-time gx-text-muted gx-text-right gx-mt-2">{moment(Number(conversation.date)).format('LLLL')}</div>
         </div>
       </div>
 

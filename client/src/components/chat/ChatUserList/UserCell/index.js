@@ -1,7 +1,11 @@
 import React from "react";
 import {Avatar} from "antd";
+import moment from 'moment'
+import 'moment/locale/fr'
+
 
 const UserCell = ({chat, selectedSectionId, onSelectUser}) => {
+  moment.locale('fr');
   return (
     <div className={`gx-chat-user-item ${selectedSectionId === chat.id ? 'active' : ''}`} onClick={() => {
       onSelectUser(chat);
@@ -9,15 +13,15 @@ const UserCell = ({chat, selectedSectionId, onSelectUser}) => {
       <div className="gx-chat-user-row">
         <div className="gx-chat-avatar">
           <div className="gx-status-pos">
-            <Avatar src={chat.thumb} className="gx-size-40" alt={chat.name}/>
+            <Avatar src={chat.thumb} className="gx-size-40" alt={chat.recipientObj.name}/>
             <span className={`gx-status gx-small gx-${chat.status}`}/>
           </div>
         </div>
 
         <div className="gx-chat-info">
-          <span className="gx-name h4">{chat.name}</span>
+          <span className="gx-name h4">{chat.recipientObj.nom} {chat.recipientObj.prenom} </span>
           <div className="gx-chat-info-des gx-text-truncate">{chat.lastMessage.substring(0, 25) + "..."}</div>
-          <div className="gx-last-message-time">{chat.lastMessageTime}</div>
+          <div className="gx-last-message-time">{moment(Number(chat.date)).format('LLLL')}</div>
         </div>
 
         {chat.unreadMessage > 0 ? <div className="gx-chat-date">

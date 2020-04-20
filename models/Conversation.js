@@ -7,6 +7,10 @@ const ConversationSchema = new Schema({
     lastMessage: {
         type: String,
     },
+    from: {
+        type: Schema.Types.ObjectId, 
+        ref: 'user'
+    },
     date: {
         type: String,
         default: Date.now,

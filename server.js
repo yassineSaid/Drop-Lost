@@ -6,6 +6,8 @@ const bodyparser = require('body-parser');
 var cookieParser = require('cookie-parser')
 
 const app = express();
+
+
 app.use(cookieParser())
 
 app.use(cors({
@@ -41,4 +43,16 @@ if (process.env.NODE_ENV === "production") {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+const server = app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+const io = require('socket.io')(server);
+io.on('connection' , function(socket) {
+  socket.on('subscribe', function(data) {
+      socket.join(data.room)
+      //console.log('entered : '+data.room)
+  })
+  socket.on('unsubscribe', function(data) {
+      socket.leave(data.room)
+      //console.log('left : '+data.room)
+  })
+})
+global.io = io;
