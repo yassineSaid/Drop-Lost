@@ -154,10 +154,9 @@ function* signOut() {
     const signOutUser = yield call(signOutRequest);
     if (signOutUser ) {
       localStorage.removeItem('User');
-      yield put(userSignOutSuccess(signOutUser));
+      this.props.isLoggedIn(false);
     } else {
       yield put(showAuthMessage(signOutUser.message));
-      this.props.history.push('/main/dashboard/crypto');
 
     }
   } catch (error) {

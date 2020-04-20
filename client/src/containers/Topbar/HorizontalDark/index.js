@@ -23,7 +23,9 @@ const menu = (
     <Menu.Item key="3">Blogs</Menu.Item>
   </Menu>
 );
-
+function isLoggedIn() {
+  return localStorage.getItem('User') != null
+}
 function handleMenuClick(e) {
   message.info('Click on menu item.');
 }
@@ -72,11 +74,14 @@ class HorizontalDark extends Component {
                 <p className="gx-mb-0 gx-text-truncate"><IntlMessages id="app.announced"/></p>
               </div>
             
-               <ul className="gx-login-list">
+              {!isLoggedIn() &&  <ul className="gx-login-list">
                 <li><Link to="/signin">Sign In</Link></li>
                 <li><Link to="/signup">Sign Up</Link></li>
-              </ul>
-              
+              </ul>}
+              {isLoggedIn() &&  <ul className="gx-login-list">
+                <li><Link to="/social-apps/profile">Account</Link></li>
+                <li><Link to="/main/dashboard/crypto" onClick={() => {this.props.userSignOut(); window.location.reload(false);}} >Sign Out</Link></li>
+              </ul>}
             </div>
           </div>
         </div>
@@ -153,7 +158,6 @@ class HorizontalDark extends Component {
               </span>
                   </Popover>
                 </li>
-                <li className="gx-user-nav"><UserInfo/></li>
 
               </ul>
             </div>
