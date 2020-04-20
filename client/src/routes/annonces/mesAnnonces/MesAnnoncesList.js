@@ -33,17 +33,23 @@ class MesAnnoncesList extends React.Component {
     super(props);
     this.state = {
       loading: true,
-      annonces: []
+      annonces: [],
+      pagination: {
+        pageSize: 5,
+        current: 1,
+        total: 0
+      }
     };
+    this.onChange = this.onChange.bind(this)
   }
-
-  pagination = {
-    pageSize: 10,
-    current: 1,
-    total: listData.length,
-    onChange: (() => {
-    }),
-  };
+  onChange(page, pageSize) {
+    this.setState({
+      pagination: {
+        ...this.state.pagination,
+        current: page
+      }
+    })
+  }
 
   componentDidMount() {
     getMesAnnonces().then(response => {
@@ -51,7 +57,12 @@ class MesAnnoncesList extends React.Component {
         console.log(response.response.data)
         this.setState({
           loading: false,
-          annonces: response.response.data.annonces
+          annonces: response.response.data.annonces,
+          pagination: {
+            ...this.state.pagination,
+            total: response.response.data.annonces.length,
+            onChange: this.onChange
+          }
         })
       }
       else {
@@ -69,7 +80,7 @@ class MesAnnoncesList extends React.Component {
           <List
             itemLayout="vertical"
             size="large"
-            pagination={this.pagination}
+            pagination={this.state.pagination}
             dataSource={this.state.annonces}
             renderItem={item => (
               <List.Item
@@ -77,14 +88,14 @@ class MesAnnoncesList extends React.Component {
                 //actions={[<IconText type="star-o" text="156" />, <IconText type="like-o" text="156" />,
                 //<IconText type="message" text="2" />]}
                 extra={<img className="gx-img-fluid" width={272} alt="logo"
-                  src='https://via.placeholder.com/290x193' />}
+                  src={item.images.length>0 ? "http://localhost:5000/uploads/"+item.images[0] : 'https://via.placeholder.com/290x193'} />}
               >
                 <List.Item.Meta
                   avatar='https://via.placeholder.com/290x193'
                   title={
                     <Link to={"annonce/" + item._id}>Annonce du {moment(item.date).format("DD MMMM YYYY")}
-                    {"objet" in item ? " pour un objet" : "personne" in item ? " pour une personne" :
-                    "animal" in item ? " pour un animal" : null} </Link>
+                      {"objet" in item ? " pour un objet" : "personne" in item ? " pour une personne" :
+                        "animal" in item ? " pour un animal" : null} </Link>
                   }
                   description={item.description}
                 />

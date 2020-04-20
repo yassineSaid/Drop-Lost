@@ -1,8 +1,10 @@
 import React from "react";
-import { Card, DatePicker, Form, Input, Select, Button, Switch, Upload, Icon, InputNumber } from "antd";
+import { Card, DatePicker, Form, Input, Select, Button, Switch, Upload, Icon, InputNumber, Modal } from "antd";
 import moment from "moment";
 import RadioGroup from "antd/lib/radio/group";
 import RadioButton from "antd/lib/radio/radioButton";
+import { matchAnnonce, ajouterAnnonce, ajouterImages } from "../../../../requests/annonces";
+import Annonce from "../../annonce";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -36,7 +38,9 @@ class PersonneForm extends React.Component {
       date: moment().format("DD-MM-YYYY"),
       nom: "",
       sexe: "homme",
-      age: null
+      age: null,
+      annonceId: null,
+      fileList: [],
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -81,18 +85,72 @@ class PersonneForm extends React.Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
+    var annonce = {
+      type: "personne",
+      trouve: this.state.trouve,
+      description: this.state.description,
+      date: moment(this.state.date, "DD-MM-YYYY"),
+      personne: {
+        nom: this.state.nom,
+        sexe: this.state.sexe,
+        age: this.state.age,
+      }
+    }
+    const formData = new FormData();
+    this.state.fileList.map( (file,i) => {
+      formData.append("file"+i,file)
+    })
+    ajouterAnnonce(annonce).then(response => {
+      if (response.done) {
+        console.log(response)
+        this.setState({
+          annonceId: response.response.data.result._id
+        })
+        ajouterImages(response.response.data.result._id,formData).then(response => {
+          if (response.done){
+            Modal.success({
+              content: 'Votre annonce a bien été ajoutée',
+            });
+            console.log(response)
+          }
+        })
+
+        //matchAnnonce({ id: response.response.data.result._id }).then(response => {
+        //  console.log(response)
+        //})
+      }
+      else if (response.response.response.status === 401) {
+        Modal.error({
+          content: 'Vous devez vous connecter pour pouvoir poster cette annonce <a href="' + window.location.origin + '/signin">Connexion</a>',
+        });
+      }
+
+    })
     console.log(this.state)
   }
 
-  normFile = (e) => {
-    console.log('Upload event:', e);
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e && e.fileList;
-  };
-
   render() {
+    const { fileList } = this.state;
+    const props = {
+      onRemove: file => {
+        this.setState(state => {
+          const index = state.fileList.indexOf(file);
+          const newFileList = state.fileList.slice();
+          newFileList.splice(index, 1);
+          return {
+            fileList: newFileList,
+          };
+        });
+      },
+      multiple: true,
+      beforeUpload: file => {
+        this.setState(state => ({
+          fileList: [...state.fileList, file],
+        }));
+        return false;
+      },
+      fileList,
+    };
     return (
       <Card className="gx-card" title="Ajout d'une annonce pour une personne">
         <Form onSubmit={this.handleSubmit}>
@@ -151,7 +209,7 @@ class PersonneForm extends React.Component {
               <Input
                 placeholder="Nom de la personne"
                 name="nom"
-                value={this.state.description}
+                value={this.state.nom}
                 onChange={this.handleInputChange}
               />
             </FormItem> : null
@@ -164,19 +222,18 @@ class PersonneForm extends React.Component {
             <DatePicker
               className="gx-mb-3 gx-w-100"
               format="DD-MM-YYYY"
-              defaultValue={moment(this.state.date,"DD-MM-YYYY")}
+              defaultValue={moment(this.state.date, "DD-MM-YYYY")}
               onChange={this.handleDateChange}
               disabledDate={disabledDate}
               placeholder={this.state.trouve ? "Date à laquelle vous avez trouvé la personne" : "Date à laquelle vous avez perdu la personne"}
             />
           </FormItem>
-
           <FormItem
             {...formItemLayout}
             label="Photos"
           >
             <div className="dropbox">
-              <Upload.Dragger name="files" action="/upload.do" multiple={true}>
+              <Upload.Dragger {...props}>
                 <p className="ant-upload-drag-icon">
                   <Icon type="inbox" />
                 </p>
@@ -186,7 +243,7 @@ class PersonneForm extends React.Component {
             </div>
           </FormItem>
           <FormItem>
-            <Button type="primary" htmlType="submit">Submit</Button>
+            <Button type="primary" htmlType="submit">Confirmer</Button>
           </FormItem>
         </Form>
       </Card>

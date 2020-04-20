@@ -23,6 +23,29 @@ export async function ajouterAnnonce(obj) {
       }
     })
 }
+export async function ajouterImages(id,obj) {
+  const axiosRequest = axios.create({
+    baseURL: BASE_URL + 'api/annonces/ajouterImages/'+id,
+    headers: {
+      'content-Type': 'multipart/form-data',
+    },
+    withCredentials: true
+  });
+  return axiosRequest
+    .post('',obj)
+    .then(result => {
+      return {
+        done: true,
+        response: result
+      }
+    })
+    .catch(error => {
+      return {
+        done: false,
+        response: error
+      }
+    })
+}
 export async function matchAnnonce(obj) {
   const axiosRequest = axios.create({
     baseURL: BASE_URL + 'api/annonces/match/',

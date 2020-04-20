@@ -1,6 +1,18 @@
 const User = require('../models/user');
 const Annonce = require('../models/annonce')
 const getValidationErrors = require('../models/validationErrors')
+const path = require("path");
+const multer = require("multer");
+const storage = multer.diskStorage({
+    destination: "./public/uploads/",
+    filename: function (req, file, cb) {
+        cb(null, "IMAGE-" + Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 1000000 },
+}).any();
 module.exports = {
     ajouterAnnonce: async (req, res, next) => {
         //console.log(req.body)
@@ -20,9 +32,31 @@ module.exports = {
             //console.log(validation)
         }
     },
+    ajouterImages: async (req, res, next) => {
+        upload(req, res, (err) => {
+            if (!err) {
+                console.log(req.params)
+                var images = [];
+                req.files.forEach(element => {
+                    images.push(element.filename)
+                });
+                const annonce = Annonce.findById(req.params.id).then(annonce => {
+                    console.log(annonce)
+                    annonce.images = images;
+                    annonce.save().then(result => {
+                        res.status(201).json({ success: true, result: result });
+                    })
+                        .catch(err => {
+                            res.status(500).json({ success: true, error: err });
+                        })
+                })
+
+            }
+        })
+    },
     matchAnnonce: async (req, res, next) => {
         console.log(req.body)
-        const annonces = getMatchedAnnonces(req.body.id).then(annonces => {
+        const annonces = getMatchedAnnonces(req.body.id, req.user).then(annonces => {
             res.status(200).json({ success: true, annonces: annonces })
         })
     },

@@ -1,6 +1,7 @@
 import React from "react";
-import { Card, DatePicker, Form, Input, Select, Button, Switch, Upload, Icon } from "antd";
+import { Card, DatePicker, Form, Input, Select, Button, Switch, Upload, Icon, Modal } from "antd";
 import moment from "moment";
+import { ajouterAnnonce, matchAnnonce, ajouterImages } from "../../../../requests/annonces";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -30,9 +31,12 @@ class AnimalForm extends React.Component {
     this.state = {
       description: "",
       type: "chat",
+      race: "",
       trouve: false,
       date: moment().format("DD-MM-YYYY"),
       nom: "",
+      annonceId: null,
+      fileList: [],
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -85,18 +89,67 @@ class AnimalForm extends React.Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
+    var annonce = {
+      type: "animal",
+      trouve: this.state.trouve,
+      description: this.state.description,
+      date: moment(this.state.date,"DD-MM-YYYY"),
+      animal: {
+        type: this.state.type,
+        race: this.state.race,
+      }
+    }
+    const formData = new FormData();
+    this.state.fileList.map( (file,i) => {
+      formData.append("file"+i,file)
+    })
+    ajouterAnnonce(annonce).then(response => {
+      if (response.done){
+        console.log(response)
+        this.setState({
+          annonceId: response.response.data.result._id
+        })
+        ajouterImages(response.response.data.result._id,formData).then(response => {
+          if (response.done){
+            Modal.success({
+              content: 'Votre annonce a bien été ajoutée',
+            });
+            console.log(response)
+          }
+        })
+      }
+      else if (response.response.response.status === 401) {
+        Modal.error({
+          content: 'Vous devez vous connecter pour pouvoir poster cette annonce <a href="'+window.location.origin+'/signin">Connexion</a>',
+        });
+      }
+
+    })
     console.log(this.state)
   }
 
-  normFile = (e) => {
-    console.log('Upload event:', e);
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e && e.fileList;
-  };
-
   render() {
+    const { fileList } = this.state;
+    const props = {
+      onRemove: file => {
+        this.setState(state => {
+          const index = state.fileList.indexOf(file);
+          const newFileList = state.fileList.slice();
+          newFileList.splice(index, 1);
+          return {
+            fileList: newFileList,
+          };
+        });
+      },
+      multiple: true,
+      beforeUpload: file => {
+        this.setState(state => ({
+          fileList: [...state.fileList, file],
+        }));
+        return false;
+      },
+      fileList,
+    };
     return (
       <Card className="gx-card" title="Ajout d'une annonce pour un animal">
         <Form onSubmit={this.handleSubmit}>
@@ -131,7 +184,7 @@ class AnimalForm extends React.Component {
               <Input
                 placeholder="A quel nom répond votre animal"
                 name="nom"
-                value={this.state.description}
+                value={this.state.nom}
                 onChange={this.handleInputChange}
               />
             </FormItem> : null
@@ -155,6 +208,18 @@ class AnimalForm extends React.Component {
           </FormItem>
 
           <FormItem
+              {...formItemLayout}
+              label="Race"
+            >
+              <Input
+                placeholder="Quelle la race de votre animal"
+                name="race"
+                value={this.state.race}
+                onChange={this.handleInputChange}
+              />
+            </FormItem>
+
+          <FormItem
             {...formItemLayout}
             label="Date"
           >
@@ -173,7 +238,7 @@ class AnimalForm extends React.Component {
             label="Photos"
           >
             <div className="dropbox">
-              <Upload.Dragger name="files" action="/upload.do" multiple={true}>
+              <Upload.Dragger {...props}>
                 <p className="ant-upload-drag-icon">
                   <Icon type="inbox" />
                 </p>

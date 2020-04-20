@@ -21,6 +21,7 @@ connectDB();
 // Init Middleware
 app.use(express.json({ extended: false }));
 app.use(bodyparser.json());
+app.use(express.static(__dirname + '/public'));
 // Define Routes
 app.use("/api/chat", require("./routes/api/messages"));
 app.use('/users', usersRouter);

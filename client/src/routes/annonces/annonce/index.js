@@ -45,7 +45,7 @@ class Annonce extends Component {
           <Col xl={8} lg={12} md={12} sm={24} xs={24}>
             <Card
               loading={this.state.loading}
-              cover={<img alt="example" src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png" />}
+              cover={<img alt="example" src={!this.state.loading ? "http://localhost:5000/uploads/"+this.state.annonce.images[0] : "https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"} />}
             >
             </Card>
           </Col>

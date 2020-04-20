@@ -41,6 +41,9 @@ const animalSchema = new Schema({
         type: String,
         required: true,
         enum: ["chien", "chat", "autre"]
+    },
+    race: {
+        type: String
     }
 })
 const annonceSchema = new Schema({
@@ -74,6 +77,9 @@ const annonceSchema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
         ref: 'user',
+    },
+    images: {
+        type: [String]
     }
 });
 function isNullOrEmpty(value) { 

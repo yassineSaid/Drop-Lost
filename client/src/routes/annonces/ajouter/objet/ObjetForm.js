@@ -3,7 +3,7 @@ import { Card, DatePicker, Form, Input, Select, Button, Switch, Upload, Icon, Mo
 import moment from "moment";
 import axios from "axios";
 import { JSDOM } from "jsdom";
-import {ajouterAnnonce,matchAnnonce} from "../../../../requests/annonces"
+import {ajouterAnnonce,matchAnnonce, ajouterImages} from "../../../../requests/annonces"
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -46,7 +46,9 @@ class ObjetForm extends React.Component {
       modeles: [],
       modele: null,
       sousCategorieArray: null,
-      sousCategorie: null
+      sousCategorie: null,
+      annonceId: null,
+      fileList: [],
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -190,14 +192,23 @@ class ObjetForm extends React.Component {
         modele: this.state.modele
       }
     }
+    const formData = new FormData();
+    this.state.fileList.map( (file,i) => {
+      formData.append("file"+i,file)
+    })
     ajouterAnnonce(annonce).then(response => {
       if (response.done){
-        Modal.success({
-          content: 'Votre annonce a bien été ajoutée',
-        });
         console.log(response)
-        matchAnnonce({id: response.response.data.result._id}).then(response => {
-          console.log(response)
+        this.setState({
+          annonceId: response.response.data.result._id
+        })
+        ajouterImages(response.response.data.result._id,formData).then(response => {
+          if (response.done){
+            Modal.success({
+              content: 'Votre annonce a bien été ajoutée',
+            });
+            console.log(response)
+          }
         })
       }
       else if (response.response.response.status === 401) {
@@ -210,15 +221,28 @@ class ObjetForm extends React.Component {
     console.log(this.state)
   }
 
-  normFile = (e) => {
-    console.log('Upload event:', e);
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e && e.fileList;
-  };
-
   render() {
+    const { fileList } = this.state;
+    const props = {
+      onRemove: file => {
+        this.setState(state => {
+          const index = state.fileList.indexOf(file);
+          const newFileList = state.fileList.slice();
+          newFileList.splice(index, 1);
+          return {
+            fileList: newFileList,
+          };
+        });
+      },
+      multiple: true,
+      beforeUpload: file => {
+        this.setState(state => ({
+          fileList: [...state.fileList, file],
+        }));
+        return false;
+      },
+      fileList,
+    };
     return (
       <Card className="gx-card" title="Ajout d'une annonce pour un objet">
         <Form onSubmit={this.handleSubmit}>
@@ -342,7 +366,7 @@ class ObjetForm extends React.Component {
             label="Photos"
           >
             <div className="dropbox">
-              <Upload.Dragger name="files" action="/upload.do" multiple={true}>
+              <Upload.Dragger {...props}>
                 <p className="ant-upload-drag-icon">
                   <Icon type="inbox" />
                 </p>
