@@ -1,58 +1,90 @@
-import React, {Component} from "react";
-import {Avatar, Button, Drawer, Input, Tabs} from "antd";
+import React, { Component } from "react";
+import { Avatar, Button, Drawer, Input, Tabs } from "antd";
 import CustomScrollbars from "util/CustomScrollbars";
 import Moment from "moment";
 import axios from 'axios';
 import ChatUserList from "components/chat/ChatUserList";
-import conversationList from "./data/conversationList";
 import Conversation from "components/chat/Conversation/index";
-import users from "./data/chatUsers";
-import usersContact from "./data/contactUsers";
 import ContactList from "components/chat/ContactList/index";
 import IntlMessages from "util/IntlMessages";
 import SearchBox from "components/SearchBox";
 import CircularProgress from "../../../components/CircularProgress/index";
+import io from "socket.io-client";
 
+
+const SOCKET_URI = "http://localhost:5000/";
 const TabPane = Tabs.TabPane;
 class Chat extends Component {
 
+  socket = null;
+
+  componentDidMount() {
+    this.socket = io.connect(SOCKET_URI);
+    this.setupSocketListeners();
+  }
+
+  componentDidUpdate() {
+  }
+
+  setupSocketListeners() {
+    this.socket.on("message", this.onMessageRecieved.bind(this));
+  }
+
+  onMessageRecieved(message) {
+
+    console.log(message);
+    const updatedConversation = {
+      'type': 'received',
+      'body': message.body,
+      'date': Moment().unix() * 1000,
+    };
+    if (message.from !== localStorage.getItem('User')) {
+      this.setState({
+        conversation: this.state.conversation.concat(updatedConversation)
+      })
+    }
+  }
+
+
   filterContact = (userName) => {
     if (userName === '') {
-      return users.filter(user => !user.recent);
+      return this.state.contactListSearch;
     }
-    return users.filter((user) =>
-      !user.recent && user.name.toLowerCase().indexOf(userName.toLowerCase()) > -1
-    );
+    return this.state.contactListSearch.filter((user) => user.prenom.toLowerCase().indexOf(userName.toLowerCase()) > -1 ||
+      user.nom.toLowerCase().indexOf(userName.toLowerCase()) > -1);
   };
   filterUsers = (userName) => {
     if (userName === '') {
-      return users.filter(user => user.recent);
+      return this.state.contactListSearch;
     }
-    return users.filter((user) =>
-      user.recent && user.name.toLowerCase().indexOf(userName.toLowerCase()) > -1
-    );
+    return this.state.contactListSearch.filter((user) => user.prenom.toLowerCase().indexOf(userName.toLowerCase()) > -1 ||
+      user.nom.toLowerCase().indexOf(userName.toLowerCase()) > -1);
   };
   Communication = () => {
-    const {message, selectedUser, conversation} = this.state;
-    const {conversationData} = conversation;
+    //this.socket = io.connect(SOCKET_URI);
+    const { message, selectedUser, conversation } = this.state;
+    const conversationData = conversation;
+
     return <div className="gx-chat-main">
       <div className="gx-chat-main-header">
         <span className="gx-d-block gx-d-lg-none gx-chat-btn"><i className="gx-icon-btn icon icon-chat"
-                                                                 onClick={this.onToggleDrawer.bind(this)}/></span>
+          onClick={this.onToggleDrawer.bind(this)} /></span>
         <div className="gx-chat-main-header-info">
 
           <div className="gx-chat-avatar gx-mr-2">
             <div className="gx-status-pos">
               <Avatar src={selectedUser.thumb}
-                      className="gx-rounded-circle gx-size-60"
-                      alt=""/>
+                className="gx-rounded-circle gx-size-60"
+                alt="" />
 
-              <span className={`gx-status gx-${selectedUser.status}`}/>
+              <span className={`gx-status gx-${selectedUser.status}`} />
             </div>
           </div>
-
-          <div className="gx-chat-contact-name">
-            {selectedUser.name}
+          <div>
+            <div className="gx-chat-contact-name">
+              {selectedUser.recipientObj === undefined ? `${selectedUser.nom} ${selectedUser.prenom}` : `${selectedUser.recipientObj.nom} ${selectedUser.recipientObj.prenom}`}
+            </div>
+            <span data-text="true">Match pour l'annonce : {selectedUser.matchedOn}</span>
           </div>
         </div>
 
@@ -60,27 +92,29 @@ class Chat extends Component {
 
       <CustomScrollbars className="gx-chat-list-scroll">
         <Conversation conversationData={conversationData}
-                      selectedUser={selectedUser}/>
+          selectedUser={selectedUser} />
       </CustomScrollbars>
 
       <div className="gx-chat-main-footer">
-        <div className="gx-flex-row gx-align-items-center" style={{maxHeight: 51}}>
+        <div className="gx-flex-row gx-align-items-center" style={{ maxHeight: 51 }}>
           <div className="gx-col">
             <div className="gx-form-group">
-                            <textarea
-                              id="required" className="gx-border-0 ant-input gx-chat-textarea"
-                              onKeyUp={this._handleKeyPress.bind(this)}
-                              onChange={this.updateMessageValue.bind(this)}
-                              value={message}
-                              placeholder="Type and hit enter to send message"
-                            />
+              <textarea
+                id="required" className="gx-border-0 ant-input gx-chat-textarea"
+                onKeyUp={this._handleKeyPress.bind(this)}
+                onChange={this.updateMessageValue.bind(this)}
+                value={message}
+                placeholder="Type and hit enter to send message"
+              />
             </div>
           </div>
-          <i className="gx-icon-btn icon icon-sent" onClick={this.submitComment.bind(this)}/>
+          <i className="gx-icon-btn icon icon-sent" onClick={this.submitComment.bind(this)} />
         </div>
       </div>
     </div>
+
   };
+
 
   AppUsersInfo = () => {
     return <div className="gx-chat-sidenav-main">
@@ -88,14 +122,14 @@ class Chat extends Component {
 
         <div className="gx-chat-user-hd gx-mb-0">
           <i className="gx-icon-btn icon icon-arrow-left" onClick={() => {
-            this.setState({userState: 1});
-          }}/>
+            this.setState({ userState: 1 });
+          }} />
 
         </div>
         <div className="gx-chat-user gx-chat-user-center">
           <div className="gx-chat-avatar gx-mx-auto">
             <Avatar src='https://via.placeholder.com/150x150'
-                    className="gx-size-60" alt="John Doe"/>
+              className="gx-size-60" alt="John Doe" />
           </div>
 
           <div className="gx-user-name h4 gx-my-2">Robert Johnson</div>
@@ -119,7 +153,7 @@ class Chat extends Component {
                   onChange={this.updateMessageValue.bind(this)}
                   defaultValue="it's a status....not your diary..."
                   placeholder="Status"
-                  margin="none"/>
+                  margin="none" />
 
               </div>
             </form>
@@ -143,9 +177,9 @@ class Chat extends Component {
           }}>
             <div className="gx-status-pos">
               <Avatar id="avatar-button" src='https://via.placeholder.com/150x150'
-                      className="gx-size-50"
-                      alt=""/>
-              <span className="gx-status gx-online"/>
+                className="gx-size-50"
+                alt="" />
+              <span className="gx-status gx-online" />
             </div>
           </div>
 
@@ -162,9 +196,9 @@ class Chat extends Component {
         <div className="gx-chat-search-wrapper">
 
           <SearchBox styleName="gx-chat-search-bar gx-lt-icon-search-bar-lg"
-                     placeholder="Search or start new chat"
-                     onChange={this.updateSearchChatUser.bind(this)}
-                     value={this.state.searchChatUser}/>
+            placeholder="Search or start new chat"
+            onChange={this.updateSearchChatUser.bind(this)}
+            value={this.state.searchChatUser} />
 
         </div>
       </div>
@@ -172,26 +206,26 @@ class Chat extends Component {
       <div className="gx-chat-sidenav-content">
         {/*<AppBar position="static" className="no-shadow chat-tabs-header">*/}
         <Tabs className="gx-tabs-half" defaultActiveKey="1">
-          <TabPane label={<IntlMessages id="chat.chatUser"/>} tab={<IntlMessages id="chat.chatUser"/>} key="1">
+          <TabPane label={<IntlMessages id="chat.chatUser" />} tab={<IntlMessages id="chat.chatUser" />} key="1">
             <CustomScrollbars className="gx-chat-sidenav-scroll-tab-1">
               {this.state.chatUsers.length === 0 ?
                 <div className="gx-p-5">{this.state.userNotFound}</div>
                 :
                 <ChatUserList chatUsers={this.state.chatUsers}
-                              selectedSectionId={this.state.selectedSectionId}
-                              onSelectUser={this.onSelectUser.bind(this)}/>
+                  selectedSectionId={this.state.selectedSectionId}
+                  onSelectUser={this.onSelectUser.bind(this)} />
               }
             </CustomScrollbars>
           </TabPane>
-          <TabPane label={<IntlMessages id="chat.contacts"/>} tab={<IntlMessages id="chat.contacts"/>} key="2">
+          <TabPane label={<IntlMessages id="chat.contacts" />} tab={<IntlMessages id="chat.contacts" />} key="2">
             <CustomScrollbars className="gx-chat-sidenav-scroll-tab-2">
               {
                 this.state.contactList.length === 0 ?
                   <div className="gx-p-5">{this.state.userNotFound}</div>
                   :
                   <ContactList contactList={this.state.contactList}
-                               selectedSectionId={this.state.selectedSectionId}
-                               onSelectUser={this.onSelectUser.bind(this)}/>
+                    selectedSectionId={this.state.selectedSectionId}
+                    onSelectUser={this.onSelectUser.bind(this)} />
               }
             </CustomScrollbars>
           </TabPane>
@@ -208,39 +242,56 @@ class Chat extends Component {
   };
 
   handleChange = (event, value) => {
-    this.setState({selectedTabIndex: value});
+    this.setState({ selectedTabIndex: value });
   };
 
   handleChangeIndex = index => {
-    this.setState({selectedTabIndex: index});
+    this.setState({ selectedTabIndex: index });
   };
   onSelectUser = (user) => {
-    this.setState({
-      loader: true,
-      selectedSectionId: user.id,
-      drawerState: this.props.drawerState,
-      selectedUser: user,
-      conversation: this.state.conversationList.find((data) => data.id === user.id)
-    });
-    setTimeout(() => {
-      this.setState({loader: false});
-    }, 1500);
+
+
+    if (this.state.conversation != null) {
+      this.socket.emit('unsubscribe', { room: this.state.conversation[0].conversation })
+    }
+    axios.get("http://localhost:5000/api/chat/conversations/query", { params: { userId: user.recipientObj._id }, withCredentials: true }).then(
+      response => {
+        this.setState({
+          loader: true,
+          selectedSectionId: user._id,
+          drawerState: this.props.drawerState,
+          selectedUser: user,
+          conversation: response.data.map(message => {
+            return ({
+              ...message,
+              type: message.from === localStorage.getItem('User') ? 'sent' : 'received'
+            })
+          })
+        });
+
+        this.socket.emit('subscribe', { room: this.state.conversation[0].conversation })
+        setTimeout(() => {
+          this.setState({ loader: false });
+        }, 2500);
+      }
+    ).catch()
   };
   showCommunication = () => {
     return (
       <div className="gx-chat-box">
         {this.state.selectedUser === null ?
           <div className="gx-comment-box">
-            <div className="gx-fs-80"><i className="icon icon-chat gx-text-muted"/></div>
-            <h1 className="gx-text-muted">{<IntlMessages id="chat.selectUserChat"/>}</h1>
+            <div className="gx-fs-80"><i className="icon icon-chat gx-text-muted" /></div>
+            <h1 className="gx-text-muted">{<IntlMessages id="chat.selectUserChat" />}</h1>
             <Button className="gx-d-block gx-d-lg-none" type="primary"
-                    onClick={this.onToggleDrawer.bind(this)}>{<IntlMessages
-              id="chat.selectContactChat"/>}</Button>
+              onClick={this.onToggleDrawer.bind(this)}>{<IntlMessages
+                id="chat.selectContactChat" />}</Button>
 
           </div>
           : this.Communication()}
       </div>)
   };
+
 
   constructor() {
     super();
@@ -253,45 +304,80 @@ class Chat extends Component {
       userState: 1,
       searchChatUser: '',
       contactList: [],
+      contactListSearch: [],
       selectedUser: null,
       message: '',
-      chatUsers: users.filter((user) => user.recent),
-      conversationList: conversationList,
+      chatUsers: [],
+      chatUsersSearch: [],
+      conversationList: [],
       conversation: null
     }
-
-    axios.get("http://localhost:5000/api/chat/users" , {withCredentials:true}).then(
+    axios.get("http://localhost:5000/api/chat/users", { withCredentials: true }).then(
       response => {
         this.setState({
-          contactList: response.data
+          contactList: response.data,
+          contactListSearch: response.data,
         })
-        console.log(this.state.contactList)
       }
-    )
+    ).catch(error => {
+      if (error.response.status === 401) {
+        window.location.href = '/signin'
+      } else {
+        this.setState({
+          contactList: [],
+          contactListSearch: [],
+        })
+      }
+    })
+
+    axios.get("http://localhost:5000/api/chat/conversations", { withCredentials: true }).then(
+      response => {
+        this.setState({
+          chatUsers: response.data,
+          chatUsersSearch: response.data,
+        })
+      }
+    ).catch(error => {
+      if (error.response.status === 401) {
+        window.location.href = '/signin'
+      } else {
+        this.setState({
+          chatUsers: [],
+          chatUsersSearch: [],
+        })
+      }
+    })
 
 
   }
 
   submitComment() {
     if (this.state.message !== '') {
-      const updatedConversation = this.state.conversation.conversationData.concat({
+      const updatedConversation = {
         'type': 'sent',
-        'message': this.state.message,
-        'sentAt': Moment().format('hh:mm:ss A'),
-      });
+        'body': this.state.message,
+        'date': Moment().unix() * 1000,
+      };
+      const payload = {
+        to: this.state.selectedUser.recipientObj._id,
+        body: this.state.message
+      }
       this.setState({
-        conversation: {
-          ...this.state.conversation, conversationData: updatedConversation
-        },
-        message: '',
-        conversationList: this.state.conversationList.map(conversationData => {
-          if (conversationData.id === this.state.conversation.id) {
-            return {...this.state.conversation, conversationData: updatedConversation};
-          } else {
-            return conversationData;
-          }
-        })
-      });
+        conversation: this.state.conversation.concat(updatedConversation),
+        message: ''
+      })
+      axios.post("http://localhost:5000/api/chat/", payload, { withCredentials: true }).then(
+        response => {
+
+        }
+      ).catch(error => {
+        if (error.response.status === 401) {
+          window.location.href = '/signin'
+        }
+      })
+
+
+
     }
   }
 
@@ -305,7 +391,7 @@ class Chat extends Component {
     this.setState({
       searchChatUser: evt.target.value,
       contactList: this.filterContact(evt.target.value),
-      chatUsers: this.filterUsers(evt.target.value)
+      //chatUsers: this.filterUsers(evt.target.value)
     });
   }
 
@@ -316,7 +402,7 @@ class Chat extends Component {
   }
 
   render() {
-    const {loader, userState, drawerState} = this.state;
+    const { loader, userState, drawerState } = this.state;
     return (
       <div className="gx-main-content">
         <div className="gx-app-module gx-chat-module">
@@ -335,7 +421,7 @@ class Chat extends Component {
             </div>
             {loader ?
               <div className="gx-loader-view">
-                <CircularProgress/>
+                <CircularProgress />
               </div> : this.showCommunication()
             }
           </div>
