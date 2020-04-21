@@ -11,7 +11,8 @@ const passportConf = require('../../passport');
 router.route('/signup').post(validateBody(schemas.authSchema), UsersContoller.signUp);
 router.route('/verify').post(UsersContoller.verify);
 router.route('/forget').post(UsersContoller.forget);
-router.route('/resetPassword').get(UsersContoller.resetPassword);
+router.route('/resetPassword').post(UsersContoller.resetPassword);
+router.route('/superadmin/signIn').post(validateBody(schemas.SignInauthSchema), passport.authenticate('SUPERADMINLOGIN', { session: false }), UsersContoller.signIn);
 
 router.route('/oauth/facebook').post( UsersContoller.facebookOAuth);
 router.route('/oauth/google').post( UsersContoller.googleOAuth);

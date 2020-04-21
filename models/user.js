@@ -4,6 +4,11 @@ var bcrypt = require('bcryptjs');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
+    role:{
+        type: String,
+        enum: ['superadmin', 'admin', 'agent','client'],
+        required: true
+    },
     method: {
         type: String,
         enum: ['local', 'google', 'facebook'],

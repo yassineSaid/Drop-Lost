@@ -118,7 +118,8 @@ class SignIn extends React.Component {
                     <Input type="password" placeholder="Password" />
                   )}
                 </FormItem>
-
+                <span
+                  className="gx-text-light gx-fs-sm"> Forget password ? <Link to="/custom-views/user-auth/forgot-password"  >Click here</Link></span>
                 <FormItem>
                   <Button type="primary" className="gx-mb-0" htmlType="submit">
                     <IntlMessages id="app.userAuth.signIn" />

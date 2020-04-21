@@ -35,6 +35,7 @@ module.exports = {
 
         // create new user 
         const newUser = new User({
+            role:'client',
             method: 'local',
             
                 nom: nom,
@@ -228,15 +229,19 @@ module.exports = {
                 "PasswordResetDate": Date.now() + 3600000
             }, { new: true }
             );
-            const html = 'Hi there ,click here to reset your password ' + st + '</b>'
-
-            var mailOptions = {
-                from: 'DropLostAdmin@gmail.com',
+            const emailData = {
+                from: "DropLostAdmin@gmail.com",
                 to: email,
-                subject: 'Please verify you mail',
-                text: html
-            };
-            transporter.sendMail(mailOptions, function (error, info) {
+                subject: 'Account password change ',
+                html: `
+                          <h1>Please use the following to change your password</h1>
+                          <p>http://localhost:3000/custom-views/user-auth/reset-password/${st}</p>
+                          <hr />
+                          <p>This email may containe sensetive information</p>
+                          
+                      `
+              };
+              transporter.sendMail(emailData, function (error, info) {
                 if (error) {
                     console.log(error);
                 } else {
@@ -256,6 +261,7 @@ module.exports = {
         try {
             const secretToken = req.body.secretToken;
             const foundUser = await User.findOne({ "Passwordtoken": secretToken, "PasswordResetDate": { $gt: Date.now() } });
+
             if (!foundUser) {
                 return res.status(403).json({ error: 'Password reset token is invalid or has expired' });
 

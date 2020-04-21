@@ -10,7 +10,7 @@ const AppModule = ({match}) => (
     <Route path={`${match.url}/sign-up`} component={asyncComponent(() => import('./SignUp'))}/>
     <Route path={`${match.url}/forgot-password`} component={asyncComponent(() => import('./ForgotPassword'))}/>
     <Route path={`${match.url}/lock-screen/:secretToken`} component={asyncComponent(() => import('./LockScreen'))}/>
-    <Route path={`${match.url}/reset-password`} component={asyncComponent(() => import('./ResetPassword'))}/>
+    <Route path={`${match.url}/reset-password/:secretToken`} component={asyncComponent(() => import('./ResetPassword'))}/>
   </Switch>
 );
 

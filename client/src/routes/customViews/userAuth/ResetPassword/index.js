@@ -1,6 +1,8 @@
 import React, {Component} from "react";
 import {Button, Form, Input} from "antd";
 import IntlMessages from "util/IntlMessages";
+import axios from 'axios';
+import { database } from "firebase";
 
 const FormItem = Form.Item;
 
@@ -11,11 +13,18 @@ class ResetPassword extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
+        const { match: { params } } = this.props;
+        const data={
+          secretToken:params.secretToken,
+          newpassword:values.password,
+          confirmnewpassword:values.confirm
+        }
+        axios.post('http://localhost:5000/users/resetPassword',data) .then( this.props.history.push('/signin') )
+        .catch(error => error);
       }
     });
   };
-
+  
   compareToFirstPassword = (rule, value, callback) => {
     const form = this.props.form;
     if (value && value !== form.getFieldValue('password')) {

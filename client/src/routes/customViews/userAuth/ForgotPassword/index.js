@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {Button, Form, Input} from "antd";
 import IntlMessages from "util/IntlMessages";
+import axios from 'axios';
 
 const FormItem = Form.Item;
 
@@ -11,7 +12,7 @@ class ForgotPassword extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
+        axios.post('http://localhost:5000/users/forget',values)
       }
     });
   };
