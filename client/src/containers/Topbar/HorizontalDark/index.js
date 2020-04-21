@@ -26,6 +26,16 @@ const menu = (
 function isLoggedIn() {
   return localStorage.getItem('User') != null
 }
+function isClient(){
+  const user = JSON.parse(localStorage.getItem('User'));
+  if (user.role=="user")
+    return true
+}
+function isAdmin(){
+  const user = JSON.parse(localStorage.getItem('User'));
+  if (user.role=="superadmin")
+    return true
+}
 function handleMenuClick(e) {
   message.info('Click on menu item.');
 }
@@ -78,8 +88,11 @@ class HorizontalDark extends Component {
                 <li><Link to="/signin">Sign In</Link></li>
                 <li><Link to="/signup">Sign Up</Link></li>
               </ul>}
-              {isLoggedIn() &&  <ul className="gx-login-list">
+              {isLoggedIn() && isClient() &&  <ul className="gx-login-list">
                 <li><Link to="/social-apps/profile">Account</Link></li>
+                <li><Link to="/main/dashboard/crypto" onClick={() => {this.props.userSignOut(); window.location.reload(false);}} >Sign Out</Link></li>
+              </ul>}
+              {isLoggedIn() && isAdmin() &&  <ul className="gx-login-list">
                 <li><Link to="/main/dashboard/crypto" onClick={() => {this.props.userSignOut(); window.location.reload(false);}} >Sign Out</Link></li>
               </ul>}
             </div>

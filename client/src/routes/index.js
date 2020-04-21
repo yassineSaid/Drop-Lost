@@ -9,6 +9,7 @@ import InBuiltApps from "./inBuiltApps/index";
 import SocialApps from "./socialApps/index";
 import Main from "./main/index";
 import Documents from "./documents/index";
+import SuperAdmin from "./superadmin/index"
 import Annonces from "./annonces/index"
 
 const App = ({match}) => (
@@ -23,6 +24,8 @@ const App = ({match}) => (
       <Route path={`${match.url}social-apps`} component={SocialApps}/>
       <Route path={`${match.url}documents`} component={Documents}/>
       <Route path={`${match.url}annonces`} component={Annonces}/>
+      <Route path={`${match.url}superadmin`} component={SuperAdmin}/>
+
     </Switch>
   </div>
 );

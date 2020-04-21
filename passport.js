@@ -169,33 +169,3 @@ passport.use(new LocalStrategy({
 }));
 
 ///Super Admin login
-passport.use('SUPERADMINLOGIN',new LocalStrategy({
-
-    usernameField: 'email'
-
-}, async (email, password, done) => {
-    try {
-        //find the user 
-        const user = await User.findOne({ "email": email });
-
-        //if not , handle it 
-        if (!user) {
-            return done(null, false);
-        }
-        //Check if the password is correct
-
-        const isMatch = await user.isValidPassword(password);
-
-        //if not , handle it
-        if (!isMatch) {
-            console.log("is match " + isMatch)
-            return done(null, false);
-        }
-       
-        //Otherwise , return the user
-        done(null, user);
-    } catch (error) {
-        done(error, false);
-    }
-
-}));

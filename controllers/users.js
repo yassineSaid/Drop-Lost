@@ -288,7 +288,90 @@ module.exports = {
     },
      checkAuth: async (req, res, next) => {
     res.json({ User: req.user });
-  }
+  },
+  addAdmin: async (req, res, next) => {
+
+    const {nom,prenom,ville,adresse,numero, email, password } = req.value.body;
+    // check if user already exists
+    const foundUser = await User.findOne({ "email": email });
+    if (foundUser) {
+        return res.status(403).json({ error: 'email already exists' });
+    }
+    st = randomstring.generate();
+
+    // create new user 
+    const newUser = new User({
+        role:'admin',
+        method: 'local',
+        
+            nom: nom,
+            prenom: prenom,
+            ville: ville,
+            adresse: adresse,
+            numero: numero,
+            email: email,
+            password: password,
+            Isactive: true,
+            
+        
 
 
+    });
+    await newUser.save();
+    const emailData = {
+        from: "DropLostAdmin@gmail.com",
+        to: email,
+        subject: 'New account created',
+        html: `
+                  <h3>Welcome to drop&lost <a href="http://localhost:3000/signin">click here</a> to log in and use these</h3>
+                  <h4>email :${email}</h4>
+                  <h4>password :${req.value.body.password}</h4>
+
+                  <hr />
+                  <p>This email may containe sensetive information</p>
+                  
+              `
+      };
+    
+    transporter.sendMail(emailData, function (error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
+   
+    
+    res.status(200).json({ success: true });
+},
+allAdmins: async (req, res, next) => {
+   AdminsList = await User.find({ "role":"admin" });
+   res.status(200).json({ success: true,AdminsList });
+
+  },
+  allUsers: async (req, res, next) => {
+     AdminsList = await User.find({ "role":"user" });
+     res.status(200).json({ success: true,AdminsList });
+  
+    },
+  makeUser: async (req, res, next) => {
+    foundUser = await User.findOne({ "email":req.body.email });
+    await foundUser.updateOne({
+        "role": "user"
+    }, { new: true }
+    );
+    res.status(200).json({ foundUser });
+  
+    }
+    ,
+    makeAdmin: async (req, res, next) => {
+      foundUser = await User.findOne({ "email":req.body.email });
+      await foundUser.updateOne({
+          "role": "admin"
+      }, { new: true }
+      );
+      res.status(200).json({ foundUser });
+    
+      }
+  
 }

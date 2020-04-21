@@ -42,7 +42,28 @@ class HorizontalNav extends Component {
         defaultOpenKeys={[defaultOpenKeys]}
         selectedKeys={[selectedKeys]}
         mode="horizontal">
-
+      <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="superadmin"
+          title="Controle des admins">
+          
+          <Menu.Item key="/superadmin/addadmin">
+            <Link to="/superadmin/addadmin">
+            <i className="icon icon-user" />
+                Ajouter une admin
+              </Link>
+          </Menu.Item>
+          <Menu.Item key="/superadmin/listadmin">
+            <Link to="/superadmin/listadmin">
+            <i className="icon icon-user" />
+               liste des admins
+              </Link>
+          </Menu.Item>
+          <Menu.Item key="/superadmin/listeusers">
+            <Link to="/superadmin/listeusers">
+            <i className="icon icon-user" />
+               liste des utilisateurs
+              </Link>
+          </Menu.Item>
+        </SubMenu>
         <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="annonces"
           title="Annonces">
           <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="ajouter"
