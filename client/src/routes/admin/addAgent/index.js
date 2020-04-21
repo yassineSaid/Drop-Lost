@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Select, Form, Icon, Input } from "antd";
+import { Button, Select, Form, Input } from "antd";
 import { connect } from "react-redux";
 import axios from 'axios';
 
@@ -15,7 +15,7 @@ import {
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-class AddUser extends Component {
+class AddAgent extends Component {
  state = {
     confirmDirty: false,
   };
@@ -25,7 +25,7 @@ class AddUser extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        axios.post('http://localhost:5000/users/superadmin/addadmin',values) .then( this.props.history.push('/') )
+        axios.post('http://localhost:5000/users/admin/addagent',values).then( this.props.history.push('/admin/listagent') )
         .catch(error => error);
       }
     });
@@ -57,7 +57,7 @@ class AddUser extends Component {
       <div className="gx-login-container">
         <div className="gx-login-content">
           <div className="gx-login-header gx-text-center">
-            <h1 className="gx-login-title">Ajouter un admin</h1>
+            <h1 className="gx-login-title">Ajouter un agent</h1>
           </div>
           <Form onSubmit={this.handleSubmit} className="gx-login-form gx-form-row0">
             <FormItem
@@ -209,7 +209,7 @@ class AddUser extends Component {
   }
 }
 
-const WrappedNormalSignUpForm = Form.create()(AddUser);
+const WrappedNormalSignUpForm = Form.create()(AddAgent);
 const mapStateToProps = ({ auth }) => {
   const { loader, alertMessage, showMessage, authUser } = auth;
   return { loader, alertMessage, showMessage, authUser }

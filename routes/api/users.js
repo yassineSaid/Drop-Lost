@@ -12,12 +12,19 @@ router.route('/signup').post(validateBody(schemas.authSchema), UsersContoller.si
 router.route('/verify').post(UsersContoller.verify);
 router.route('/forget').post(UsersContoller.forget);
 router.route('/resetPassword').post(UsersContoller.resetPassword);
+
 router.route('/superadmin/addadmin').post(validateBody(schemas.authSchema), UsersContoller.addAdmin);
 router.route('/superadmin/alladmins').get( UsersContoller.allAdmins);
 router.route('/superadmin/allusers').get( UsersContoller.allUsers);
-
 router.route('/superadmin/makeUser').post( UsersContoller.makeUser);
 router.route('/superadmin/makeAdmin').post( UsersContoller.makeAdmin);
+
+router.route('/admin/ban').post( UsersContoller.banUser);
+router.route('/admin/unban').post( UsersContoller.unbanUser);
+router.route('/admin/addagent').post( UsersContoller.addAgent);
+router.route('/admin/allagents').get( UsersContoller.allAgents);
+
+
 
 router.route('/oauth/facebook').post( UsersContoller.facebookOAuth);
 router.route('/oauth/google').post( UsersContoller.googleOAuth);

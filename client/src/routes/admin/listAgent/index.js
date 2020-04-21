@@ -4,11 +4,11 @@ import axios from 'axios';
 
 
 function handleAdmin(data){
-    axios.post('http://localhost:5000/users/superadmin/makeUser',data).then(window.location.reload(false));
+    axios.post('http://localhost:5000/users/admin/ban',data).then(window.location.reload(false));
    
 }
 
-class listAdmins extends Component {
+class listAgent extends Component {
     constructor() {
         super();
 
@@ -42,7 +42,7 @@ class listAdmins extends Component {
           render: (text, record) => (
             <span>
           
-            <span className="gx-link"onClick={() => handleAdmin(record)}>Make a simple user</span>
+            <span className="gx-link"onClick={() => handleAdmin(record)}>ban</span>
            
           </span>
           ),
@@ -51,9 +51,9 @@ class listAdmins extends Component {
       
 
     componentDidMount() {
-        axios.get('http://localhost:5000/users/superadmin/alladmins') //the api to hit request
+        axios.get('http://localhost:5000/users/admin/allagents') //the api to hit request
             .then((response) => {
-                const data = response.data.AdminsList.map((Admins) => ({
+                const data = response.data.agentslist.map((Admins) => ({
                     nom: Admins.nom,
                     prenom: Admins.prenom,
                     email:Admins.email
@@ -78,4 +78,4 @@ class listAdmins extends Component {
 }
 
   
-export default listAdmins;
+export default listAgent;

@@ -33,6 +33,11 @@ function isClient(){
 }
 function isAdmin(){
   const user = JSON.parse(localStorage.getItem('User'));
+  if (user.role=="admin")
+    return true
+}
+function isSuperAdmin(){
+  const user = JSON.parse(localStorage.getItem('User'));
   if (user.role=="superadmin")
     return true
 }
@@ -93,6 +98,9 @@ class HorizontalDark extends Component {
                 <li><Link to="/main/dashboard/crypto" onClick={() => {this.props.userSignOut(); window.location.reload(false);}} >Sign Out</Link></li>
               </ul>}
               {isLoggedIn() && isAdmin() &&  <ul className="gx-login-list">
+                <li><Link to="/main/dashboard/crypto" onClick={() => {this.props.userSignOut(); window.location.reload(false);}} >Sign Out</Link></li>
+              </ul>}
+              {isLoggedIn() && isSuperAdmin() &&  <ul className="gx-login-list">
                 <li><Link to="/main/dashboard/crypto" onClick={() => {this.props.userSignOut(); window.location.reload(false);}} >Sign Out</Link></li>
               </ul>}
             </div>
