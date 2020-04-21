@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
     role:{
         type: String,
-        enum: ['superadmin', 'admin', 'agent','client'],
+        enum: ['superadmin', 'admin', 'agent','user'],
         required: true
     },
     method: {

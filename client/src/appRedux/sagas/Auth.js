@@ -77,6 +77,7 @@ function* signInUserWithGoogle(access_token) {
 
   try {
     const signUpUser = yield call(signInUserWithGoogleRequest, access_token.access_token);
+
     if (signUpUser.message) {
       yield put(showAuthMessage(signUpUser.message));
     } else {
@@ -140,8 +141,9 @@ function* signInUserWithEmailPassword({ payload }) {
     if (signInUser.message) {
       yield put(showAuthMessage("Check your information or verify your account "));
     } else {
+      
+      localStorage.setItem('User', JSON.stringify(signInUser.data.User));
       yield put(userSignInSuccess(signInUser.data.User));
-      localStorage.setItem('User', signInUser.data.User._id);
 
     }
   } catch (error) {
