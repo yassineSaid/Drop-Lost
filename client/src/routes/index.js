@@ -11,6 +11,8 @@ import Main from "./main/index";
 import Documents from "./documents/index";
 import SuperAdmin from "./superadmin/index"
 import Annonces from "./annonces/index"
+import admin from "./admin/index"
+import agent from "./agent/index"
 
 const App = ({match}) => (
   <div className="gx-main-content-wrapper">
@@ -25,6 +27,8 @@ const App = ({match}) => (
       <Route path={`${match.url}documents`} component={Documents}/>
       <Route path={`${match.url}annonces`} component={Annonces}/>
       <Route path={`${match.url}superadmin`} component={SuperAdmin}/>
+      <Route path={`${match.url}admin`} component={admin}/>
+      <Route path={`${match.url}agent`} component={agent}/>
 
     </Switch>
   </div>

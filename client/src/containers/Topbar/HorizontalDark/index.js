@@ -33,6 +33,16 @@ function isClient(){
 }
 function isAdmin(){
   const user = JSON.parse(localStorage.getItem('User'));
+  if (user.role=="admin")
+    return true
+}
+function isAgent(){
+  const user = JSON.parse(localStorage.getItem('User'));
+  if (user.role=="agent")
+    return true
+}
+function isSuperAdmin(){
+  const user = JSON.parse(localStorage.getItem('User'));
   if (user.role=="superadmin")
     return true
 }
@@ -90,10 +100,16 @@ class HorizontalDark extends Component {
               </ul>}
               {isLoggedIn() && isClient() &&  <ul className="gx-login-list">
                 <li><Link to="/social-apps/profile">Account</Link></li>
-                <li><Link to="/main/dashboard/crypto" onClick={() => {this.props.userSignOut(); window.location.reload(false);}} >Sign Out</Link></li>
+                <li><Link to="/main/dashboard/crypto" onClick={() => {this.props.userSignOut();  this.props.history.push('/main/dashboard/crypto');}} >Sign Out</Link></li>
               </ul>}
               {isLoggedIn() && isAdmin() &&  <ul className="gx-login-list">
-                <li><Link to="/main/dashboard/crypto" onClick={() => {this.props.userSignOut(); window.location.reload(false);}} >Sign Out</Link></li>
+                <li><Link to="/main/dashboard/crypto" onClick={() => {this.props.userSignOut();  this.props.history.push('/main/dashboard/crypto');}} >Sign Out</Link></li>
+              </ul>}
+              {isLoggedIn() && isSuperAdmin() &&  <ul className="gx-login-list">
+                <li><Link to="/main/dashboard/crypto" onClick={() => {this.props.userSignOut();  this.props.history.push('/main/dashboard/crypto');}} >Sign Out</Link></li>
+              </ul>}
+              {isLoggedIn() && isAgent() &&  <ul className="gx-login-list">
+                <li><Link to="/main/dashboard/crypto" onClick={() => {this.props.userSignOut();  this.props.history.push('/main/dashboard/crypto');}} >Sign Out</Link></li>
               </ul>}
             </div>
           </div>

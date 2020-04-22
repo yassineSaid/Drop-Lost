@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {Button, Form, Input} from "antd";
 import IntlMessages from "util/IntlMessages";
 import axios from 'axios';
-import { database } from "firebase";
 
 const FormItem = Form.Item;
 
@@ -19,7 +18,7 @@ class ResetPassword extends Component {
           newpassword:values.password,
           confirmnewpassword:values.confirm
         }
-        axios.post('http://localhost:5000/users/resetPassword',data) .then( this.props.history.push('/signin') )
+        axios.post('http://localhost:5000/users/resetPassword',data).then( this.props.history.push('/signin') )
         .catch(error => error);
       }
     });

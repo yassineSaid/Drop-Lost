@@ -1,13 +1,12 @@
 import React, { Component } from "react";
-import {Card, Divider, Icon, Table} from "antd";
+import {Card, Table} from "antd";
 import axios from 'axios';
 
 
 function handleAdmin(data){
-    axios.post('http://localhost:5000/users/superadmin/makeAdmin',data).then(window.location.reload(false));
-   
+  axios.post('http://localhost:5000/users/superadmin/makeAdmin',data).then(window.location.reload(false));
+ 
 }
-
 class listUsers extends Component {
     constructor() {
         super();
@@ -24,7 +23,6 @@ class listUsers extends Component {
           title: 'nom',
           dataIndex: 'nom',
           key: 'nom',
-          render: text => <span className="gx-link">{text}</span>,
         },
         {
           title: 'prenom',
@@ -35,15 +33,16 @@ class listUsers extends Component {
           title: 'email',
           dataIndex: 'email',
           key: 'email',
+          
         },
+        
         {
           title: 'Action',
           key: 'action',
           render: (text, record) => (
             <span>
-          
-            <span className="gx-link"onClick={() => handleAdmin(record)}>Make an admin</span>
-           
+                    <span className="gx-link"onClick={() => handleAdmin(record)}>Make a admin</span>
+
           </span>
           ),
         }
@@ -56,7 +55,9 @@ class listUsers extends Component {
                 const data = response.data.AdminsList.map((Admins) => ({
                     nom: Admins.nom,
                     prenom: Admins.prenom,
-                    email:Admins.email
+                    email:Admins.email,
+                    Isactive:Admins.Isactive
+
                 }));
 
                 this.setState({

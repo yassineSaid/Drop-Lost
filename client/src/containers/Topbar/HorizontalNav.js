@@ -13,7 +13,29 @@ import {
 
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
-
+function isLoggedIn() {
+  return localStorage.getItem('User') != null
+}
+function isClient(){
+  const user = JSON.parse(localStorage.getItem('User'));
+  if (user.role=="user")
+    return true
+}
+function isSuperAdmin(){
+  const user = JSON.parse(localStorage.getItem('User'));
+  if (user.role=="superadmin")
+    return true
+}
+function isAgent(){
+  const user = JSON.parse(localStorage.getItem('User'));
+  if (user.role=="agent")
+    return true
+}
+function isAdmin(){
+  const user = JSON.parse(localStorage.getItem('User'));
+  if (user.role=="admin")
+    return true
+}
 class HorizontalNav extends Component {
 
   getNavStyleSubMenuClass = (navStyle) => {
@@ -42,7 +64,7 @@ class HorizontalNav extends Component {
         defaultOpenKeys={[defaultOpenKeys]}
         selectedKeys={[selectedKeys]}
         mode="horizontal">
-      <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="superadmin"
+      {isLoggedIn() && isSuperAdmin() &&<SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="superadmin"
           title="Controle des admins">
           
           <Menu.Item key="/superadmin/addadmin">
@@ -63,7 +85,46 @@ class HorizontalNav extends Component {
                liste des utilisateurs
               </Link>
           </Menu.Item>
-        </SubMenu>
+        </SubMenu>}
+        {isLoggedIn() && isAgent() && <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="agent"
+          title="Controle des stores">
+          
+          <Menu.Item key="/agent/addstore">
+            <Link to="/admin/addstore">
+            <i className="icon icon-user" />
+                Ajouter un store
+              </Link>
+          </Menu.Item>
+          <Menu.Item key="/agent/liststore">
+            <Link to="/agent/liststore">
+            <i className="icon icon-user" />
+               liste des stores
+              </Link>
+          </Menu.Item>
+          
+        </SubMenu>}
+        {isLoggedIn() && isAdmin() && <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="admin"
+          title="Controle des utilisateurs">
+          
+          <Menu.Item key="/admin/addagent">
+            <Link to="/admin/addagent">
+            <i className="icon icon-user" />
+                Ajouter un agent
+              </Link>
+          </Menu.Item>
+          <Menu.Item key="/admin/listagent">
+            <Link to="/admin/listagent">
+            <i className="icon icon-user" />
+               liste des agents
+              </Link>
+          </Menu.Item>
+          <Menu.Item key="/admin/listeusers">
+            <Link to="/admin/listeusers">
+            <i className="icon icon-user" />
+               liste des utilisateurs
+              </Link>
+          </Menu.Item>
+        </SubMenu>}
         <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="annonces"
           title="Annonces">
           <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="ajouter"
