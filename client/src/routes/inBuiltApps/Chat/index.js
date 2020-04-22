@@ -21,6 +21,7 @@ class Chat extends Component {
   componentDidMount() {
     this.socket = io.connect(SOCKET_URI);
     this.setupSocketListeners();
+    //console.log(localStorage.getItem('User'));
   }
 
   componentDidUpdate() {
@@ -38,7 +39,7 @@ class Chat extends Component {
       'body': message.body,
       'date': Moment().unix() * 1000,
     };
-    if (message.from !== localStorage.getItem('User')) {
+    if (message.from !== this.state.loggedUser._id) {
       this.setState({
         conversation: this.state.conversation.concat(updatedConversation)
       })
@@ -132,7 +133,7 @@ class Chat extends Component {
               className="gx-size-60" alt="John Doe" />
           </div>
 
-          <div className="gx-user-name h4 gx-my-2">Robert Johnson</div>
+        <div className="gx-user-name h4 gx-my-2">{this.state.loggedUser.nom} {this.state.loggedUser.prenom}</div>
 
         </div>
       </div>
@@ -185,10 +186,10 @@ class Chat extends Component {
 
           <div className="gx-module-user-info gx-flex-column gx-justify-content-center">
             <div className="gx-module-title">
-              <h5 className="gx-mb-0">Robert Johnson</h5>
+              <h5 className="gx-mb-0">{this.state.loggedUser.nom} {this.state.loggedUser.prenom}</h5>
             </div>
             <div className="gx-module-user-detail">
-              <span className="gx-text-grey gx-link">robert@example.com</span>
+              <span className="gx-text-grey gx-link">{this.state.loggedUser.email}</span>
             </div>
           </div>
         </div>
@@ -264,11 +265,11 @@ class Chat extends Component {
           conversation: response.data.map(message => {
             return ({
               ...message,
-              type: message.from === localStorage.getItem('User') ? 'sent' : 'received'
+              type: message.from === this.state.loggedUser._id ? 'sent' : 'received'
             })
           })
         });
-
+        console.log(this.state.conversation);
         this.socket.emit('subscribe', { room: this.state.conversation[0].conversation })
         setTimeout(() => {
           this.setState({ loader: false });
@@ -310,8 +311,10 @@ class Chat extends Component {
       chatUsers: [],
       chatUsersSearch: [],
       conversationList: [],
-      conversation: null
+      conversation: null,
+      loggedUser : JSON.parse(localStorage.getItem('User'))
     }
+    console.log(this.state.loggedUser)
     axios.get("http://localhost:5000/api/chat/users", { withCredentials: true }).then(
       response => {
         this.setState({
