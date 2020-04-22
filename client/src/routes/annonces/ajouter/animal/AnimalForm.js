@@ -34,7 +34,6 @@ class AnimalForm extends React.Component {
       race: "",
       trouve: false,
       date: moment().format("DD-MM-YYYY"),
-      nom: "",
       annonceId: null,
       fileList: [],
     };
@@ -67,14 +66,12 @@ class AnimalForm extends React.Component {
   handleTrouveChange(value, event) {
     if (value) {
       this.setState({
-        trouve: value,
-        nom: null
+        trouve: value
       })
     }
     else {
       this.setState({
-        trouve: value,
-        nom: ""
+        trouve: value
       })
     }
     console.log(this.state)
@@ -176,19 +173,6 @@ class AnimalForm extends React.Component {
               onChange={this.handleInputChange}
             />
           </FormItem>
-          {this.state.nom !== null ?
-            <FormItem
-              {...formItemLayout}
-              label="Nom"
-            >
-              <Input
-                placeholder="A quel nom répond votre animal"
-                name="nom"
-                value={this.state.nom}
-                onChange={this.handleInputChange}
-              />
-            </FormItem> : null
-          }
 
           <FormItem
             {...formItemLayout}

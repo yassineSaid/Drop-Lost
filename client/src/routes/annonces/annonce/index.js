@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Avatar, Card, Icon, Row, Col } from "antd";
+import { Avatar, Card, Icon, Row, Col, Carousel } from "antd";
 import { getAnnonce } from "../../../requests/annonces";
 import moment from "moment";
 import 'moment/locale/fr';
@@ -16,6 +16,7 @@ class Annonce extends Component {
       id: params.id,
       loading: true,
       annonce: null,
+      images: []
     };
   }
 
@@ -28,6 +29,7 @@ class Annonce extends Component {
           annonce: response.response.data.annonce,
           matched: response.response.data.matched,
           annonces: response.response.data.annonces,
+          images: response.response.data.annonce.images
         })
       }
       else {
@@ -43,11 +45,18 @@ class Annonce extends Component {
       <div>
         <Row>
           <Col xl={8} lg={12} md={12} sm={24} xs={24}>
-            <Card
-              loading={this.state.loading}
-              cover={<img alt="example" src={!this.state.loading ? "http://localhost:5000/uploads/"+this.state.annonce.images[0] : "https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"} />}
-            >
-            </Card>
+            <Carousel autoplay style={{height: "300px", lineHeight: "300px", textAlign: "center"}}>
+              {this.state.images.map(item => {
+                return (
+                  <div key={item}>
+                    <img alt="example"
+                      src={"http://localhost:5000/uploads/" + item}
+                      style={{maxHeight: "300px", width: "auto", margin: "auto"}}
+                    />
+                  </div>
+                )
+              })}
+            </Carousel>
           </Col>
           <Col xl={16} lg={24} md={24} sm={24} xs={24}>
             <Card
@@ -72,11 +81,11 @@ class Annonce extends Component {
                 }
               </p>
               {
-                this.state.annonces.map((item,i) => {
+                this.state.annonces.map((item, i) => {
                   return (
                     <Card
                       type="inner"
-                      title={"Annonce "+(i+1)}
+                      title={"Annonce " + (i + 1)}
                       key={i}
                     >
                       {item.description}

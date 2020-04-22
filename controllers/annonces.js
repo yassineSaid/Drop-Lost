@@ -3,6 +3,15 @@ const Annonce = require('../models/annonce')
 const getValidationErrors = require('../models/validationErrors')
 const path = require("path");
 const multer = require("multer");
+const jaccard = require('jaccard-similarity-sentences');
+var stringSimilarity = require('string-similarity');
+var faceapi = require("face-api.js")
+var canvas = require("canvas")
+const { Image, loadImage, ImageData, createCanvas, HTMLCanvasElement, HTMLImageElement, Canvas } = canvas;
+faceapi.env.monkeyPatch({
+    Image, Canvas, ImageData
+})
+
 const storage = multer.diskStorage({
     destination: "./public/uploads/",
     filename: function (req, file, cb) {
@@ -101,11 +110,30 @@ module.exports = {
         }
     }
 }
+async function asyncForEach(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+        await callback(array[index], index, array);
+    }
+}
 async function getMatchedAnnonces(id, user) {
     console.log("AAAAAAAAAAAAAAAAAAAAAAAAa")
+    var sentence1 = "J'ai perdu mon iphone 6s hier zone manar 3. C'est un iphone rose gold, dans une coque silicone noir.";
+    var sentence2 = "J'ai trouvé un iphone 6s aux alentours du manar. il est rose et cache noir.";
+    var sentence3 = "aman chkoun chefha el tofla hedhii!!! Berah ekher mara kenet maaya fil menzah 5 lebssa maryoul rose w jean !!! i3ayechkom eli ychoufha ikalamni "
+    var sentence4 = "Fama tofla mahboula, men bekri w heya t3ayat wahad'ha fel chera3! lebssa pull rose , fama chkoun ya3rafha ??"
+    var tab1 = sentence1.trim().split(" ");
+    var tab2 = sentence2.trim().split(" ");
+    var measure = jaccard.jaccardSimilarity(sentence1, sentence2);
+    var measure1 = jaccard.jaccardSimilarity(sentence3, sentence4);
+    console.log(measure);
+    console.log(measure1);
+    console.log(stringSimilarity.compareTwoStrings(sentence1, sentence2))
+    console.log(stringSimilarity.compareTwoStrings(sentence3, sentence4))
+
     const annonce = await Annonce.findById(id);
     console.log("AAAAAAAAAAAAAAAAAAAAAAAAa")
-    let promise = new Promise(function (resolve, reject) {
+    let promise = new Promise(async function (resolve, reject) {
+        console.log(annonce)
         if (typeof user === "undefined") {
             reject(new Error("Vous devez être connecté"))
         }
@@ -117,20 +145,89 @@ async function getMatchedAnnonces(id, user) {
                     $lte: annonce.date
                 }
             } else {
-                query.trouve = false
+                query.trouve = true
                 query.date = {
                     $gte: annonce.date
                 }
             }
-            if ("objet" in annonce) {
+            if (typeof annonce.objet !== "undefined") {
                 query["objet.categorie"] = annonce.objet.categorie
                 query["objet.sousCategorie"] = annonce.objet.sousCategorie
                 query["objet.marque"] = annonce.objet.marque
                 query["objet.modele"] = annonce.objet.modele
             }
-            Annonce.find(query).then(annonces => {
+            if (typeof annonce.personne !== "undefined") {
+                query["personne.sexe"] = annonce.personne.sexe
+            }
+            await Annonce.find(query).then(async annoncesDoc => {
+                var annonces = []
+                annoncesDoc.forEach(item => {
+                    var annonce = item.toObject()
+                    annonce.score=0;
+                    annonce.scoreTotal=0;
+                    annonces.push(annonce)
+                })
                 console.log(annonces)
-                resolve(annonces)
+                var response = []
+                if (typeof annonce.objet !== "undefined") {
+                    console.log("SEARCHING FOR OBJET")
+                    annonces.forEach(item => {
+                        item.score += jaccard.jaccardSimilarity(annonce.description, item.description)
+                        item.scoreTotal += 1
+                    })
+                    response = annonces.sort((a, b) => {
+                        return a.score - b.score
+                    }).reverse().slice(0, 4)
+                }
+                if (typeof annonce.personne !== "undefined") {
+                    console.log("SEARCHING FOR PERSONNE")
+                    await asyncForEach(annonces, async (item) => {
+                        item.score += jaccard.jaccardSimilarity(annonce.description, item.description);
+                        item.scoreTotal += 1;
+                        if ("nom" in item.personne && "nom" in annonce.personne) {
+                            item.score += stringSimilarity.compareTwoStrings(item.personne.nom, annonce.personne.nom)
+                            item.scoreTotal += 1;
+                        }
+                        if (item.images.length > 0 && annonce.images.length > 0) {
+                            console.log("BBBBBBBBBBBBBBBBBBBBBB")
+                            await faceapi.nets.ssdMobilenetv1.loadFromDisk("./public/weights/")
+                            await faceapi.nets.faceLandmark68Net.loadFromDisk("./public/weights/")
+                            await faceapi.nets.faceRecognitionNet.loadFromDisk("./public/weights/")
+                            console.log("BBBBBBBBBBBBBBBBBBBBBB")
+                            const labeledFaceDescriptors = await Promise.all(
+                                item.images.map(async label => {
+                                    console.log("CCCCCCCCCCCCCCCCCCCCCC")
+                                    // fetch image data from urls and convert blob to HTMLImage element
+                                    const imgUrl = `./public/uploads/${label}`
+                                    const img = await canvas.loadImage(imgUrl)
+
+                                    // detect the face with the highest score in the image and compute it's landmarks and face descriptor
+                                    const fullFaceDescription = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor()
+
+                                    if (!fullFaceDescription) {
+                                        throw new Error(`no faces detected for ${label}`)
+                                    }
+
+                                    const faceDescriptors = [fullFaceDescription.descriptor]
+                                    return new faceapi.LabeledFaceDescriptors(label, faceDescriptors)
+                                })
+                            )
+                            const maxDescriptorDistance = 0.6
+                            const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, maxDescriptorDistance)
+
+                            const img = await canvas.loadImage("./public/uploads/" + annonce.images[0])
+                            let fullFaceDescriptions = await faceapi.detectAllFaces(img).withFaceLandmarks().withFaceDescriptors()
+
+                            const results = fullFaceDescriptions.map(fd => faceMatcher.findBestMatch(fd.descriptor))
+                            console.log(results)
+                        } 
+                    })
+                    console.log(annonces)
+                    response = annonces.sort((a, b) => {
+                        return a.score - b.score
+                    }).reverse().slice(0, 4)
+                }
+                resolve(response)
             })
         }
         else {
