@@ -1,13 +1,12 @@
 import React, { Component } from "react";
-import {Card, Table} from "antd";
+import {Card,  Table} from "antd";
 import axios from 'axios';
 
 
 function handleAdmin(data){
-  axios.post('http://localhost:5000/users/superadmin/makeAdmin',data).then(window.location.reload(false));
- 
 }
-class listUsers extends Component {
+
+class listStore extends Component {
     constructor() {
         super();
 
@@ -23,26 +22,26 @@ class listUsers extends Component {
           title: 'nom',
           dataIndex: 'nom',
           key: 'nom',
+          render: text => <span className="gx-link">{text}</span>,
         },
         {
-          title: 'prenom',
-          dataIndex: 'prenom',
-          key: 'prenom',
+          title: 'adresse',
+          dataIndex: 'adresse',
+          key: 'adresse',
         },
         {
-          title: 'email',
-          dataIndex: 'email',
-          key: 'email',
-          
+          title: 'numero',
+          dataIndex: 'numero',
+          key: 'numero',
         },
-        
         {
           title: 'Action',
           key: 'action',
           render: (text, record) => (
             <span>
-                    <span className="gx-link"onClick={() => handleAdmin(record)}>Make a admin</span>
-
+          
+            <span className="gx-link"onClick={() =>  this.props.history.push('/')}>ban</span>
+           
           </span>
           ),
         }
@@ -50,14 +49,12 @@ class listUsers extends Component {
       
 
     componentDidMount() {
-        axios.get('http://localhost:5000/users/superadmin/allusers') //the api to hit request
+        axios.get('http://localhost:5000/users/agent/liststores') //the api to hit request
             .then((response) => {
-                const data = response.data.AdminsList.map((Admins) => ({
+                const data = response.data.storelist.map((Admins) => ({
                     nom: Admins.nom,
-                    prenom: Admins.prenom,
-                    email:Admins.email,
-                    Isactive:Admins.Isactive
-
+                    adresse: Admins.adresse,
+                    numero:Admins.numero
                 }));
 
                 this.setState({
@@ -79,4 +76,4 @@ class listUsers extends Component {
 }
 
   
-export default listUsers;
+export default listStore;

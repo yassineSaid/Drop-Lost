@@ -3,9 +3,11 @@ import {Card, Table} from "antd";
 import axios from 'axios';
 
 
-function handleAdmin(data){
-  axios.post('http://localhost:5000/users/superadmin/makeAdmin',data).then(window.location.reload(false));
- 
+function ban(data){
+     axios.post('http://localhost:5000/users/admin/ban',data).then(window.location.reload(false));
+}
+function unban(data){
+  axios.post('http://localhost:5000/users/admin/unban',data).then(window.location.reload(false));
 }
 class listUsers extends Component {
     constructor() {
@@ -41,8 +43,11 @@ class listUsers extends Component {
           key: 'action',
           render: (text, record) => (
             <span>
-                    <span className="gx-link"onClick={() => handleAdmin(record)}>Make a admin</span>
-
+          
+{record.Isactive&&            <span className="gx-link"onClick={() => ban(record)}>ban</span>
+}   
+{!record.Isactive&&            <span className="gx-link"onClick={() => unban(record)}>unban</span>
+}           
           </span>
           ),
         }

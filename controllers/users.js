@@ -1,6 +1,9 @@
 const User = require('../models/user');
 const JWT = require('jsonwebtoken');
 const fetch = require('node-fetch');
+const Store = require('../models/store');
+const Annonce = require('../models/annonce')
+const url = require('url');
 
 var randomstring = require("randomstring");
 const nodemailer = require('nodemailer');
@@ -473,6 +476,93 @@ module.exports = {
         agentslist = await User.find({ "role": "agent" });
         res.status(200).json({ success: true, agentslist });
 
-    }
+    },
+    liststores: async (req, res, next) => {
+        storelist = await Store.find()
+        res.status(200).json({ success: true, storelist });
 
-}
+    },
+
+    
+    listobjectsinstore: async (req, res, next) => {
+        
+        console.log(req.params.nom);
+                 Store.find({ "nom": req.params.nom }).populate("ObjectsInStore").
+         exec(function (err, store) {
+           if (err) return handleError(err);
+           res.status(200).json({ success: true, store });
+        });
+
+    },
+    addStore: async (req, res, next) => {
+        console.log(req.body)
+        const { nom, ville, adresse, numero } = req.body;
+
+        const foundStore = await Store.findOne({ "nom": nom });
+        if (foundStore) {
+            return res.status(403).json({ error: 'store already exists' });
+        }
+        const newStore = new Store({
+
+
+            nom: nom,
+
+            ville: ville,
+            adresse: adresse,
+            numero: numero,
+
+
+
+
+        });
+        await newStore.save();
+        res.status(200).json({ success: true });
+
+    },
+    addObjectToStore: async (req, res, next) => {
+        const { nom, _id } = req.body;
+        const foundannonce = await Annonce.findOne({ "_id": _id });
+        if (!foundannonce) {
+            return res.status(403).json({ error: 'annonce not found' });
+        }
+        const foundStore = await Store.findOne({ "nom": nom });
+        if (!foundStore) {
+            return res.status(403).json({ error: 'store not found' });
+        }
+        if (foundStore.ObjectsInStore.indexOf(_id) === -1) {
+            foundStore.ObjectsInStore.push(foundannonce._id);
+            foundStore.save();
+            res.status(200).json({ success: true });
+
+        }
+        else {
+            return res.status(403).json({ error: 'object already in store' });
+
+        }
+        
+
+
+
+    },
+    deleteObjectfromStore: async (req, res, next) => {
+        const { nom, _id } = req.body;
+        const foundannonce = await Annonce.findOne({ "_id": _id });
+        if (!foundannonce) {
+            return res.status(403).json({ error: 'annonce not found' });
+        }
+        const foundStore = await Store.findOne({ "nom": nom });
+        if (!foundStore) {
+            return res.status(403).json({ error: 'store not found' });
+        }
+        if (foundStore.ObjectsInStore.indexOf(_id) != -1) {
+            foundStore.ObjectsInStore.pull(_id);
+            foundStore.save();
+            res.status(200).json({ success: true });
+
+        }
+        else {
+            return res.status(403).json({ error: 'object already in store' });
+
+        }
+
+}}

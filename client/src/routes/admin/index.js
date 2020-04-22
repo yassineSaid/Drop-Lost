@@ -3,7 +3,7 @@ import { Route, Switch } from "react-router-dom";
 
 import AddAgent from "./addAgent";
 import listAgent from "./listAgent";
-import listUsers from "../superadmin/listUsers";
+import listUsers from "./listUsers";
 
 const admin = ({ match }) => (
   <Switch>

@@ -26,6 +26,11 @@ function isSuperAdmin(){
   if (user.role=="superadmin")
     return true
 }
+function isAgent(){
+  const user = JSON.parse(localStorage.getItem('User'));
+  if (user.role=="agent")
+    return true
+}
 function isAdmin(){
   const user = JSON.parse(localStorage.getItem('User'));
   if (user.role=="admin")
@@ -81,7 +86,23 @@ class HorizontalNav extends Component {
               </Link>
           </Menu.Item>
         </SubMenu>}
-
+        {isLoggedIn() && isAgent() && <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="agent"
+          title="Controle des stores">
+          
+          <Menu.Item key="/agent/addstore">
+            <Link to="/admin/addstore">
+            <i className="icon icon-user" />
+                Ajouter un store
+              </Link>
+          </Menu.Item>
+          <Menu.Item key="/agent/liststore">
+            <Link to="/agent/liststore">
+            <i className="icon icon-user" />
+               liste des stores
+              </Link>
+          </Menu.Item>
+          
+        </SubMenu>}
         {isLoggedIn() && isAdmin() && <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="admin"
           title="Controle des utilisateurs">
           
