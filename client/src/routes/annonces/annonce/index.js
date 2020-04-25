@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Avatar, Card, Icon, Row, Col, Carousel } from "antd";
+import { Avatar, Card, Icon, Row, Col, Carousel, Tag, Button } from "antd";
 import { getAnnonce } from "../../../requests/annonces";
 import moment from "moment";
 import 'moment/locale/fr';
@@ -45,13 +45,13 @@ class Annonce extends Component {
       <div>
         <Row>
           <Col xl={8} lg={12} md={12} sm={24} xs={24}>
-            <Carousel autoplay style={{height: "300px", lineHeight: "300px", textAlign: "center"}}>
+            <Carousel autoplay style={{ height: "300px", lineHeight: "300px", textAlign: "center" }}>
               {this.state.images.map(item => {
                 return (
                   <div key={item}>
                     <img alt="example"
                       src={"http://localhost:5000/uploads/" + item}
-                      style={{maxHeight: "300px", width: "auto", margin: "auto"}}
+                      style={{ maxHeight: "300px", width: "auto", margin: "auto" }}
                     />
                   </div>
                 )
@@ -77,18 +77,26 @@ class Annonce extends Component {
                 }}>
                 {this.state.annonces.length === 0 ? "Aucune annonce ne correspond à la votre "
                   : this.state.annonces.length === 1 ? "Il y a 1 annonce qui correspond à la votre"
-                    : "Il y a " + this.state.annonces.length + " annonces qui correspond à la votre"
+                    : "Il y a " + this.state.annonces.length + " annonces qui correspondent à la votre"
                 }
               </p>
               {
                 this.state.annonces.map((item, i) => {
+                  var score = item.score / item.scoreTotal * 100
+                  var scoreV = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(score)
                   return (
                     <Card
                       type="inner"
                       title={"Annonce " + (i + 1)}
                       key={i}
+                      actions={[<Button><Icon type="edit" /> Contacter cette personne</Button>]}
                     >
-                      {item.description}
+                      <p>
+                        {item.description}
+                      </p>
+                      <Tag color={score>70 ? "#87d068" : score>50 ? "#f29d41" : "#f50"}>
+                        {"Cette annonce correspond à la votre à "+scoreV+"%"}
+                      </Tag>
                     </Card>
                   )
                 })

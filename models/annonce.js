@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-var bcrypt = require('bcryptjs');
 
 const Schema = mongoose.Schema;
 const objetCategories = ["smartphone", "electronique", "document", "cle", "lunette", "outils", "vetement", "autre"]
