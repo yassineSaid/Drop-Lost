@@ -1,10 +1,12 @@
 const User = require('../models/user');
 const Annonce = require('../models/annonce')
+const LabelledFaceDescriptor = require('../models/LabelledFaceDescriptor')
 const getValidationErrors = require('../models/validationErrors')
 const path = require("path");
 const multer = require("multer");
 const jaccard = require('jaccard-similarity-sentences');
 var stringSimilarity = require('string-similarity');
+require("@tensorflow/tfjs-node");
 var faceapi = require("face-api.js")
 var canvas = require("canvas")
 const { Image, loadImage, ImageData, createCanvas, HTMLCanvasElement, HTMLImageElement, Canvas } = canvas;
@@ -49,10 +51,38 @@ module.exports = {
                 req.files.forEach(element => {
                     images.push(element.filename)
                 });
-                const annonce = Annonce.findById(req.params.id).then(annonce => {
+                const annonce = Annonce.findById(req.params.id).then(async function (annonce) {
                     console.log(annonce)
                     annonce.images = images;
-                    annonce.save().then(result => {
+                    annonce.save().then(async function (result) {
+                        /* if (typeof annonce.personne !== "undefined") {
+                            await faceapi.nets.ssdMobilenetv1.loadFromDisk("./public/weights/")
+                            await faceapi.nets.faceLandmark68Net.loadFromDisk("./public/weights/")
+                            await faceapi.nets.faceRecognitionNet.loadFromDisk("./public/weights/")
+                            const labeledFaceDescriptors = await Promise.all(
+                                item.images.map(async function (label) {
+                                    console.log("CCCCCCCCCCCCCCCCCCCCCC")
+                                    // fetch image data from urls and convert blob to HTMLImage element
+                                    const imgUrl = `./public/uploads/${label}`
+                                    const img = await canvas.loadImage(imgUrl)
+
+                                    // detect the face with the highest score in the image and compute it's landmarks and face descriptor
+                                    const fullFaceDescription = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor()
+
+                                    if (!fullFaceDescription) {
+                                        throw new Error(`no faces detected for ${label}`)
+                                    }
+
+                                    const faceDescriptors = [fullFaceDescription.descriptor]
+                                    return new faceapi.LabeledFaceDescriptors(label, faceDescriptors)
+                                })
+                            )
+                            const descriptor = new LabelledFaceDescriptor({
+                                annonce: annonce._id,
+                                descriptor: labeledFaceDescriptors
+                            });
+                            descriptor.save()
+                        } */
                         res.status(201).json({ success: true, result: result });
                     })
                         .catch(err => {
@@ -158,13 +188,37 @@ async function getMatchedAnnonces(id, user) {
             }
             if (typeof annonce.personne !== "undefined") {
                 query["personne.sexe"] = annonce.personne.sexe
+                if (annonce.images.length > 0) {
+                    await faceapi.nets.ssdMobilenetv1.loadFromDisk("./public/weights/")
+                    await faceapi.nets.faceLandmark68Net.loadFromDisk("./public/weights/")
+                    await faceapi.nets.faceRecognitionNet.loadFromDisk("./public/weights/")
+                    const labeledFaceDescriptors = await Promise.all(
+                        annonce.images.map(async label => {
+                            // fetch image data from urls and convert blob to HTMLImage element
+                            const imgUrl = `./public/uploads/${label}`
+                            const img = await canvas.loadImage(imgUrl)
+
+                            // detect the face with the highest score in the image and compute it's landmarks and face descriptor
+                            const fullFaceDescription = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor()
+
+                            if (!fullFaceDescription) {
+                                throw new Error(`no faces detected for ${label}`)
+                            }
+
+                            const faceDescriptors = [fullFaceDescription.descriptor]
+                            return new faceapi.LabeledFaceDescriptors(label, faceDescriptors)
+                        })
+                    )
+                    const maxDescriptorDistance = 0.6
+                    var faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, maxDescriptorDistance)
+                }
             }
             await Annonce.find(query).then(async annoncesDoc => {
                 var annonces = []
                 annoncesDoc.forEach(item => {
                     var annonce = item.toObject()
-                    annonce.score=0;
-                    annonce.scoreTotal=0;
+                    annonce.score = 0;
+                    annonce.scoreTotal = 0;
                     annonces.push(annonce)
                 })
                 console.log(annonces)
@@ -172,6 +226,8 @@ async function getMatchedAnnonces(id, user) {
                 if (typeof annonce.objet !== "undefined") {
                     console.log("SEARCHING FOR OBJET")
                     annonces.forEach(item => {
+                        item.score += 2
+                        item.scoreTotal += 2;
                         item.score += jaccard.jaccardSimilarity(annonce.description, item.description)
                         item.scoreTotal += 1
                     })
@@ -182,6 +238,8 @@ async function getMatchedAnnonces(id, user) {
                 if (typeof annonce.personne !== "undefined") {
                     console.log("SEARCHING FOR PERSONNE")
                     await asyncForEach(annonces, async (item) => {
+                        item.score += 0.5
+                        item.scoreTotal += 0.5;
                         item.score += jaccard.jaccardSimilarity(annonce.description, item.description);
                         item.scoreTotal += 1;
                         if ("nom" in item.personne && "nom" in annonce.personne) {
@@ -189,38 +247,22 @@ async function getMatchedAnnonces(id, user) {
                             item.scoreTotal += 1;
                         }
                         if (item.images.length > 0 && annonce.images.length > 0) {
-                            console.log("BBBBBBBBBBBBBBBBBBBBBB")
-                            await faceapi.nets.ssdMobilenetv1.loadFromDisk("./public/weights/")
-                            await faceapi.nets.faceLandmark68Net.loadFromDisk("./public/weights/")
-                            await faceapi.nets.faceRecognitionNet.loadFromDisk("./public/weights/")
-                            console.log("BBBBBBBBBBBBBBBBBBBBBB")
-                            const labeledFaceDescriptors = await Promise.all(
-                                item.images.map(async label => {
-                                    console.log("CCCCCCCCCCCCCCCCCCCCCC")
-                                    // fetch image data from urls and convert blob to HTMLImage element
-                                    const imgUrl = `./public/uploads/${label}`
-                                    const img = await canvas.loadImage(imgUrl)
-
-                                    // detect the face with the highest score in the image and compute it's landmarks and face descriptor
-                                    const fullFaceDescription = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor()
-
-                                    if (!fullFaceDescription) {
-                                        throw new Error(`no faces detected for ${label}`)
-                                    }
-
-                                    const faceDescriptors = [fullFaceDescription.descriptor]
-                                    return new faceapi.LabeledFaceDescriptors(label, faceDescriptors)
+                            var bestResult = 1;
+                            await asyncForEach(item.images, async (image) => {
+                                var localBestResult = 1;
+                                const img = await canvas.loadImage("./public/uploads/" + image)
+                                let fullFaceDescriptions = await faceapi.detectAllFaces(img).withFaceLandmarks().withFaceDescriptors()
+                                const results = fullFaceDescriptions.map(fd => faceMatcher.findBestMatch(fd.descriptor))
+                                console.log(results)
+                                results.map(r => {
+                                    if (r.distance<bestResult) localBestResult=r.distance
                                 })
-                            )
-                            const maxDescriptorDistance = 0.6
-                            const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, maxDescriptorDistance)
-
-                            const img = await canvas.loadImage("./public/uploads/" + annonce.images[0])
-                            let fullFaceDescriptions = await faceapi.detectAllFaces(img).withFaceLandmarks().withFaceDescriptors()
-
-                            const results = fullFaceDescriptions.map(fd => faceMatcher.findBestMatch(fd.descriptor))
-                            console.log(results)
-                        } 
+                                if (localBestResult<bestResult) bestResult=localBestResult
+                            })
+                            var faceScore = 1-bestResult;
+                            item.score+=faceScore;
+                            item.scoreTotal+=1
+                        }
                     })
                     console.log(annonces)
                     response = annonces.sort((a, b) => {
