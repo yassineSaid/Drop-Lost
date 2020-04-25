@@ -247,4 +247,60 @@ router.get('/conversations/query', (req, res) => {
 });
 
 
+router.post('/create', (req, res) => {
+    let jwtUser = jwt.verify(verify(req), keys.jwtSecret);
+    let from = mongoose.Types.ObjectId(jwtUser.sub);
+    let to = mongoose.Types.ObjectId(req.body.to);
+    let annonce = mongoose.Types.ObjectId(req.body.annonce);
+    Conversation.findOneAndUpdate(
+        {
+            recipients: {
+                $all: [
+                    { $elemMatch: { $eq: from } },
+                    { $elemMatch: { $eq: to } },
+                ],
+            },
+        },
+        {
+            recipients: [jwtUser.sub, req.body.to],
+            lastMessage: "",
+            date: Date.now(),
+            from: from,
+            annonce
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true },
+        function (err, conversation) {
+            if (err) {
+                res.setHeader('Content-Type', 'application/json');
+                res.sendStatus(500);
+                res.end(JSON.stringify({ message: 'Failure' }));
+
+            } else {
+                res.setHeader('Content-Type', 'application/json');
+                Conversation.aggregate([
+                    {
+                      '$lookup': {
+                        'from': 'users', 
+                        'localField': 'recipients', 
+                        'foreignField': '_id', 
+                        'as': 'recipients'
+                      }
+                    }, {
+                      '$lookup': {
+                        'from': 'annonces', 
+                        'localField': 'annonce', 
+                        'foreignField': '_id', 
+                        'as': 'annonce'
+                      }
+                    }
+                  ]).exec((err, conver) => {
+                    res.end(JSON.stringify({ message: 'Success',conversation: conver}));
+                  })
+                
+            }
+        }
+    );
+});
+
+
 module.exports = router;

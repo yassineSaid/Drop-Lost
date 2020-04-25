@@ -66,7 +66,7 @@ class HorizontalNav extends Component {
         mode="horizontal">
       {isLoggedIn() && isSuperAdmin() &&<SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="superadmin"
           title="Controle des admins">
-          
+
           <Menu.Item key="/superadmin/addadmin">
             <Link to="/superadmin/addadmin">
             <i className="icon icon-user" />
@@ -88,7 +88,7 @@ class HorizontalNav extends Component {
         </SubMenu>}
         {isLoggedIn() && isAgent() && <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="agent"
           title="Controle des stores">
-          
+
           <Menu.Item key="/agent/addstore">
             <Link to="/admin/addstore">
             <i className="icon icon-user" />
@@ -101,11 +101,11 @@ class HorizontalNav extends Component {
                liste des stores
               </Link>
           </Menu.Item>
-          
+
         </SubMenu>}
         {isLoggedIn() && isAdmin() && <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="admin"
           title="Controle des utilisateurs">
-          
+
           <Menu.Item key="/admin/addagent">
             <Link to="/admin/addagent">
             <i className="icon icon-user" />
@@ -199,59 +199,13 @@ class HorizontalNav extends Component {
 
         </SubMenu>
 
-        <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="in-built-apps"
-          title={<IntlMessages id="sidebar.inBuiltApp" />}>
-
-          <Menu.Item key="in-built-apps/mail">
-            <Link to="/in-built-apps/mail"><i className="icon icon-email" /><IntlMessages
-              id="sidebar.mailApp" /></Link>
-          </Menu.Item>
-
-          <Menu.Item key="in-built-apps/todo">
-            <Link to="/in-built-apps/todo"><i
-              className="icon icon-check-square-o" /><IntlMessages
-                id="sidebar.todoApp" /></Link>
-          </Menu.Item>
-
-          <Menu.Item key="in-built-apps/contacts">
-            <Link to="/in-built-apps/contacts"><i className="icon icon-contacts" /><IntlMessages
-              id="sidebar.contactsApp" /></Link>
-          </Menu.Item>
-
-          <Menu.Item key="in-built-apps/chat">
-            <Link to="/in-built-apps/chat"><i
-              className="icon icon-chat-bubble -flex-column-reverse" /><IntlMessages
-                id="sidebar.chatApp" /></Link>
-          </Menu.Item>
-
-          <Menu.Item key="social-apps/profile">
-            <Link to="/social-apps/profile">
-              <i className="icon icon-profile2" />
-              <IntlMessages id="sidebar.extensions.profile" />
-            </Link>
-          </Menu.Item>
-
-          <Menu.Item key="social-apps/wall">
-            <Link to="/social-apps/wall">
-              <i className="icon icon-avatar -flex-column-reverse" />
-              <IntlMessages id="sidebar.wall" />
-            </Link>
-          </Menu.Item>
-
-          <Menu.Item key="in-built-apps/notes">
-            <Link to="/in-built-apps/notes">
-              <i className="icon icon-copy" />
-              <IntlMessages id="sidebar.notes" />
-            </Link>
-          </Menu.Item>
-
-          <Menu.Item key="in-built-apps/firebase-crud">
-            <Link to="/in-built-apps/firebase-crud">
-              <i className="icon icon-icon" />
-              <IntlMessages id="sidebar.crud" />
-            </Link>
-          </Menu.Item>
-
+        <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="chat"
+          title="Chat">
+          <Menu.Item key="in-built-apps/chat" >
+              <Link to="/in-built-apps/chat">
+                Consulter vos messages
+              </Link>
+            </Menu.Item>
         </SubMenu>
 
         <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="components"

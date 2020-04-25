@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 // Create Schema for Users
 const ConversationSchema = new Schema({
     recipients: [{ type: Schema.Types.ObjectId, ref: 'user' }],
+    annonce : { type: Schema.Types.ObjectId, ref: 'annonce' },
     lastMessage: {
         type: String,
     },

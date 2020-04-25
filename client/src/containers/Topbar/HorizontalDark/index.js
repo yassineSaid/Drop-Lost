@@ -80,7 +80,7 @@ class HorizontalDark extends Component {
     });
   };
 
- 
+
   render() {
     const {locale, navCollapsed} = this.props;
 
@@ -93,7 +93,7 @@ class HorizontalDark extends Component {
                 <i className="icon icon-alert gx-mr-3"/>
                 <p className="gx-mb-0 gx-text-truncate"><IntlMessages id="app.announced"/></p>
               </div>
-            
+
               {!isLoggedIn() &&  <ul className="gx-login-list">
                 <li><Link to="/signin">Sign In</Link></li>
                 <li><Link to="/signup">Sign Up</Link></li>
@@ -196,11 +196,6 @@ class HorizontalDark extends Component {
           <div className="gx-container">
             <div className="gx-header-horizontal-nav-flex">
               <HorizontalNav/>
-              <ul className="gx-header-notifications gx-ml-auto">
-                <li><span className="gx-pointer gx-d-block"><i className="icon icon-menu-lines"/></span></li>
-                <li><span className="gx-pointer gx-d-block"><i className="icon icon-setting"/></span></li>
-                <li><span className="gx-pointer gx-d-block"><i className="icon icon-apps-new"/></span></li>
-              </ul>
             </div>
           </div>
         </div>

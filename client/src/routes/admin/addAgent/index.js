@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { Button, Select, Form, Input } from "antd";
 import { connect } from "react-redux";
 import axios from 'axios';
+import { JSDOM } from "jsdom";
+import _ from 'lodash';
 
 import {
   hideMessage,
@@ -14,18 +16,82 @@ import {
 } from "appRedux/actions/Auth";
 const FormItem = Form.Item;
 const Option = Select.Option;
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 24 },
+    sm: { span: 5 },
+  },
+  wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 18 },
+    md: { span: 16 },
+    lg: { span: 12 },
+  },
+};
 
 class AddAgent extends Component {
- state = {
-    confirmDirty: false,
-  };
+
+  constructor() {
+    super()
+    this.state = {
+      confirmDirty: false,
+      store : null,
+      stores : []
+    };
+
+    axios.get("https://api.allorigins.win/raw?url=https://www.trustit.tn/reseau-trustit/").then(response => {
+      const page = new JSDOM(response.data);
+      const storesList = page.window.document.querySelectorAll(".panel-title a");
+      const storesName = [];
+      storesList.forEach(element => {
+        const data = {
+          name : element.innerHTML.trim(),
+          code : element.attributes['aria-controls'].nodeValue.replace('collapse','marker'),
+        }
+        storesName.push(data);
+      })
+      const array = response.data.replace(/\s/g,'').match(/(?<=var).*?(?=;)/gm);
+      const arr = array.filter(element => element.match(/^marker[0-9]+.*/));
+      const finale = arr.map(element => {
+        return ({
+            code : element.split('=')[0],
+            location: {
+                type : 'Point',
+                coordinates: [parseFloat(element.match(/(?<=lat:)(.*)(?=,lng)/)[0]) , parseFloat(element.match(/(?<=lng:)(.*)(?=},map)/)[0]) ]
+            }
+        })
+    })
+
+    var merged = _.merge(_.keyBy(storesName, 'code'), _.keyBy(finale, 'code'));
+    var values = _.values(merged);
+    this.setState({
+      stores : values
+    })
+
+    })
+
+    this.handleStoreChange = this.handleStoreChange.bind(this);
+  }
+
+  handleStoreChange(value) {
+    this.setState({
+      store: this.state.stores[value]
+    })
+    //console.log(this.state)
+  }
+
 
 
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
+      const payload = {
+        ...values,
+        store : this.state.store
+      }
+      //console.log(payload)
       if (!err) {
-        axios.post('http://localhost:5000/users/admin/addagent',values).then( this.props.history.push('/admin/listagent') )
+        axios.post('http://localhost:5000/users/admin/addagent',payload).then( this.props.history.push('/admin/listagent') )
         .catch(error => error);
       }
     });
@@ -88,6 +154,26 @@ class AddAgent extends Component {
                 <Input />
               )}
             </FormItem>
+              {this.state.stores !== null ? <FormItem
+              label="Boutiques"
+              hasFeedback
+              validateStatus={this.state.stores.length !== 0 ? "" : "validating"}
+            >
+              <Select
+                name="boutique"
+                value={this.state.store !== null ? this.state.store.name : ''}
+                onChange={this.handleStoreChange}
+                disabled={this.state.stores.length !== 0 ? false : true}
+              >
+                {this.state.stores.length !== 0 ? this.state.stores.map(function (item, i) {
+                  return <Option value={i} key={i}>{item.name}</Option>
+                })
+                  : null
+                }
+              </Select>
+            </FormItem> : null}
+
+
             <FormItem
               label={(
                 <span>
@@ -201,8 +287,8 @@ class AddAgent extends Component {
               </Button>
             </FormItem>
           </Form>
-         
-         
+
+
         </div>
       </div>
     );

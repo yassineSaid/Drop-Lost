@@ -419,7 +419,7 @@ module.exports = {
     },
     addAgent: async (req, res, next) => {
         console.log(req.body)
-        const { nom, prenom, ville, adresse, numero, email, password } = req.body;
+        const { nom, prenom, ville, adresse, numero, email, password,store } = req.body;
         // check if user already exists
         const foundUser = await User.findOne({ "email": email });
         if (foundUser) {
@@ -431,7 +431,6 @@ module.exports = {
         const newUser = new User({
             role: 'agent',
             method: 'local',
-
             nom: nom,
             prenom: prenom,
             ville: ville,
@@ -440,12 +439,14 @@ module.exports = {
             email: email,
             password: password,
             Isactive: true,
-
-
-
-
         });
-        await newUser.save();
+        newUser.save().then(agent => {
+            const newStore = new Store({
+                agent : agent._id,
+                store
+            })
+            newStore.save();
+        });
         const emailData = {
             from: "DropLostAdmin@gmail.com",
             to: email,

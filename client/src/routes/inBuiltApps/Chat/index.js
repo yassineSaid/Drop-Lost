@@ -10,10 +10,12 @@ import IntlMessages from "util/IntlMessages";
 import SearchBox from "components/SearchBox";
 import CircularProgress from "../../../components/CircularProgress/index";
 import io from "socket.io-client";
-
+import {Spin,Icon} from "antd";
 
 const SOCKET_URI = "http://localhost:5000/";
 const TabPane = Tabs.TabPane;
+const antIcon = <Icon type="loading" style={{fontSize: 36}} spin/>;
+
 class Chat extends Component {
 
   socket = null;
@@ -21,7 +23,8 @@ class Chat extends Component {
   componentDidMount() {
     this.socket = io.connect(SOCKET_URI);
     this.setupSocketListeners();
-    //console.log(localStorage.getItem('User'));
+    const { annonce } = this.props.match.params
+    console.log(annonce);
   }
 
   componentDidUpdate() {
@@ -33,7 +36,7 @@ class Chat extends Component {
 
   onMessageRecieved(message) {
 
-    console.log(message);
+    //console.log(message);
     const updatedConversation = {
       'type': 'received',
       'body': message.body,
@@ -54,15 +57,9 @@ class Chat extends Component {
     return this.state.contactListSearch.filter((user) => user.prenom.toLowerCase().indexOf(userName.toLowerCase()) > -1 ||
       user.nom.toLowerCase().indexOf(userName.toLowerCase()) > -1);
   };
-  filterUsers = (userName) => {
-    if (userName === '') {
-      return this.state.contactListSearch;
-    }
-    return this.state.contactListSearch.filter((user) => user.prenom.toLowerCase().indexOf(userName.toLowerCase()) > -1 ||
-      user.nom.toLowerCase().indexOf(userName.toLowerCase()) > -1);
-  };
+
+
   Communication = () => {
-    //this.socket = io.connect(SOCKET_URI);
     const { message, selectedUser, conversation } = this.state;
     const conversationData = conversation;
 
@@ -218,18 +215,6 @@ class Chat extends Component {
               }
             </CustomScrollbars>
           </TabPane>
-          <TabPane label={<IntlMessages id="chat.contacts" />} tab={<IntlMessages id="chat.contacts" />} key="2">
-            <CustomScrollbars className="gx-chat-sidenav-scroll-tab-2">
-              {
-                this.state.contactList.length === 0 ?
-                  <div className="gx-p-5">{this.state.userNotFound}</div>
-                  :
-                  <ContactList contactList={this.state.contactList}
-                    selectedSectionId={this.state.selectedSectionId}
-                    onSelectUser={this.onSelectUser.bind(this)} />
-              }
-            </CustomScrollbars>
-          </TabPane>
         </Tabs>
 
 
@@ -251,14 +236,14 @@ class Chat extends Component {
   };
   onSelectUser = (user) => {
 
-
+    this.setState({ loader: true });
     if (this.state.conversation != null) {
       this.socket.emit('unsubscribe', { room: this.state.conversation[0].conversation })
     }
     axios.get("http://localhost:5000/api/chat/conversations/query", { params: { userId: user.recipientObj._id }, withCredentials: true }).then(
       response => {
         this.setState({
-          loader: true,
+          //loader: false,
           selectedSectionId: user._id,
           drawerState: this.props.drawerState,
           selectedUser: user,
@@ -269,11 +254,12 @@ class Chat extends Component {
             })
           })
         });
-        console.log(this.state.conversation);
-        this.socket.emit('subscribe', { room: this.state.conversation[0].conversation })
-        setTimeout(() => {
+        //console.log(this.state.conversation);
+        this.socket.emit('subscribe', { room: this.state.conversation[0].conversation });
+        this.setState({ loader: false });
+        /*setTimeout(() => {
           this.setState({ loader: false });
-        }, 2500);
+        }, 1000);*/
       }
     ).catch()
   };
@@ -304,8 +290,6 @@ class Chat extends Component {
       selectedTabIndex: 1,
       userState: 1,
       searchChatUser: '',
-      contactList: [],
-      contactListSearch: [],
       selectedUser: null,
       message: '',
       chatUsers: [],
@@ -314,24 +298,6 @@ class Chat extends Component {
       conversation: null,
       loggedUser : JSON.parse(localStorage.getItem('User'))
     }
-    console.log(this.state.loggedUser)
-    axios.get("http://localhost:5000/api/chat/users", { withCredentials: true }).then(
-      response => {
-        this.setState({
-          contactList: response.data,
-          contactListSearch: response.data,
-        })
-      }
-    ).catch(error => {
-      if (error.response.status === 401) {
-        window.location.href = '/signin'
-      } else {
-        this.setState({
-          contactList: [],
-          contactListSearch: [],
-        })
-      }
-    })
 
     axios.get("http://localhost:5000/api/chat/conversations", { withCredentials: true }).then(
       response => {
@@ -393,8 +359,7 @@ class Chat extends Component {
   updateSearchChatUser(evt) {
     this.setState({
       searchChatUser: evt.target.value,
-      contactList: this.filterContact(evt.target.value),
-      //chatUsers: this.filterUsers(evt.target.value)
+      chatUsers: this.filterContact(evt.target.value),
     });
   }
 
@@ -424,7 +389,7 @@ class Chat extends Component {
             </div>
             {loader ?
               <div className="gx-loader-view">
-                <CircularProgress />
+                <Spin indicator={antIcon}/>
               </div> : this.showCommunication()
             }
           </div>

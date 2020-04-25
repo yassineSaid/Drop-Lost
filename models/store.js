@@ -2,23 +2,27 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const storeSchema = new Schema({
 
-    nom: {
-        type: String,
-    },
-
-    ville: {
-        type: String,
-    },
-    adresse: {
-        type: String,
-    },
-    numero: {
-        type: Number,
-    },
-    ObjectsInStore: [{
+    agent : {
         type: Schema.Types.ObjectId,
-        ref: 'annonce'
-    }]
+        ref: 'user',
+    },
+    store: {
+        code: {
+            type: String
+        },
+        name: {
+            type: String
+        },
+        location: {
+            type: {
+                type: String, 
+                enum: ['Point']
+            },
+            coordinates: {
+                type: [Number]
+            }
+        }
+    }
 });
 
 const Store = mongoose.model('store', storeSchema);
