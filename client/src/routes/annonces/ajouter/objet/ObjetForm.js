@@ -321,7 +321,7 @@ class ObjetForm extends React.Component {
                 onChange={this.handleSousCategorieChange}
               >
                 {this.state.sousCategorieArray.map(function(item,i){
-                  return <Option value={i} key={i}>{item}</Option>
+                  return <Option value={item} key={i}>{item}</Option>
                 })}
               </Select>
             </FormItem>
