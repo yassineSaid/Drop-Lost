@@ -4,6 +4,8 @@ import { getAnnonce } from "../../../requests/annonces";
 import moment from "moment";
 import 'moment/locale/fr';
 import Meta from "antd/lib/card/Meta";
+import { Redirect } from "react-router-dom";
+import axios from 'axios';
 moment.locale('fr')
 
 
@@ -16,8 +18,10 @@ class Annonce extends Component {
       id: params.id,
       loading: true,
       annonce: null,
-      images: []
+      images: [],
+      redirect : false
     };
+    this.handleContact = this.handleContact.bind(this);
   }
 
   componentDidMount() {
@@ -40,7 +44,27 @@ class Annonce extends Component {
     })
   }
 
+  handleContact(match , annonce) {
+    const payload = {
+      to : match.user,
+      annonce : annonce._id
+    }
+    axios.post("http://localhost:5000/api/chat/create", payload, { withCredentials: true }).then(
+        () => this.setState({ redirect: true })
+      ).catch(error => {
+        if (error.response.status === 401) {
+          window.location.href = '/signin'
+        }
+      })
+  }
+
   render() {
+
+    const { redirect } = this.state;
+    if (redirect) {
+      return <Redirect to='/in-built-apps/chat/'/>;
+    }
+
     return (
       <div>
         <Row>
@@ -89,7 +113,7 @@ class Annonce extends Component {
                       type="inner"
                       title={"Annonce " + (i + 1)}
                       key={i}
-                      actions={[<Button><Icon type="edit" /> Contacter cette personne</Button>]}
+                      actions={[<Button onClick={() => this.handleContact(item,this.state.annonce)} ><Icon type="edit" /> Contacter cette personne</Button>]}
                     >
                       <p>
                         {item.description}

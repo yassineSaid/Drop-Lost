@@ -5,9 +5,10 @@ import SentMessageCell from "./SentMessageCell/index";
 
 const Conversation = ({ conversationData, selectedUser }) => {
 
+  //console.log(conversationData);
   return (
     <div className="gx-chat-main-content">
-      {conversationData !== [] ?
+      {conversationData.length > 0 ?
         conversationData.map((conversation, index) => conversation.type === 'sent' ?
           <SentMessageCell key={index} conversation={conversation} /> :
           <ReceivedMessageCell key={index} conversation={conversation} user={selectedUser} />

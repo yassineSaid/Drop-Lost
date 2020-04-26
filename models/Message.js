@@ -22,6 +22,11 @@ const MessageSchema = new Schema({
         type: String,
         default: Date.now,
     },
+    message: {
+        type:String,
+        enum: ["texte", "image"],
+        default : "texte"
+    }
 });
 
 module.exports = Message = mongoose.model('messages', MessageSchema);

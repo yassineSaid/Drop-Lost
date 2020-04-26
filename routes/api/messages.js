@@ -6,7 +6,16 @@ const keys = require('../../config/default');
 const User = require('../../models/user');
 const Message = require('../../models/Message');
 const Conversation = require('../../models/Conversation');
+const multer = require("multer");
+const path = require("path");
+const storage = multer.diskStorage({
+    destination: "./public/uploads/chat/",
+    filename: function (req, file, cb) {
+        cb(null, "img-" + Date.now() + path.extname(file.originalname));
+    }
+});
 
+var upload = multer({ storage: storage })
 //verify token
 const verify = req => {
 
@@ -103,7 +112,15 @@ router.get('/conversations', (req, res) => {
                     }
                 }
             }
-        }
+        },
+        {
+            '$lookup': {
+              'from': 'annonces', 
+              'localField': 'annonce', 
+              'foreignField': '_id', 
+              'as': 'annonce'
+            }
+          }
         , {
             $lookup: {
                 from: 'users',
@@ -201,6 +218,7 @@ router.post('/', (req, res) => {
                             from: jwtUser.sub,
                             body: req.body.body,
                             date: Math.floor(new Date() / 1000),
+                            message : 'texte'
                         }
                         global.io.to(conversation._id).emit('message', msg);
                         res.setHeader('Content-Type', 'application/json');
@@ -302,5 +320,74 @@ router.post('/create', (req, res) => {
     );
 });
 
+
+router.post('/upload',upload.single('image'), (req, res) => {
+
+    
+    let jwtUser = jwt.verify(verify(req), keys.jwtSecret);
+    let from = mongoose.Types.ObjectId(jwtUser.sub);
+    let to = mongoose.Types.ObjectId(req.body.to);
+    Conversation.findOneAndUpdate(
+        {
+            recipients: {
+                $all: [
+                    { $elemMatch: { $eq: from } },
+                    { $elemMatch: { $eq: to } },
+                ],
+            },
+        },
+        {
+            recipients: [jwtUser.sub, req.body.to],
+            lastMessage: req.file.filename,
+            date: Date.now(),
+            from: from
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true },
+        function (err, conversation) {
+            if (err) {
+                //console.log(err);
+                res.setHeader('Content-Type', 'application/json');
+                res.sendStatus(500);
+                res.end(JSON.stringify({ message: 'Failure' }));
+
+            } else {
+                let message = new Message({
+                    conversation: conversation._id,
+                    to: req.body.to,
+                    from: jwtUser.sub,
+                    body: req.file.filename,
+                    message: 'image'
+                });
+
+                message.save(err => {
+                    if (err) {
+                        //console.log(err);
+                        res.setHeader('Content-Type', 'application/json');
+                        res.sendStatus(500);
+                        res.end(JSON.stringify({ message: 'Failure' }));
+                    } else {
+                        const msg = {
+                            conversation: conversation._id,
+                            to: req.body.to,
+                            from: jwtUser.sub,
+                            body: req.file.filename,
+                            date: Math.floor(new Date() / 1000),
+                            message : 'image'
+                        }
+                        global.io.to(conversation._id).emit('message', msg);
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(
+                            JSON.stringify({
+                                message: 'Success',
+                                conversationId: conversation._id,
+                                image : req.file.filename,
+                            })
+                        );
+                    }
+                });
+            }
+        }
+    );
+});
 
 module.exports = router;

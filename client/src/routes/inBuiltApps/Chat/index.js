@@ -1,16 +1,16 @@
 import React, { Component } from "react";
-import { Avatar, Button, Drawer, Input, Tabs } from "antd";
+import { Avatar, Button, Drawer, Input, Tabs , Upload } from "antd";
 import CustomScrollbars from "util/CustomScrollbars";
 import Moment from "moment";
 import axios from 'axios';
 import ChatUserList from "components/chat/ChatUserList";
 import Conversation from "components/chat/Conversation/index";
-import ContactList from "components/chat/ContactList/index";
 import IntlMessages from "util/IntlMessages";
 import SearchBox from "components/SearchBox";
-import CircularProgress from "../../../components/CircularProgress/index";
 import io from "socket.io-client";
 import {Spin,Icon} from "antd";
+import { Redirect } from "react-router-dom";
+
 
 const SOCKET_URI = "http://localhost:5000/";
 const TabPane = Tabs.TabPane;
@@ -23,11 +23,10 @@ class Chat extends Component {
   componentDidMount() {
     this.socket = io.connect(SOCKET_URI);
     this.setupSocketListeners();
-    const { annonce } = this.props.match.params
-    console.log(annonce);
   }
 
   componentDidUpdate() {
+    //console.log(this.state)
   }
 
   setupSocketListeners() {
@@ -41,13 +40,56 @@ class Chat extends Component {
       'type': 'received',
       'body': message.body,
       'date': Moment().unix() * 1000,
+      'message' : message.message
     };
+    console.log(updatedConversation)
     if (message.from !== this.state.loggedUser._id) {
       this.setState({
         conversation: this.state.conversation.concat(updatedConversation)
       })
     }
   }
+
+  handleOnChangeImage = (info) => {
+    if (info.file.status !== 'uploading') {
+      //console.log(info.file, info.fileList);
+    }
+    if (info.file.status === 'done') {
+      //console.log("file uploaded");
+    } else if (info.file.status === 'error') {
+      //console.log("error");
+    }
+  }
+
+  uploadImage = async options => {
+    const { onSuccess, onError, file } = options;
+    const fmData = new FormData();
+    const config = { headers: { "content-type": "multipart/form-data" }, withCredentials : true };
+    fmData.append("image", file);
+    fmData.append("to", this.state.selectedUser.recipientObj._id);
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/chat/upload",
+        fmData,
+        config
+      );
+
+      onSuccess("Ok");
+      const updatedConversation = {
+        'type': 'sent',
+        'body': res.data.image,
+        'date': Moment().unix() * 1000,
+        'message' : 'image'
+      };
+      this.setState({
+        conversation: this.state.conversation.concat(updatedConversation)
+      })
+    } catch (err) {
+      console.log("Eroor: ", err);
+      const error = new Error("Some error");
+      onError({ err });
+    }
+  };
 
 
   filterContact = (userName) => {
@@ -57,8 +99,6 @@ class Chat extends Component {
     return this.state.contactListSearch.filter((user) => user.prenom.toLowerCase().indexOf(userName.toLowerCase()) > -1 ||
       user.nom.toLowerCase().indexOf(userName.toLowerCase()) > -1);
   };
-
-
   Communication = () => {
     const { message, selectedUser, conversation } = this.state;
     const conversationData = conversation;
@@ -82,7 +122,7 @@ class Chat extends Component {
             <div className="gx-chat-contact-name">
               {selectedUser.recipientObj === undefined ? `${selectedUser.nom} ${selectedUser.prenom}` : `${selectedUser.recipientObj.nom} ${selectedUser.recipientObj.prenom}`}
             </div>
-            <span data-text="true">Match pour l'annonce : {selectedUser.matchedOn}</span>
+            <span data-text="true">Match pour l'annonce : <span className="gx-chat-contact-name">{selectedUser.annonce[0].description}</span></span>
           </div>
         </div>
 
@@ -106,6 +146,13 @@ class Chat extends Component {
               />
             </div>
           </div>
+          <Upload showUploadList={false}
+                  accept="image/*"
+                  customRequest={this.uploadImage}
+                  onChange={this.handleOnChangeImage}
+          >
+            <i className="gx-icon-btn icon icon-image" />
+          </Upload>
           <i className="gx-icon-btn icon icon-sent" onClick={this.submitComment.bind(this)} />
         </div>
       </div>
@@ -238,12 +285,12 @@ class Chat extends Component {
 
     this.setState({ loader: true });
     if (this.state.conversation != null) {
-      this.socket.emit('unsubscribe', { room: this.state.conversation[0].conversation })
+      //console.log(this.state.conversation)
+      this.socket.emit('unsubscribe', { room: this.state.conversation._id })
     }
     axios.get("http://localhost:5000/api/chat/conversations/query", { params: { userId: user.recipientObj._id }, withCredentials: true }).then(
       response => {
         this.setState({
-          //loader: false,
           selectedSectionId: user._id,
           drawerState: this.props.drawerState,
           selectedUser: user,
@@ -255,7 +302,8 @@ class Chat extends Component {
           })
         });
         //console.log(this.state.conversation);
-        this.socket.emit('subscribe', { room: this.state.conversation[0].conversation });
+        this.socket.emit('subscribe', { room: user._id });
+        console.log(user)
         this.setState({ loader: false });
         /*setTimeout(() => {
           this.setState({ loader: false });
@@ -296,8 +344,12 @@ class Chat extends Component {
       chatUsersSearch: [],
       conversationList: [],
       conversation: null,
-      loggedUser : JSON.parse(localStorage.getItem('User'))
+      redirect : false,
+      loggedUser : JSON.parse(localStorage.getItem('User')),
+      file: null,
+      uploading: false,
     }
+
 
     axios.get("http://localhost:5000/api/chat/conversations", { withCredentials: true }).then(
       response => {
@@ -326,10 +378,11 @@ class Chat extends Component {
         'type': 'sent',
         'body': this.state.message,
         'date': Moment().unix() * 1000,
+        'message' : 'texte'
       };
       const payload = {
         to: this.state.selectedUser.recipientObj._id,
-        body: this.state.message
+        body: this.state.message.trim()
       }
       this.setState({
         conversation: this.state.conversation.concat(updatedConversation),
@@ -370,6 +423,9 @@ class Chat extends Component {
   }
 
   render() {
+    if (this.state.loggedUser === null) {
+      return <Redirect to='/signin'/>;
+    }
     const { loader, userState, drawerState } = this.state;
     return (
       <div className="gx-main-content">

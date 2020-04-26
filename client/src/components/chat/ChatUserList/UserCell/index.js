@@ -20,7 +20,7 @@ const UserCell = ({chat, selectedSectionId, onSelectUser}) => {
 
         <div className="gx-chat-info">
           <span className="gx-name h4">{chat.recipientObj.nom} {chat.recipientObj.prenom} </span>
-          <div className="gx-chat-info-des gx-text-truncate">{chat.lastMessage.substring(0, 25) + "..."}</div>
+          <div className="gx-chat-info-des gx-text-truncate">Match pour : {chat.annonce[0].description.substring(0, 25) + "..."}</div>
           <div className="gx-last-message-time">{moment(Number(chat.date)).format('LLLL')}</div>
         </div>
 
