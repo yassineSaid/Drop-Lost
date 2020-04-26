@@ -92,6 +92,29 @@ export async function getMesAnnonces() {
       }
     })
 }
+export async function getAnnoncesPerdus() {
+  const axiosRequest = axios.create({
+    baseURL: BASE_URL + 'api/annonces/annoncesPerdus',
+    headers: {
+      'content-Type': 'application/json',
+    },
+    withCredentials: true
+  });
+  return axiosRequest
+    .get()
+    .then(result => {
+      return {
+        done: true,
+        response: result
+      }
+    })
+    .catch(error => {
+      return {
+        done: false,
+        response: error
+      }
+    })
+}
 export async function getAnnonce(id) {
   const axiosRequest = axios.create({
     baseURL: BASE_URL + 'api/annonces/annonce/'+id,

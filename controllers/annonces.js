@@ -110,6 +110,16 @@ module.exports = {
             res.status(500).json({ success: false, errors: err });
         }
     },
+    getAnnoncesPerdus: async (req, res, next) => {
+        try {
+            const annonces = await Annonce.find({ "trouve": 'false' }).sort('date')
+            res.status(200).json({ success: true, annonces: annonces });
+        }
+        catch (err) {
+            console.log(error)
+            res.status(500).json({ success: false, errors: err });
+        }
+    },
     getAnnonce: async (req, res, next) => {
         try {
             console.log("User: " + req.user)

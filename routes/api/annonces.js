@@ -12,5 +12,6 @@ router.route('/ajouterImages/:id').post(passport.authenticate('jwt', { session: 
 router.route('/match').post(passport.authenticate('jwt', { session: false }), AnnoncesController.matchAnnonce);
 router.route('/mesAnnonces').get(passport.authenticate('jwt', { session: false }), AnnoncesController.mesAnnonces);
 router.route('/annonce/:id').get(passport.authenticate(['jwt','anonymous'], { session: false }) ,AnnoncesController.getAnnonce);
+router.route('/annoncesPerdus').get(AnnoncesController.getAnnoncesPerdus);
 
 module.exports = router;

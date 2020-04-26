@@ -154,6 +154,12 @@ class HorizontalNav extends Component {
                 Mes annonces
               </Link>
           </Menu.Item>
+          <Menu.Item key="/annonces/annoncesPerdus">
+            <Link to="/annonces/annoncesPerdus">
+              <i className="icon icon-listing-dbrd" />
+                Annonces d'objets perdus
+              </Link>
+          </Menu.Item>
         </SubMenu>
 
         <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="main"
