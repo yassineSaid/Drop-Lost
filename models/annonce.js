@@ -79,6 +79,10 @@ const annonceSchema = new Schema({
     },
     images: {
         type: [String]
+    },
+    etat : {
+        type:Boolean,
+        default : false ,
     }
 });
 function isNullOrEmpty(value) { 

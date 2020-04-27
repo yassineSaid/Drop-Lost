@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Avatar, Button, Drawer, Input, Tabs , Upload } from "antd";
+import { Avatar, Button, Drawer, Input, Tabs , Upload , Modal } from "antd";
 import CustomScrollbars from "util/CustomScrollbars";
 import Moment from "moment";
 import axios from 'axios';
@@ -99,6 +99,21 @@ class Chat extends Component {
     return this.state.contactListSearch.filter((user) => user.prenom.toLowerCase().indexOf(userName.toLowerCase()) > -1 ||
       user.nom.toLowerCase().indexOf(userName.toLowerCase()) > -1);
   };
+
+  confirmerMatching = () => {
+    this.setState({
+      visible : true
+    })
+  }
+
+  handleCancel = () => {
+
+    this.setState({
+      visible: false,
+    });
+  };
+
+
   Communication = () => {
     const { message, selectedUser, conversation } = this.state;
     const conversationData = conversation;
@@ -124,8 +139,12 @@ class Chat extends Component {
             </div>
             <span data-text="true">Match pour l'annonce : <span className="gx-chat-contact-name">{selectedUser.annonce[0].description}</span></span>
           </div>
-        </div>
 
+        </div>
+        <div class="ant-card-extra"><Button type="primary" size="default" icon="check" onClick={this.confirmerMatching}>Confirmer</Button></div>
+        <Modal title="Title" visible={this.state.visible}  onCancel={this.handleCancel}>
+          <p>This is a test !</p>
+        </Modal>
       </div>
 
       <CustomScrollbars className="gx-chat-list-scroll">
