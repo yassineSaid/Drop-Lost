@@ -10,6 +10,7 @@ import SearchBox from "components/SearchBox";
 import io from "socket.io-client";
 import {Spin,Icon} from "antd";
 import { Redirect } from "react-router-dom";
+import Confirmer from './Confirm'
 
 
 const SOCKET_URI = "http://localhost:5000/";
@@ -42,7 +43,7 @@ class Chat extends Component {
       'date': Moment().unix() * 1000,
       'message' : message.message
     };
-    console.log(updatedConversation)
+    //console.log(updatedConversation)
     if (message.from !== this.state.loggedUser._id) {
       this.setState({
         conversation: this.state.conversation.concat(updatedConversation)
@@ -100,20 +101,6 @@ class Chat extends Component {
       user.nom.toLowerCase().indexOf(userName.toLowerCase()) > -1);
   };
 
-  confirmerMatching = () => {
-    this.setState({
-      visible : true
-    })
-  }
-
-  handleCancel = () => {
-
-    this.setState({
-      visible: false,
-    });
-  };
-
-
   Communication = () => {
     const { message, selectedUser, conversation } = this.state;
     const conversationData = conversation;
@@ -139,12 +126,8 @@ class Chat extends Component {
             </div>
             <span data-text="true">Match pour l'annonce : <span className="gx-chat-contact-name">{selectedUser.annonce[0].description}</span></span>
           </div>
-
         </div>
-        <div class="ant-card-extra"><Button type="primary" size="default" icon="check" onClick={this.confirmerMatching}>Confirmer</Button></div>
-        <Modal title="Title" visible={this.state.visible}  onCancel={this.handleCancel}>
-          <p>This is a test !</p>
-        </Modal>
+        <Confirmer match={this.state.selectedUser.matchAnnonce} annonce={this.state.selectedUser.annonce}></Confirmer>
       </div>
 
       <CustomScrollbars className="gx-chat-list-scroll">
@@ -322,13 +305,15 @@ class Chat extends Component {
         });
         //console.log(this.state.conversation);
         this.socket.emit('subscribe', { room: user._id });
-        console.log(user)
+        //console.log(user)
         this.setState({ loader: false });
         /*setTimeout(() => {
           this.setState({ loader: false });
         }, 1000);*/
       }
     ).catch()
+
+
   };
   showCommunication = () => {
     return (

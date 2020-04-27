@@ -47,7 +47,8 @@ class Annonce extends Component {
   handleContact(match , annonce) {
     const payload = {
       to : match.user,
-      annonce : annonce._id
+      annonce : annonce._id,
+      matchAnnonce : match._id
     }
     axios.post("http://localhost:5000/api/chat/create", payload, { withCredentials: true }).then(
         () => this.setState({ redirect: true })

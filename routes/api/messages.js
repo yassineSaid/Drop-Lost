@@ -120,6 +120,13 @@ router.get('/conversations', (req, res) => {
               'foreignField': '_id', 
               'as': 'annonce'
             }
+          },{
+            '$lookup': {
+              'from': 'annonces', 
+              'localField': 'matchAnnonce', 
+              'foreignField': '_id', 
+              'as': 'matchAnnonce'
+            }
           }
         , {
             $lookup: {
@@ -159,7 +166,6 @@ router.get('/conversations', (req, res) => {
                         ...user,
                         thumb: "https://via.placeholder.com/150x150",
                         status: "away",
-                        matchedOn: "Object lost or found",
                     })
                 })
                 res.send(conversationsf);
@@ -270,6 +276,7 @@ router.post('/create', (req, res) => {
     let from = mongoose.Types.ObjectId(jwtUser.sub);
     let to = mongoose.Types.ObjectId(req.body.to);
     let annonce = mongoose.Types.ObjectId(req.body.annonce);
+    let matchAnnonce = mongoose.Types.ObjectId(req.body.matchAnnonce);
     Conversation.findOneAndUpdate(
         {
             recipients: {
@@ -284,7 +291,8 @@ router.post('/create', (req, res) => {
             lastMessage: "",
             date: Date.now(),
             from: from,
-            annonce
+            annonce,
+            matchAnnonce
         },
         { upsert: true, new: true, setDefaultsOnInsert: true },
         function (err, conversation) {
@@ -310,7 +318,15 @@ router.post('/create', (req, res) => {
                         'foreignField': '_id', 
                         'as': 'annonce'
                       }
-                    }
+                    },
+                    {
+                        '$lookup': {
+                          'from': 'annonces', 
+                          'localField': 'matchAnnonce', 
+                          'foreignField': '_id', 
+                          'as': 'annonce'
+                        }
+                      }
                   ]).exec((err, conver) => {
                     res.end(JSON.stringify({ message: 'Success',conversation: conver}));
                   })
