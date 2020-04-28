@@ -6,6 +6,7 @@ const keys = require('../../config/default');
 const User = require('../../models/user');
 const Message = require('../../models/Message');
 const Conversation = require('../../models/Conversation');
+const Store = require('../../models/store');
 const multer = require("multer");
 const path = require("path");
 const storage = multer.diskStorage({
@@ -404,6 +405,33 @@ router.post('/upload',upload.single('image'), (req, res) => {
             }
         }
     );
+});
+
+router.get('/store', (req, res) => {
+    //let user2 = mongoose.Types.ObjectId(req.query.params);
+    console.log(req.query);
+    Store.aggregate([
+        {
+          '$geoNear': {
+            'near': {
+              'type': 'Point', 
+              'coordinates': [ parseFloat(req.query.lat), parseFloat(req.query.lon) ]
+            }, 
+            'distanceField': 'distance'
+          }
+        }, {
+          '$limit': 1
+        }
+      ]).exec((err, stores) => {
+            if (err) {
+                //console.log(err);
+                res.setHeader('Content-Type', 'application/json');
+                res.sendStatus(500);
+                res.end(JSON.stringify({ message: 'Failure' }));
+            } else {
+                res.send(stores);
+            }
+        });
 });
 
 module.exports = router;
