@@ -5,6 +5,7 @@ const getValidationErrors = require('../models/validationErrors')
 const path = require("path");
 const multer = require("multer");
 const jaccard = require('jaccard-similarity-sentences');
+var fs = require('fs');
 var stringSimilarity = require('string-similarity');
 require("@tensorflow/tfjs-node");
 var faceapi = require("face-api.js")
@@ -26,70 +27,27 @@ const upload = multer({
 }).any();
 module.exports = {
     ajouterAnnonce: async (req, res, next) => {
-        //console.log(req.body)
-        const annonce = new Annonce(req.body);
-        annonce.user = req.user._id;
-        console.log(annonce)
-        try {
-            const result = await annonce.save();
-            console.log(result);
-            res.status(201).json({ success: true, result: result });
-
-        } catch (err) {
-            var errors = getValidationErrors(err.errors)
-            console.error(errors)
-            res.status(500).json({ success: false, errors: errors });
-            //const validation = new ValidationErrors(err)
-            //console.log(validation)
-        }
-    },
-    ajouterImages: async (req, res, next) => {
+        console.log(req.body.annonce)
         upload(req, res, (err) => {
             if (!err) {
-                console.log(req.params)
+                const annonce = new Annonce(JSON.parse(req.body.annonce));
+                annonce.user = req.user._id;
                 var images = [];
                 req.files.forEach(element => {
                     images.push(element.filename)
                 });
-                const annonce = Annonce.findById(req.params.id).then(async function (annonce) {
-                    console.log(annonce)
-                    annonce.images = images;
-                    annonce.save().then(async function (result) {
-                        /* if (typeof annonce.personne !== "undefined") {
-                            await faceapi.nets.ssdMobilenetv1.loadFromDisk("./public/weights/")
-                            await faceapi.nets.faceLandmark68Net.loadFromDisk("./public/weights/")
-                            await faceapi.nets.faceRecognitionNet.loadFromDisk("./public/weights/")
-                            const labeledFaceDescriptors = await Promise.all(
-                                item.images.map(async function (label) {
-                                    console.log("CCCCCCCCCCCCCCCCCCCCCC")
-                                    // fetch image data from urls and convert blob to HTMLImage element
-                                    const imgUrl = `./public/uploads/${label}`
-                                    const img = await canvas.loadImage(imgUrl)
-
-                                    // detect the face with the highest score in the image and compute it's landmarks and face descriptor
-                                    const fullFaceDescription = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor()
-
-                                    if (!fullFaceDescription) {
-                                        throw new Error(`no faces detected for ${label}`)
-                                    }
-
-                                    const faceDescriptors = [fullFaceDescription.descriptor]
-                                    return new faceapi.LabeledFaceDescriptors(label, faceDescriptors)
-                                })
-                            )
-                            const descriptor = new LabelledFaceDescriptor({
-                                annonce: annonce._id,
-                                descriptor: labeledFaceDescriptors
-                            });
-                            descriptor.save()
-                        } */
-                        res.status(201).json({ success: true, result: result });
-                    })
-                        .catch(err => {
-                            res.status(500).json({ success: true, error: err });
-                        })
+                annonce.images = images;
+                annonce.save().then(result => {
+                    console.log(result);
+                    res.status(201).json({ success: true });
+                }).catch(err => {
+                    var errors = getValidationErrors(err.errors)
+                    console.error(errors)
+                    res.status(500).json({ success: false, errors: errors });
                 })
-
+            }
+            else {
+                res.status(500).json({ success: false, errors: err });
             }
         })
     },
@@ -98,6 +56,22 @@ module.exports = {
         const annonces = getMatchedAnnonces(req.body.id, req.user).then(annonces => {
             res.status(200).json({ success: true, annonces: annonces })
         })
+    },
+    supprimerAnnonce: async (req, res, next) => {
+        const annonce = await Annonce.findById(req.params.id)
+        if (annonce.user.toString()===req.user._id.toString()){
+            annonce.images.forEach(image => {
+                fs.unlinkSync('./public/uploads/'+image);
+            })
+            annonce.remove().then(result => {
+                res.status(200).json({ success: true})
+            }).catch(err => {
+                res.status(500).json({ success: false, error: err})
+            })
+        }
+        else {
+            res.status(401).json({ success: false, error: "Vous ne pouvez pas supprimer cette annonce"})
+        }
     },
     mesAnnonces: async (req, res, next) => {
         try {
@@ -112,7 +86,39 @@ module.exports = {
     },
     getAnnoncesPerdus: async (req, res, next) => {
         try {
-            const annonces = await Annonce.find({ "trouve": 'false' }).sort('date')
+            const annonces = await Annonce.aggregate(
+                [
+                    {
+                        $match: {
+                            trouve: false
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'user',
+                            foreignField: '_id',
+                            as: 'user'
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$user"
+                        }
+                    },
+                    {
+                        $sort: {
+                            date: -1
+                        }
+                    }
+                ]
+            ).project({
+                'user.password': 0,
+                'user.secretToken': 0,
+                'user.method': 0,
+                'user.role': 0,
+                'user.Isactive': 0,
+            })
             res.status(200).json({ success: true, annonces: annonces });
         }
         catch (err) {
@@ -156,26 +162,15 @@ async function asyncForEach(array, callback) {
     }
 }
 async function getMatchedAnnonces(id, user) {
-    console.log("AAAAAAAAAAAAAAAAAAAAAAAAa")
-    var sentence1 = "J'ai perdu mon iphone 6s hier zone manar 3. C'est un iphone rose gold, dans une coque silicone noir.";
-    var sentence2 = "J'ai trouvé un iphone 6s aux alentours du manar. il est rose et cache noir.";
-    var sentence3 = "aman chkoun chefha el tofla hedhii!!! Berah ekher mara kenet maaya fil menzah 5 lebssa maryoul rose w jean !!! i3ayechkom eli ychoufha ikalamni "
-    var sentence4 = "Fama tofla mahboula, men bekri w heya t3ayat wahad'ha fel chera3! lebssa pull rose , fama chkoun ya3rafha ??"
-    var tab1 = sentence1.trim().split(" ");
-    var tab2 = sentence2.trim().split(" ");
-    var measure = jaccard.jaccardSimilarity(sentence1, sentence2);
-    var measure1 = jaccard.jaccardSimilarity(sentence3, sentence4);
-    console.log(measure);
-    console.log(measure1);
-    console.log(stringSimilarity.compareTwoStrings(sentence1, sentence2))
-    console.log(stringSimilarity.compareTwoStrings(sentence3, sentence4))
 
     const annonce = await Annonce.findById(id);
-    console.log("AAAAAAAAAAAAAAAAAAAAAAAAa")
     let promise = new Promise(async function (resolve, reject) {
         console.log(annonce)
         if (typeof user === "undefined") {
             reject(new Error("Vous devez être connecté"))
+        }
+        else if (user._id.toString() !== annonce.user._id.toString()) {
+            reject(new Error("Cette annonce ne vous appartient pas"))
         }
         if (annonce) {
             var query = {}
@@ -223,21 +218,45 @@ async function getMatchedAnnonces(id, user) {
                     var faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, maxDescriptorDistance)
                 }
             }
-            await Annonce.find(query).then(async annoncesDoc => {
-                var annonces = []
-                annoncesDoc.forEach(item => {
+            await Annonce.aggregate([
+                {
+                    $match: query
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user',
+                        foreignField: '_id',
+                        as: 'user'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$user"
+                    }
+                }
+            ]).project({
+                'user.password': 0,
+                'user.secretToken': 0,
+                'user.method': 0,
+                'user.role': 0,
+                'user.Isactive': 0,
+            }).then(async annoncesDoc => {
+                var annonces = annoncesDoc
+                //console.log(annoncesDoc)
+                /* annoncesDoc.forEach(item => {
                     var annonce = item.toObject()
                     annonce.score = 0;
                     annonce.scoreTotal = 0;
                     annonces.push(annonce)
-                })
+                }) */
                 console.log(annonces)
                 var response = []
                 if (typeof annonce.objet !== "undefined") {
                     console.log("SEARCHING FOR OBJET")
                     annonces.forEach(item => {
-                        item.score += 2
-                        item.scoreTotal += 2;
+                        item.score = 2
+                        item.scoreTotal = 2;
                         item.score += jaccard.jaccardSimilarity(annonce.description, item.description)
                         item.scoreTotal += 1
                     })
@@ -248,8 +267,8 @@ async function getMatchedAnnonces(id, user) {
                 if (typeof annonce.personne !== "undefined") {
                     console.log("SEARCHING FOR PERSONNE")
                     await asyncForEach(annonces, async (item) => {
-                        item.score += 0.5
-                        item.scoreTotal += 0.5;
+                        item.score = 0.5
+                        item.scoreTotal = 0.5;
                         item.score += jaccard.jaccardSimilarity(annonce.description, item.description);
                         item.scoreTotal += 1;
                         if ("nom" in item.personne && "nom" in annonce.personne) {
@@ -265,13 +284,13 @@ async function getMatchedAnnonces(id, user) {
                                 const results = fullFaceDescriptions.map(fd => faceMatcher.findBestMatch(fd.descriptor))
                                 console.log(results)
                                 results.map(r => {
-                                    if (r.distance<bestResult) localBestResult=r.distance
+                                    if (r.distance < bestResult) localBestResult = r.distance
                                 })
-                                if (localBestResult<bestResult) bestResult=localBestResult
+                                if (localBestResult < bestResult) bestResult = localBestResult
                             })
-                            var faceScore = 1-bestResult;
-                            item.score+=faceScore;
-                            item.scoreTotal+=1
+                            var faceScore = 1 - bestResult;
+                            item.score += faceScore;
+                            item.scoreTotal += 1
                         }
                     })
                     console.log(annonces)

@@ -196,7 +196,21 @@ class ObjetForm extends React.Component {
     this.state.fileList.map( (file,i) => {
       formData.append("file"+i,file)
     })
-    ajouterAnnonce(annonce).then(response => {
+    formData.append("annonce",JSON.stringify(annonce))
+    ajouterAnnonce(formData).then(response => {
+      if (response.done){
+        Modal.success({
+          content: 'Votre annonce a bien été ajoutée',
+        });
+        console.log(response)
+      }
+      else if (response.response.response.status === 401) {
+        Modal.error({
+          content: 'Vous devez vous connecter pour pouvoir poster cette annonce <a href="'+window.location.origin+'/signin">Connexion</a>',
+        });
+      }
+    })
+    /* ajouterAnnonce(annonce).then(response => {
       if (response.done){
         console.log(response)
         this.setState({
@@ -217,7 +231,7 @@ class ObjetForm extends React.Component {
         });
       }
 
-    })
+    }) */
     console.log(this.state)
   }
 

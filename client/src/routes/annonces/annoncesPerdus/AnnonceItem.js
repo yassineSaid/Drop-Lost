@@ -52,7 +52,7 @@ class AnnonceItem extends React.Component {
           }
 
           <div className="ant-row-flex">
-            <h4>{moment(date).format("DD MMMM YYYY")} </h4>
+            <h4>{moment(date).format("DD MMMM YYYY")+" par "+this.Capitalize(user.prenom)+" "+this.Capitalize(user.nom)} </h4>
           </div>
           <p>{this.descriptionText(description)}</p>
         </div>

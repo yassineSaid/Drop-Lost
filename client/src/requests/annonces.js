@@ -4,7 +4,7 @@ export async function ajouterAnnonce(obj) {
   const axiosRequest = axios.create({
     baseURL: BASE_URL + 'api/annonces/ajouter/',
     headers: {
-      'content-Type': 'application/json',
+      'content-Type': 'multipart/form-data',
     },
     withCredentials: true
   });
@@ -23,16 +23,16 @@ export async function ajouterAnnonce(obj) {
       }
     })
 }
-export async function ajouterImages(id,obj) {
+export async function supprimerAnnonce(id) {
   const axiosRequest = axios.create({
-    baseURL: BASE_URL + 'api/annonces/ajouterImages/'+id,
+    baseURL: BASE_URL + 'api/annonces/supprimer/'+id,
     headers: {
-      'content-Type': 'multipart/form-data',
+      'content-Type': 'application/json',
     },
     withCredentials: true
   });
   return axiosRequest
-    .post('',obj)
+    .get()
     .then(result => {
       return {
         done: true,
