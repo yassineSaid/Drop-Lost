@@ -39,10 +39,10 @@ class Annonce extends Component {
           annonces: response.response.data.annonces,
           images: response.response.data.annonce.images
         })
-        if (this.state.user!== null){
+        if (this.state.user !== null) {
           console.log(this.state.user._id)
           console.log(response.response.data.annonce.user)
-          if (this.state.user._id===response.response.data.annonce.user){
+          if (this.state.user._id === response.response.data.annonce.user) {
             this.setState({
               owner: true
             })
@@ -80,9 +80,9 @@ class Annonce extends Component {
 
   handleContact(match, annonce) {
     const payload = {
-      to : match.user,
-      annonce : annonce._id,
-      matchAnnonce : match._id
+      to: match.user,
+      annonce: annonce._id,
+      matchAnnonce: match._id
     }
     axios.post("http://localhost:5000/api/chat/create", payload, { withCredentials: true }).then(
       () => this.setState({ redirect: true })
@@ -108,16 +108,25 @@ class Annonce extends Component {
         <Row>
           <Col xl={8} lg={12} md={12} sm={24} xs={24}>
             <Carousel autoplay style={{ height: "300px", lineHeight: "300px", textAlign: "center" }}>
-              {this.state.images.map(item => {
-                return (
-                  <div key={item}>
-                    <img alt="example"
-                      src={"http://localhost:5000/uploads/" + item}
-                      style={{ maxHeight: "300px", width: "auto", margin: "auto" }}
-                    />
-                  </div>
-                )
-              })}
+              {this.state.images.length > 0 ?
+                this.state.images.map(item => {
+                  return (
+                    <div key={item}>
+                      <img alt="example"
+                        src={"http://localhost:5000/uploads/" + item}
+                        style={{ maxHeight: "300px", width: "auto", margin: "auto" }}
+                      />
+                    </div>
+                  )
+                })
+                :
+                <div>
+                  <img alt="example"
+                    src="http://localhost:5000/uploads/no-image.jpg"
+                    style={{ maxHeight: "300px", width: "auto", margin: "auto" }}
+                  />
+                </div>
+              }
             </Carousel>
           </Col>
           <Col xl={16} lg={24} md={24} sm={24} xs={24}>

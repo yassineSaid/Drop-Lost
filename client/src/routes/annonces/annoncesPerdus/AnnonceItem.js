@@ -75,8 +75,6 @@ class AnnonceItem extends React.Component {
 
         <div className="gx-product-footer">
           <Button type="primary" onClick={this.handleReadMore}>Plus de détails</Button>
-
-          <Button variant="raised">eCommerce.readMore</Button>
         </div>
       </div >
     );
