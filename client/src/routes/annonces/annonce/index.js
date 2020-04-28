@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { Avatar, Card, Icon, Row, Col, Carousel, Tag, Button } from "antd";
-import { getAnnonce } from "../../../requests/annonces";
+import { Modal, Card, Icon, Row, Col, Carousel, Tag, Button } from "antd";
+import { getAnnonce, supprimerAnnonce } from "../../../requests/annonces";
 import moment from "moment";
 import 'moment/locale/fr';
 import Meta from "antd/lib/card/Meta";
@@ -19,9 +19,13 @@ class Annonce extends Component {
       loading: true,
       annonce: null,
       images: [],
-      redirect : false
+      redirect: false,
+      redirectToMesAnnonces: false,
+      user: JSON.parse(localStorage.getItem('User')),
+      owner: false
     };
     this.handleContact = this.handleContact.bind(this);
+    this.handleSupprimer = this.handleSupprimer.bind(this);
   }
 
   componentDidMount() {
@@ -35,6 +39,15 @@ class Annonce extends Component {
           annonces: response.response.data.annonces,
           images: response.response.data.annonce.images
         })
+        if (this.state.user!== null){
+          console.log(this.state.user._id)
+          console.log(response.response.data.annonce.user)
+          if (this.state.user._id===response.response.data.annonce.user){
+            this.setState({
+              owner: true
+            })
+          }
+        }
       }
       else {
         if (response.response.response.status === 401) {
@@ -44,26 +57,50 @@ class Annonce extends Component {
     })
   }
 
-  handleContact(match , annonce) {
+  handleSupprimer() {
+    supprimerAnnonce(this.state.annonce._id).then(response => {
+      if (response.done) {
+        Modal.success({
+          content: 'Votre annonce a bien été supprimée',
+          onOk() {
+            this.setState({
+              redirectToMesAnnonces: true
+            })
+          }
+        });
+        console.log(response)
+      }
+      else if (response.response.response.status === 401) {
+        Modal.error({
+          content: 'Vous ne pouvez pas supprimer cette annonce',
+        });
+      }
+    })
+  }
+
+  handleContact(match, annonce) {
     const payload = {
       to : match.user,
       annonce : annonce._id,
       matchAnnonce : match._id
     }
     axios.post("http://localhost:5000/api/chat/create", payload, { withCredentials: true }).then(
-        () => this.setState({ redirect: true })
-      ).catch(error => {
-        if (error.response.status === 401) {
-          window.location.href = '/signin'
-        }
-      })
+      () => this.setState({ redirect: true })
+    ).catch(error => {
+      if (error.response.status === 401) {
+        window.location.href = '/signin'
+      }
+    })
   }
 
   render() {
 
-    const { redirect } = this.state;
+    const { redirect, redirectToMesAnnonces } = this.state;
     if (redirect) {
-      return <Redirect to='/in-built-apps/chat/'/>;
+      return <Redirect to='/in-built-apps/chat/' />;
+    }
+    if (redirectToMesAnnonces) {
+      return <Redirect to='/annonces/mesAnnonces' />;
     }
 
     return (
@@ -86,7 +123,9 @@ class Annonce extends Component {
           <Col xl={16} lg={24} md={24} sm={24} xs={24}>
             <Card
               loading={this.state.loading}
-              title={!this.state.loading ? "Annonce du " + moment(this.state.annonce.date).format("DD MMMM YYYY") : null}>
+              title={!this.state.loading ? "Annonce du " + moment(this.state.annonce.date).format("DD MMMM YYYY") : null}
+              extra={this.state.owner ? <Button type="danger" onClick={this.handleSupprimer}>Supprimer cette annonce</Button> : null}
+            >
               {!this.state.loading ? this.state.annonce.description : null}
             </Card>
           </Col>
@@ -114,13 +153,13 @@ class Annonce extends Component {
                       type="inner"
                       title={"Annonce " + (i + 1)}
                       key={i}
-                      actions={[<Button onClick={() => this.handleContact(item,this.state.annonce)} ><Icon type="edit" /> Contacter cette personne</Button>]}
+                      actions={[<Button onClick={() => this.handleContact(item, this.state.annonce)} ><Icon type="edit" /> Contacter cette personne</Button>]}
                     >
                       <p>
                         {item.description}
                       </p>
-                      <Tag color={score>70 ? "#87d068" : score>50 ? "#f29d41" : "#f50"}>
-                        {"Cette annonce correspond à la votre à "+scoreV+"%"}
+                      <Tag color={score > 70 ? "#87d068" : score > 50 ? "#f29d41" : "#f50"}>
+                        {"Cette annonce correspond à la votre à " + scoreV + "%"}
                       </Tag>
                     </Card>
                   )
