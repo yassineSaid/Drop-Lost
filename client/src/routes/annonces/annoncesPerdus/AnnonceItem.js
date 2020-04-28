@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "antd";
 import moment from "moment";
 import 'moment/locale/fr';
+import { Link, Redirect } from "react-router-dom";
 moment.locale('fr')
 
 class AnnonceItem extends React.Component {
@@ -9,8 +10,10 @@ class AnnonceItem extends React.Component {
     super(props);
     this.state = {
       loading: true,
-      annonce: this.props.annonce
+      annonce: this.props.annonce,
+      readMore: false
     };
+    this.handleReadMore = this.handleReadMore.bind(this)
   }
 
   componentDidMount() {
@@ -26,14 +29,27 @@ class AnnonceItem extends React.Component {
     else return str
   }
 
+  handleReadMore = (e) => {
+    e.preventDefault();
+    console.log("READ MORE")
+    this.setState({
+      readMore: true
+    })
+  }
+
   render() {
-    const { images, type, objet, personne, animal, description, date, user } = this.state.annonce
+    const { images, type, objet, personne, animal, description, date, user, _id } = this.state.annonce
+    if (this.state.readMore) {
+      return <Redirect to={'annonce/'+_id} />;
+    }
     return (
       <div className={`gx-product-item  'gx-product-vertical'`}>
         <div className="gx-product-image">
           <div className="gx-grid-thumb-equal">
             <span className="gx-link gx-grid-thumb-cover">
-              <img src={images.length > 0 ? "http://localhost:5000/uploads/" + images[0] : "http://localhost:5000/uploads/no-image.jpg"} />
+              <Link to={"annonce/" + _id}>
+                <img src={images.length > 0 ? "http://localhost:5000/uploads/" + images[0] : "http://localhost:5000/uploads/no-image.jpg"} />
+              </Link>
             </span>
           </div>
         </div>
@@ -52,15 +68,15 @@ class AnnonceItem extends React.Component {
           }
 
           <div className="ant-row-flex">
-            <h4>{moment(date).format("DD MMMM YYYY")+" par "+this.Capitalize(user.prenom)+" "+this.Capitalize(user.nom)} </h4>
+            <h4>{moment(date).format("DD MMMM YYYY") + " par " + this.Capitalize(user.prenom) + " " + this.Capitalize(user.nom)} </h4>
           </div>
           <p>{this.descriptionText(description)}</p>
         </div>
 
         <div className="gx-product-footer">
-          <Button variant="raised">eCommerce.addToCart</Button>
+          <Button type="primary" onClick={this.handleReadMore}>Plus de détails</Button>
 
-          <Button type="primary">eCommerce.readMore</Button>
+          <Button variant="raised">eCommerce.readMore</Button>
         </div>
       </div >
     );

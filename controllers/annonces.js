@@ -191,6 +191,9 @@ async function getMatchedAnnonces(id, user) {
                 query["objet.marque"] = annonce.objet.marque
                 query["objet.modele"] = annonce.objet.modele
             }
+            if (typeof annonce.animal !== "undefined") {
+                query["animal.type"] = annonce.animal.type
+            }
             if (typeof annonce.personne !== "undefined") {
                 query["personne.sexe"] = annonce.personne.sexe
                 if (annonce.images.length > 0) {
@@ -264,11 +267,25 @@ async function getMatchedAnnonces(id, user) {
                         return a.score - b.score
                     }).reverse().slice(0, 4)
                 }
+                if (typeof annonce.animal !== "undefined") {
+                    console.log("SEARCHING FOR ANIMAL")
+                    annonces.forEach(item => {
+                        item.score = 1
+                        item.scoreTotal = 1;
+                        item.score += jaccard.jaccardSimilarity(annonce.description, item.description)
+                        item.scoreTotal += 1
+                        item.score += stringSimilarity.compareTwoStrings(annonce.animal.race, item.animal.race)
+                        item.scoreTotal += 1
+                    })
+                    response = annonces.sort((a, b) => {
+                        return a.score - b.score
+                    }).reverse().slice(0, 4)
+                }
                 if (typeof annonce.personne !== "undefined") {
                     console.log("SEARCHING FOR PERSONNE")
                     await asyncForEach(annonces, async (item) => {
-                        item.score = 0.5
-                        item.scoreTotal = 0.5;
+                        item.score = 1
+                        item.scoreTotal = 1;
                         item.score += jaccard.jaccardSimilarity(annonce.description, item.description);
                         item.scoreTotal += 1;
                         if ("nom" in item.personne && "nom" in annonce.personne) {
