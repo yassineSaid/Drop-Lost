@@ -6,6 +6,7 @@ const keys = require('../../config/default');
 const User = require('../../models/user');
 const Message = require('../../models/Message');
 const Conversation = require('../../models/Conversation');
+const Store = require('../../models/store');
 const multer = require("multer");
 const path = require("path");
 const storage = multer.diskStorage({
@@ -120,6 +121,13 @@ router.get('/conversations', (req, res) => {
               'foreignField': '_id', 
               'as': 'annonce'
             }
+          },{
+            '$lookup': {
+              'from': 'annonces', 
+              'localField': 'matchAnnonce', 
+              'foreignField': '_id', 
+              'as': 'matchAnnonce'
+            }
           }
         , {
             $lookup: {
@@ -159,7 +167,6 @@ router.get('/conversations', (req, res) => {
                         ...user,
                         thumb: "https://via.placeholder.com/150x150",
                         status: "away",
-                        matchedOn: "Object lost or found",
                     })
                 })
                 res.send(conversationsf);
@@ -270,6 +277,7 @@ router.post('/create', (req, res) => {
     let from = mongoose.Types.ObjectId(jwtUser.sub);
     let to = mongoose.Types.ObjectId(req.body.to);
     let annonce = mongoose.Types.ObjectId(req.body.annonce);
+    let matchAnnonce = mongoose.Types.ObjectId(req.body.matchAnnonce);
     Conversation.findOneAndUpdate(
         {
             recipients: {
@@ -284,7 +292,8 @@ router.post('/create', (req, res) => {
             lastMessage: "",
             date: Date.now(),
             from: from,
-            annonce
+            annonce,
+            matchAnnonce
         },
         { upsert: true, new: true, setDefaultsOnInsert: true },
         function (err, conversation) {
@@ -310,7 +319,15 @@ router.post('/create', (req, res) => {
                         'foreignField': '_id', 
                         'as': 'annonce'
                       }
-                    }
+                    },
+                    {
+                        '$lookup': {
+                          'from': 'annonces', 
+                          'localField': 'matchAnnonce', 
+                          'foreignField': '_id', 
+                          'as': 'annonce'
+                        }
+                      }
                   ]).exec((err, conver) => {
                     res.end(JSON.stringify({ message: 'Success',conversation: conver}));
                   })
@@ -388,6 +405,33 @@ router.post('/upload',upload.single('image'), (req, res) => {
             }
         }
     );
+});
+
+router.get('/store', (req, res) => {
+    //let user2 = mongoose.Types.ObjectId(req.query.params);
+    console.log(req.query);
+    Store.aggregate([
+        {
+          '$geoNear': {
+            'near': {
+              'type': 'Point', 
+              'coordinates': [ parseFloat(req.query.lat), parseFloat(req.query.lon) ]
+            }, 
+            'distanceField': 'distance'
+          }
+        }, {
+          '$limit': 1
+        }
+      ]).exec((err, stores) => {
+            if (err) {
+                //console.log(err);
+                res.setHeader('Content-Type', 'application/json');
+                res.sendStatus(500);
+                res.end(JSON.stringify({ message: 'Failure' }));
+            } else {
+                res.send(stores);
+            }
+        });
 });
 
 module.exports = router;

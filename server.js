@@ -16,6 +16,7 @@ app.use(cors({
 }));
 var usersRouter = require('./routes/api/users');
 var annoncesRouter = require('./routes/api/annonces');
+var matchsRouter = require('./routes/api/match');
 
 // Connect Database
 connectDB();
@@ -26,6 +27,7 @@ app.use(bodyparser.json());
 app.use(express.static(__dirname + '/public'));
 // Define Routes
 app.use("/api/chat", require("./routes/api/messages"));
+app.use('/match', matchsRouter);
 app.use('/users', usersRouter);
 app.use('/signUp', usersRouter);
 app.use('/signIn', usersRouter);
