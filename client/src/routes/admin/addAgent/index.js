@@ -50,14 +50,14 @@ class AddAgent extends Component {
         }
         storesName.push(data);
       })
-      const array = response.data.replace(/\s/g,'').match(/(?<=var).*?(?=;)/gm);
+      const array = response.data.replace(/\s/g,'').match(/marker.*?(?=;)/gm);
       const arr = array.filter(element => element.match(/^marker[0-9]+.*/));
       const finale = arr.map(element => {
         return ({
             code : element.split('=')[0],
             location: {
                 type : 'Point',
-                coordinates: [parseFloat(element.match(/(?<=lat:)(.*)(?=,lng)/)[0]) , parseFloat(element.match(/(?<=lng:)(.*)(?=},map)/)[0]) ]
+                coordinates: [parseFloat(element.match(/lat:(.*)(?=,lng)/)[1]) , parseFloat(element.match(/lng:(.*)(?=},map)/)[1]) ]
             }
         })
     })
@@ -77,7 +77,7 @@ class AddAgent extends Component {
     this.setState({
       store: this.state.stores[value]
     })
-    //console.log(this.state)
+    //console.log(this.state.stores)
   }
 
 
