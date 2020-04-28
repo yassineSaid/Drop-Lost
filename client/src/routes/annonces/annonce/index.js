@@ -80,7 +80,7 @@ class Annonce extends Component {
 
   handleContact(match, annonce) {
     const payload = {
-      to : match.user,
+      to : match.user._id,
       annonce : annonce._id,
       matchAnnonce : match._id
     }
