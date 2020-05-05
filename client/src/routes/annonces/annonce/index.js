@@ -84,7 +84,7 @@ class Annonce extends Component {
       annonce : annonce._id,
       matchAnnonce : match._id
     }
-    axios.post("http://localhost:5000/api/chat/create", payload, { withCredentials: true }).then(
+    axios.post(process.env.REACT_APP_API_URL+"api/chat/create", payload, { withCredentials: true }).then(
       () => this.setState({ redirect: true })
     ).catch(error => {
       if (error.response.status === 401) {
@@ -113,7 +113,7 @@ class Annonce extends Component {
                   return (
                     <div key={item}>
                       <img alt="example"
-                        src={"http://localhost:5000/uploads/" + item}
+                        src={process.env.REACT_APP_API_URL+"uploads/" + item}
                         style={{ maxHeight: "300px", width: "auto", margin: "auto" }}
                       />
                     </div>
@@ -122,7 +122,7 @@ class Annonce extends Component {
                 :
                 <div>
                   <img alt="example"
-                    src="http://localhost:5000/uploads/no-image.jpg"
+                    src={process.env.REACT_APP_API_URL+"uploads/no-image.jpg"}
                     style={{ maxHeight: "300px", width: "auto", margin: "auto" }}
                   />
                 </div>
