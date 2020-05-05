@@ -111,7 +111,7 @@ class Confimer extends React.Component {
         lon: this.state.longitude
       }
       //console.log(payload)
-      axios.get("http://localhost:5000/api/chat/store", { params: payload, withCredentials: true }).then(
+      axios.get(process.env.REACT_APP_API_URL+"/api/chat/store", { params: payload, withCredentials: true }).then(
         response => {
           //console.log(response);
           this.setState({
@@ -156,7 +156,7 @@ class Confimer extends React.Component {
       methode : this.state.methode,
       boutique : this.state.methode === 'boutique' ? this.state.store._id : ''
     }
-    axios.post("http://localhost:5000/match/create", payload,{ withCredentials: true }).then(
+    axios.post(process.env.REACT_APP_API_URL+"/match/create", payload,{ withCredentials: true }).then(
         response => {
           this.setState({
             ref : response.data.match
