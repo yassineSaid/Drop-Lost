@@ -59,18 +59,18 @@ module.exports = {
     },
     supprimerAnnonce: async (req, res, next) => {
         const annonce = await Annonce.findById(req.params.id)
-        if (annonce.user.toString()===req.user._id.toString()){
+        if (annonce.user.toString() === req.user._id.toString()) {
             annonce.images.forEach(image => {
-                fs.unlinkSync('./public/uploads/'+image);
+                fs.unlinkSync('./public/uploads/' + image);
             })
             annonce.remove().then(result => {
-                res.status(200).json({ success: true})
+                res.status(200).json({ success: true })
             }).catch(err => {
-                res.status(500).json({ success: false, error: err})
+                res.status(500).json({ success: false, error: err })
             })
         }
         else {
-            res.status(401).json({ success: false, error: "Vous ne pouvez pas supprimer cette annonce"})
+            res.status(401).json({ success: false, error: "Vous ne pouvez pas supprimer cette annonce" })
         }
     },
     mesAnnonces: async (req, res, next) => {
@@ -110,7 +110,7 @@ module.exports = {
                         $sort: {
                             date: -1
                         }
-                    }
+                    },
                 ]
             ).project({
                 'user.password': 0,

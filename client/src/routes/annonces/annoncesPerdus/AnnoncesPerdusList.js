@@ -35,6 +35,7 @@ class AnnoncesPerdusList extends React.Component {
   }
 
   componentDidMount() {
+    console.log(process.env)
     getAnnoncesPerdus().then(response => {
       if (response.done) {
         console.log(response.response.data)

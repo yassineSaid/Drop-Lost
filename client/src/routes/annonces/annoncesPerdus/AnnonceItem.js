@@ -48,7 +48,7 @@ class AnnonceItem extends React.Component {
           <div className="gx-grid-thumb-equal">
             <span className="gx-link gx-grid-thumb-cover">
               <Link to={"annonce/" + _id}>
-                <img src={images.length > 0 ? "http://localhost:5000/uploads/" + images[0] : "http://localhost:5000/uploads/no-image.jpg"} />
+                <img src={images.length > 0 ? process.env.REACT_APP_API_URL+"uploads/" + images[0] : process.env.REACT_APP_API_URL+"uploads/no-image.jpg"} />
               </Link>
             </span>
           </div>
@@ -75,8 +75,6 @@ class AnnonceItem extends React.Component {
 
         <div className="gx-product-footer">
           <Button type="primary" onClick={this.handleReadMore}>Plus de détails</Button>
-
-          <Button variant="raised">eCommerce.readMore</Button>
         </div>
       </div >
     );

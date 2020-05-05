@@ -88,7 +88,7 @@ class MesAnnoncesList extends React.Component {
                 //actions={[<IconText type="star-o" text="156" />, <IconText type="like-o" text="156" />,
                 //<IconText type="message" text="2" />]}
                 extra={<img className="gx-img-fluid" width={272} alt="logo"
-                  src={item.images.length>0 ? "http://localhost:5000/uploads/"+item.images[0] : "http://localhost:5000/uploads/no-image.jpg"} />}
+                  src={item.images.length>0 ? process.env.REACT_APP_API_URL+"uploads/"+item.images[0] : process.env.REACT_APP_API_URL+"uploads/no-image.jpg"} />}
               >
                 <List.Item.Meta
                   avatar='https://via.placeholder.com/290x193'
