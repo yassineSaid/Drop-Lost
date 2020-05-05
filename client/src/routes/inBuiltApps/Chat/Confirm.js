@@ -1,12 +1,12 @@
 import React from "react";
-import { Button, Modal, Collapse, Form, Select, Tooltip, Icon, Card, Row, Col, Divider, message } from "antd";
+import { Button, Modal, Collapse, Form, Select, Tooltip, Icon, Card, Row, Col, notification, message } from "antd";
 import "./basic.less";
 import Moment from "moment";
 import axios from 'axios';
-import MapGL, { Marker, GeolocateControl, setRTLTextPlugin } from 'react-map-gl';
+import MapGL, { Marker, GeolocateControl, setRTLTextPlugin  } from 'react-map-gl';
 import Pin from './pin';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-
+import { Redirect } from "react-router-dom";
 
 const mapboxgl = require('mapbox-gl');
 
@@ -41,6 +41,7 @@ class Confimer extends React.Component {
       longitude: null,
       store: null,
       loading: "validating",
+      navigate : false ,
       viewport: {
         latitude: 36.8065,
         longitude: 10.1815,
@@ -48,7 +49,9 @@ class Confimer extends React.Component {
         bearing: 0,
         pitch: 0
       },
+      routes : [],
       copied: false,
+      ref : null
     }
     this.selectChange = this.selectChange.bind(this);
   }
@@ -72,13 +75,13 @@ class Confimer extends React.Component {
       setRTLTextPlugin(
         'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js',
         null,
-        true
+        false
       );
     }
   }
 
   componentDidUpdate() {
-    console.log(this.state)
+    //console.log(this.state)
   }
 
   success = () => {
@@ -99,7 +102,8 @@ class Confimer extends React.Component {
 
   selectChange = (value) => {
     this.setState({
-      methode: value
+      methode: value,
+      disabled : false
     })
     if (value === 'boutique') {
       const payload = {
@@ -113,23 +117,64 @@ class Confimer extends React.Component {
           this.setState({
             store: response.data[0],
             loading: "success",
-            recherche: 'Distance : ' + (response.data[0].distance / 1000).toFixed(2) + ' km'
+            recherche: 'Distance : ' + (response.data[0].distance / 1000).toFixed(2) + ' km',
           })
         }
       ).catch()
     }
   };
 
+  close = () => {
+    this.setState({
+      navigate : true
+    })
+  };
+
+  openNotification = (type) => {
+    const key = `open${Date.now()}`;
+    const btn = (
+      <Button type="primary" size="small" onClick={() => notification.close(key)}>
+        Plus de details
+      </Button>
+    );
+    notification[type]({
+      message: 'Succés',
+      description: 'Votre demande de matching a été traiter avec succés.',
+      btn,
+      key,
+      onClose: this.close(),
+    });
+  };
+
   handleOk = () => {
     this.setState({
       confirmLoading: true,
     });
+    const payload = {
+      perdu : this.state.annonce._id,
+      trouve : this.state.match._id,
+      methode : this.state.methode,
+      boutique : this.state.methode === 'boutique' ? this.state.store._id : ''
+    }
+    axios.post("http://localhost:5000/match/create", payload,{ withCredentials: true }).then(
+        response => {
+          this.setState({
+            ref : response.data.match
+          })
+        }
+      ).catch()
     setTimeout(() => {
       this.setState({
         visible: false,
         confirmLoading: false,
       });
     }, 2000);
+
+    setTimeout(() => {
+      this.openNotification('success');
+
+    }, 2500);
+
   };
 
   _updateViewport = viewport => {
@@ -137,12 +182,16 @@ class Confimer extends React.Component {
   };
 
   render() {
-    const { visible, confirmLoading, disabled, viewport } = this.state;
+    const { visible, confirmLoading, disabled, viewport,routes } = this.state;
     const formItemLayout = {
       labelCol: { xs: 24, sm: 7 },
       wrapperCol: { xs: 24, sm: 17 },
     };
+    if(this.state.navigate) {
+      return <Redirect to={'/in-built-apps/match/'+this.state.ref} />;
+    }
     return (
+
       <div className="ant-card-extra">
         <Button type="primary" size="default" icon="check" onClick={this.showModal}>Confirmer</Button>
         <Modal title="Confirmer le matching !"
@@ -222,7 +271,7 @@ class Confimer extends React.Component {
                 </Row> : ''
               }
             </Form>
-            {this.state.loading === 'success' ?
+            {this.state.loading === 'success' &&  this.state.methode === 'boutique' ?
               <div className="nt-col-xs-24 ant-col-sm-26">
                 <MapGL
                   {...viewport}

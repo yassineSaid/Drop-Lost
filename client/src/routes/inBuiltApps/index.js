@@ -9,6 +9,7 @@ const InBuiltApps = ({match}) => (
     <Redirect exact from={`${match.url}/`} to={`${match.url}/contacts`}/>
     <Route path={`${match.url}/contacts`} component={asyncComponent(() => import('./Contact'))}/>
     <Route path={`${match.url}/chat/:annonce?`} component={asyncComponent(() => import('./Chat/index'))}/>
+    <Route path={`${match.url}/match/:match?`} component={asyncComponent(() => import('./Match/index'))}/>
     <Route path={`${match.url}/mail`} component={asyncComponent(() => import('./Mail'))}/>
     <Route path={`${match.url}/todo`} component={asyncComponent(() => import('./Todo'))}/>
     <Route path={`${match.url}/notes`} component={asyncComponent(() => import('./Notes'))}/>

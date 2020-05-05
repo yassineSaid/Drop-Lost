@@ -95,10 +95,10 @@ class Chat extends Component {
 
   filterContact = (userName) => {
     if (userName === '') {
-      return this.state.contactListSearch;
+      return this.state.chatUsersSearch;
     }
-    return this.state.contactListSearch.filter((user) => user.prenom.toLowerCase().indexOf(userName.toLowerCase()) > -1 ||
-      user.nom.toLowerCase().indexOf(userName.toLowerCase()) > -1);
+    return this.state.chatUsersSearch.filter((user) => user.recipientObj.prenom.toLowerCase().indexOf(userName.toLowerCase()) > -1 ||
+      user.recipientObj.nom.toLowerCase().indexOf(userName.toLowerCase()) > -1);
   };
 
   Communication = () => {
@@ -124,7 +124,7 @@ class Chat extends Component {
             <div className="gx-chat-contact-name">
               {selectedUser.recipientObj === undefined ? `${selectedUser.nom} ${selectedUser.prenom}` : `${selectedUser.recipientObj.nom} ${selectedUser.recipientObj.prenom}`}
             </div>
-            <span data-text="true">Match pour l'annonce : <span className="gx-chat-contact-name">{selectedUser.annonce[0].description}</span></span>
+            <span data-text="true">Match pour l'annonce : <span className="ant-card-meta-title">{selectedUser.annonce[0].description}</span></span>
           </div>
         </div>
         <Confirmer match={this.state.selectedUser.matchAnnonce} annonce={this.state.selectedUser.annonce}></Confirmer>

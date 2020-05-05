@@ -18,10 +18,13 @@ router.post('/create', (req, res) => {
     let trouve = mongoose.Types.ObjectId(req.body.trouve);
     let perdu = mongoose.Types.ObjectId(req.body.perdu);
     let etat = 'Attente de Rencontre';
-    let boutique = '';
+    //console.log(req.body)
+    let boutique = null;
+    let code = null;
     if (req.body.methode === 'boutique') {
         etat = "Attente de Déposition"
-        boutique = req.body.boutique
+        boutique = req.body.boutique,
+        code = (Math.floor(Math.random() * 10000) + 10000).toString().substring(1);
     }
     Match.findOneAndUpdate({
         annonces: {
@@ -35,11 +38,14 @@ router.post('/create', (req, res) => {
         methode: req.body.methode,
         code: req.body.code,
         boutique,
+        date : Date.now(),
+        code,
         etat
     },
         { upsert: true, new: true, setDefaultsOnInsert: true },
         function (err, match) {
             if (err) {
+                //console.log(err)
                 res.setHeader('Content-Type', 'application/json');
                 res.sendStatus(500);
                 res.end(JSON.stringify({ message: 'Failure' }));
@@ -103,34 +109,31 @@ router.get('/', (req, res) => {
     let annonce = mongoose.Types.ObjectId(req.query.match);
     Match.aggregate([
         {
-            '$match': {
-                'annonces': {
-                    '$elemMatch': {
-                        '$eq': annonce
-                    }
-                }
+          '$addFields': {
+            'userId': {
+              '$toString': '$_id'
             }
-        },
-        {
-            '$lookup': {
-                'from': 'annonces',
-                'localField': 'annonces',
-                'foreignField': '_id',
-                'as': 'annonces'
-            }
+          }
         }, {
-            '$lookup': {
-                'from': 'stores',
-                'localField': 'boutique',
-                'foreignField': '_id',
-                'as': 'boutique'
-            }
+          '$match': {
+            'userId': req.query.match
+          }
         }, {
-            '$unwind': {
-                'path': '$boutique'
-            }
+          '$lookup': {
+            'from': 'stores', 
+            'localField': 'boutique', 
+            'foreignField': '_id', 
+            'as': 'boutique'
+          }
+        }, {
+          '$lookup': {
+            'from': 'annonces', 
+            'localField': 'annonces', 
+            'foreignField': '_id', 
+            'as': 'annonces'
+          }
         }
-    ]).exec((err, matchs) => {
+      ]).exec((err, matchs) => {
         if (err) { }
         else {
             res.send(matchs);

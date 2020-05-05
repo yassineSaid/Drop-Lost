@@ -38,7 +38,7 @@ module.exports = {
 
         // create new user 
         const newUser = new User({
-            role: 'client',
+            role: 'user',
             method: 'local',
 
             nom: nom,
