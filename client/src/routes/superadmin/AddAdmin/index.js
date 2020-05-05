@@ -14,6 +14,7 @@ import {
 } from "appRedux/actions/Auth";
 const FormItem = Form.Item;
 const Option = Select.Option;
+const BASE_URL=process.env.REACT_APP_API_URL
 
 class AddAdmin extends Component {
  state = {
@@ -25,7 +26,7 @@ class AddAdmin extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        axios.post('http://localhost:5000/users/superadmin/addadmin',values).then( this.props.history.push('/') )
+        axios.post(BASE_URL+'users/superadmin/addadmin',values).then( this.props.history.push('/') )
         .catch(error => error);
       }
     });

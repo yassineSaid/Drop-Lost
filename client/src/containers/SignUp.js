@@ -18,6 +18,7 @@ import IntlMessages from "util/IntlMessages";
 import { message } from "antd/lib/index";
 import CircularProgress from "components/CircularProgress/index";
 const Option = Select.Option;
+const BASE_URL=process.env.REACT_APP_API_URL
 
 const FormItem = Form.Item;
 class SignUp extends React.Component {

@@ -14,6 +14,8 @@ import {
   userSignUp,
   userTwitterSignIn
 } from "appRedux/actions/Auth";
+const BASE_URL=process.env.REACT_APP_API_URL
+
 const FormItem = Form.Item;
 const Option = Select.Option;
 const formItemLayout = {
@@ -91,7 +93,7 @@ class AddAgent extends Component {
       }
       //console.log(payload)
       if (!err) {
-        axios.post('http://localhost:5000/users/admin/addagent',payload).then( this.props.history.push('/admin/listagent') )
+        axios.post(BASE_URL+'users/admin/addagent',payload).then( this.props.history.push('/admin/listagent') )
         .catch(error => error);
       }
     });

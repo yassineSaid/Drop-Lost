@@ -4,6 +4,7 @@ import IntlMessages from "util/IntlMessages";
 import axios from 'axios';
 
 const FormItem = Form.Item;
+const BASE_URL=process.env.REACT_APP_API_URL
 
 
 class ResetPassword extends Component {
@@ -18,7 +19,7 @@ class ResetPassword extends Component {
           newpassword:values.password,
           confirmnewpassword:values.confirm
         }
-        axios.post('http://localhost:5000/users/resetPassword',data).then( this.props.history.push('/signin') )
+        axios.post(BASE_URL+'users/resetPassword',data).then( this.props.history.push('/signin') )
         .catch(error => error);
       }
     });
