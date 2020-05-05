@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import {Card,  Table} from "antd";
 import axios from 'axios';
-
+const BASE_URL=process.env.REACT_APP_API_URL
 
 function handleAdmin(data){
-    axios.post('http://localhost:5000/users/admin/ban',data).then(window.location.reload(false));
+    axios.post(BASE_URL+'users/admin/ban',data).then(window.location.reload(false));
    
 }
 

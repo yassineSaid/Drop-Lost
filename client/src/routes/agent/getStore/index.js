@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 import {Card,  Table} from "antd";
 import axios from 'axios';
+const BASE_URL=process.env.REACT_APP_API_URL
 
 
 function handleAdmin(data){
-    axios.post('http://localhost:5000/users/admin/ban',data).then(window.location.reload(false));
+    axios.post(BASE_URL+'users/admin/ban',data).then(window.location.reload(false));
    
 }
 
@@ -55,7 +56,7 @@ class listStore extends Component {
      const  pathparms={
         nom:params.nom
       }
-        axios.get('http://localhost:5000/users/agent/listobjectinstore/'+pathparms.nom) //the api to hit request
+        axios.get(BASE_URL+'users/agent/listobjectinstore/'+pathparms.nom) //the api to hit request
             .then((response) => {
                 console.log(response)
                 

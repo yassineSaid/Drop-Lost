@@ -4,6 +4,7 @@ import IntlMessages from "util/IntlMessages";
 import axios from 'axios';
 
 const FormItem = Form.Item;
+const BASE_URL=process.env.REACT_APP_API_URL
 
 
 class ForgotPassword extends Component {
@@ -12,7 +13,7 @@ class ForgotPassword extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        axios.post('http://localhost:5000/users/forget',values)
+        axios.post(BASE_URL+'users/forget',values)
       }
     });
   };

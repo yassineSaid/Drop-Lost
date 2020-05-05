@@ -2,12 +2,12 @@ import React, { Component } from "react";
 import {Card, Table} from "antd";
 import axios from 'axios';
 
-
+const BASE_URL=process.env.REACT_APP_API_URL
 function ban(data){
-     axios.post('http://localhost:5000/users/admin/ban',data).then(window.location.reload(false));
+     axios.post(BASE_URL+'users/admin/ban',data).then(window.location.reload(false));
 }
 function unban(data){
-  axios.post('http://localhost:5000/users/admin/unban',data).then(window.location.reload(false));
+  axios.post(BASE_URL+'users/admin/unban',data).then(window.location.reload(false));
 }
 class listUsers extends Component {
     constructor() {

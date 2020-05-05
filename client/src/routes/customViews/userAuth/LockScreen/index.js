@@ -3,7 +3,7 @@ import {Form} from "antd";
 import axios from 'axios';
 import ProjectWidget from "components/Widgets/ProjectWidget";
 
-
+const BASE_URL=process.env.REACT_APP_API_URL
 
 class LockScreen extends Component {
 
@@ -19,7 +19,7 @@ class LockScreen extends Component {
     console.log('I am mounted!');
     const { match: { params } } = this.props;
     console.log(params)
-    axios.post('http://localhost:5000/users/verify', params)
+    axios.post(BASE_URL+'users/verify', params)
     .then(console.log("done") )
     .catch(error => error);
 

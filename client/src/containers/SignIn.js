@@ -17,13 +17,14 @@ import {
 } from "appRedux/actions/Auth";
 import IntlMessages from "util/IntlMessages";
 import CircularProgress from "components/CircularProgress/index";
+const BASE_URL=process.env.REACT_APP_API_URL
 
 const FormItem = Form.Item;
 class SignIn extends React.Component {
 
   sendFacebookToken = (userID, accessToken) => {
     axios
-      .post("http://localhost:5000/users/oauth/facebook", {
+      .post(BASE_URL+"users/oauth/facebook", {
         userID,
         accessToken
       }
@@ -40,7 +41,7 @@ class SignIn extends React.Component {
   };
   sendGoogleToken = tokenId => {
     axios
-      .post('http://localhost:5000/users/oauth/google', {
+      .post(BASE_URL+'users/oauth/google', {
         idToken: tokenId
       }, { withCredentials: true })
       .then(localStorage.setItem("User", tokenId))

@@ -23,19 +23,20 @@ import {
   userGoogleSignInSuccess,
   userTwitterSignInSuccess
 } from "../actions/Auth";
+const BASE_URL=process.env.REACT_APP_API_URL
 
 const createUserWithEmailPasswordRequest = async (nom, prenom, ville, adresse, numero, email, password) =>
-  await axios.post('http://localhost:5000/users/signUp', nom, prenom, ville, adresse, numero, email, password, { withCredentials: true })
+  await axios.post(BASE_URL+'users/signUp', nom, prenom, ville, adresse, numero, email, password, { withCredentials: true })
     .then(authUser => authUser)
     .catch(error => error);
 
 const signInUserWithEmailPasswordRequest = async (payload) =>
-  await axios.post('http://localhost:5000/users/signIn', payload, { withCredentials: true })
+  await axios.post(BASE_URL+'users/signIn', payload, { withCredentials: true })
     .then((authUser) =>  {return authUser} )
     .catch(error => error);
 
 const signOutRequest = async () =>
-  await axios.get('http://localhost:5000/users/signout', { withCredentials: true })
+  await axios.get(BASE_URL+'users/signout', { withCredentials: true })
     .then(authUser => authUser)
     .catch(error => error);
 

@@ -14,7 +14,7 @@ import {
 } from "appRedux/actions/Auth";
 const FormItem = Form.Item;
 const Option = Select.Option;
-
+const BASE_URL=process.env.REACT_APP_API_URL
 class AddStore extends Component {
  state = {
     confirmDirty: false,
@@ -25,7 +25,7 @@ class AddStore extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        axios.post('http://localhost:5000/users/agent/addstore',values).then( this.props.history.push('/agent/liststore') )
+        axios.post(BASE_URL+'users/agent/addstore',values).then( this.props.history.push('/agent/liststore') )
         .catch(error => error);
       }
     });
