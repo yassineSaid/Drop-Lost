@@ -111,7 +111,7 @@ class Confimer extends React.Component {
         lon: this.state.longitude
       }
       //console.log(payload)
-      axios.get(process.env.REACT_APP_API_URL+"/api/chat/store", { params: payload, withCredentials: true }).then(
+      axios.get(process.env.REACT_APP_API_URL+"api/chat/store", { params: payload, withCredentials: true }).then(
         response => {
           //console.log(response);
           this.setState({

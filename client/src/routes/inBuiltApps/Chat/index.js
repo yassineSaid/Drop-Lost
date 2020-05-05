@@ -70,7 +70,7 @@ class Chat extends Component {
     fmData.append("to", this.state.selectedUser.recipientObj._id);
     try {
       const res = await axios.post(
-        process.env.REACT_APP_API_URL+"/api/chat/upload",
+        process.env.REACT_APP_API_URL+"api/chat/upload",
         fmData,
         config
       );
@@ -290,7 +290,7 @@ class Chat extends Component {
       //console.log(this.state.conversation)
       this.socket.emit('unsubscribe', { room: this.state.conversation._id })
     }
-    axios.get(process.env.REACT_APP_API_URL+"/api/chat/conversations/query", { params: { userId: user.recipientObj._id }, withCredentials: true }).then(
+    axios.get(process.env.REACT_APP_API_URL+"api/chat/conversations/query", { params: { userId: user.recipientObj._id }, withCredentials: true }).then(
       response => {
         this.setState({
           selectedSectionId: user._id,
@@ -355,7 +355,7 @@ class Chat extends Component {
     }
 
 
-    axios.get(process.env.REACT_APP_API_URL+"/api/chat/conversations", { withCredentials: true }).then(
+    axios.get(process.env.REACT_APP_API_URL+"api/chat/conversations", { withCredentials: true }).then(
       response => {
         this.setState({
           chatUsers: response.data,
@@ -392,7 +392,7 @@ class Chat extends Component {
         conversation: this.state.conversation.concat(updatedConversation),
         message: ''
       })
-      axios.post(process.env.REACT_APP_API_URL+"/api/chat/", payload, { withCredentials: true }).then(
+      axios.post(process.env.REACT_APP_API_URL+"api/chat/", payload, { withCredentials: true }).then(
         response => {
 
         }
