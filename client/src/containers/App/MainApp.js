@@ -112,7 +112,6 @@ export class MainApp extends Component {
             </Footer>
           </Content>
         </Layout>
-        <Customizer/>
       </Layout>
     )
   }
