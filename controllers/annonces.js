@@ -75,7 +75,7 @@ module.exports = {
     },
     mesAnnonces: async (req, res, next) => {
         try {
-            const annonces = await Annonce.find({ "user": req.user._id }).sort('date')
+            const annonces = await Annonce.find({ "user": req.user._id }).sort('-date')
             console.log(req.user._id)
             res.status(200).json({ success: true, annonces: annonces });
         }

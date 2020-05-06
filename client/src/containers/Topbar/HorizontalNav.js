@@ -63,6 +63,12 @@ class HorizontalNav extends Component {
         defaultOpenKeys={[defaultOpenKeys]}
         selectedKeys={[selectedKeys]}
         mode="horizontal">
+
+        <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="accueil"
+          title={<Link to="/accueil" style={{ color: "white" }}>
+            Accueil
+                </Link>}>
+        </SubMenu>
         {isLoggedIn() && isSuperAdmin() && <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="superadmin"
           title="Controle des admins">
 
@@ -163,48 +169,6 @@ class HorizontalNav extends Component {
           </Menu.Item>
         </SubMenu>
 
-        <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="main"
-          title={<IntlMessages id="sidebar.main" />}>
-
-          <SubMenu className="gx-menu-horizontal" key="dashboard"
-            title={<span> <i className="icon icon-dasbhoard" />
-              <IntlMessages id="sidebar.dashboard" /></span>}>
-            <Menu.Item key="main/dashboard/crypto">
-              <Link to="/main/dashboard/crypto">
-                <i className="icon icon-crypto" />
-                <IntlMessages id="sidebar.dashboard.crypto" />
-              </Link>
-            </Menu.Item>
-            <Menu.Item key="main/dashboard/crm">
-              <Link to="/main/dashboard/crm">
-                <i className="icon icon-crm" />
-                <IntlMessages id="sidebar.dashboard.crm" />
-              </Link>
-            </Menu.Item>
-            <Menu.Item key="main/dashboard/listing">
-              <Link to="/main/dashboard/listing">
-                <i className="icon icon-listing-dbrd" />
-                <IntlMessages id="sidebar.dashboard.listing" />
-              </Link>
-            </Menu.Item>
-          </SubMenu>
-
-          <Menu.Item key="main/widgets">
-            <Link to="/main/widgets"><i className="icon icon-widgets" />
-              <IntlMessages id="sidebar.widgets" /></Link>
-          </Menu.Item>
-
-          <Menu.Item key="main/metrics">
-            <Link to="/main/metrics"><i className="icon icon-apps" />
-              <IntlMessages id="sidebar.metrics" /></Link>
-          </Menu.Item>
-
-          <Menu.Item key="main/algolia">
-            <Link to="/main/algolia"><i className="icon icon-shopping-cart " />
-              <IntlMessages id="sidebar.algolia" /></Link>
-          </Menu.Item>
-
-        </SubMenu>
 
         <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="chat"
           title="Chat">

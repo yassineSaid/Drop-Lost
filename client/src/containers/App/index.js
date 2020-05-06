@@ -80,10 +80,10 @@ class App extends Component {
 
     if (location.pathname === '/') {
       if (initURL === '' || initURL === '/' ) {
-        return ( <Redirect to={'/main/dashboard/crypto'}/> );
-      } 
+        return ( <Redirect to={'/accueil'}/> );
+      }
       else if(this.props.authUser!==null){
-        return ( <Redirect to={'/main/dashboard/crypto'}/> );
+        return ( <Redirect to={'/accueil'}/> );
       }
     }
     this.setLayoutType(layoutType);
@@ -102,7 +102,7 @@ class App extends Component {
             <Route exact path='/signup' component={SignUp}/>
             <Route  path={`${match.url}`}  component={MainApp}/>
 
-            
+
           </Switch>
         </IntlProvider>
       </LocaleProvider>

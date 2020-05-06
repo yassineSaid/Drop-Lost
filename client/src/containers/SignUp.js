@@ -66,10 +66,10 @@ class SignUp extends React.Component {
       }, 100);
     }
     if (this.props.authUser !== null) {
-      this.props.history.push('/main/dashboard/crypto');
+      this.props.history.push('/accueil');
     }
   }
-  
+
   render() {
     const { getFieldDecorator } = this.props.form;
     const { showMessage, loader, alertMessage } = this.props;
@@ -242,7 +242,7 @@ class SignUp extends React.Component {
               <div className="gx-flex-row gx-justify-content-between">
                 <span>or connect with</span>
                 <ul className="gx-social-link">
-                
+
                 <li>
                     <Icon type="facebook" onClick={() => {
                       this.props.showAuthLoader();

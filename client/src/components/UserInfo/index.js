@@ -10,7 +10,7 @@ class UserInfo extends Component {
     const userMenuOptions = (
       <ul className="gx-user-popover">
         <li><Link to="/social-apps/profile">My Account</Link></li>
-        <li><Link to="/main/dashboard/crypto" onClick={() => this.props.userSignOut()} onMouseDown={() =>this.props.isLoggedIn(false)}>
+        <li><Link to="accueil" onClick={() => this.props.userSignOut()} onMouseDown={() =>this.props.isLoggedIn(false)}>
             Logout
           </Link>
         </li>

@@ -59,7 +59,7 @@ class SidebarContent extends Component {
                          title={<span> <i className="icon icon-dasbhoard"/>
                          <IntlMessages id="sidebar.dashboard"/></span>}>
                   <Menu.Item key="main/dashboard/crypto">
-                    <Link to="/main/dashboard/crypto">
+                    <Link to="/accueil">
                       <i className="icon icon-crypto"/>
                       <IntlMessages id="sidebar.dashboard.crypto"/>
                     </Link>

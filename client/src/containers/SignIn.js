@@ -36,7 +36,7 @@ class SignIn extends React.Component {
     console.log(response);
     this.sendFacebookToken(response.userID, response.accessToken)
     if (localStorage.getItem("User") !== null) {
-      this.props.history.push('/main/dashboard/crypto');
+      this.props.history.push('/accueil');
     }
   };
   sendGoogleToken = tokenId => {
@@ -53,7 +53,7 @@ class SignIn extends React.Component {
     console.log(response);
     this.sendGoogleToken(response.tokenId);
     if (localStorage.getItem("User") !== null) {
-      this.props.history.push('/main/dashboard/crypto');
+      this.props.history.push('/accueil');
     }
 
   };
@@ -74,7 +74,7 @@ class SignIn extends React.Component {
       }, 100);
     }
     if (localStorage.getItem("User") !== null) {
-      this.props.history.push('/main/dashboard/crypto');
+      this.props.history.push('/accueil');
     }
   }
 
@@ -140,8 +140,8 @@ class SignIn extends React.Component {
                     <FacebookLogin
                       appId="212504969965178"
                       callback={this.responseFacebook} />
-                  
-                  
+
+
                 </div>
                 <span
                   className="gx-text-light gx-fs-sm"> demo user email: 'demo@example.com' and password: 'demo#123'</span>
