@@ -20,7 +20,7 @@ class Match extends React.Component {
     const payload = {
       match: params.match
     }
-    axios.get("http://localhost:5000/match/", { params: payload, withCredentials: true }).then(
+    axios.get(process.env.REACT_APP_API_URL+"match/", { params: payload, withCredentials: true }).then(
       response => {
         this.setState({
           matching: response.data[0],
