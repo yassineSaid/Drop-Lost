@@ -7,7 +7,6 @@ import Feedback from "./feedback";
 import Navigation from "./navigation";
 import Others from "./others";
 import General from "./general";
-import Table from "./table";
 
 const Components = ({match}) => (
   <Switch>
@@ -17,7 +16,6 @@ const Components = ({match}) => (
     <Route path={`${match.url}/general`} component={General}/>
     <Route path={`${match.url}/navigation`} component={Navigation}/>
     <Route path={`${match.url}/others`} component={Others}/>
-    <Route path={`${match.url}/table`} component={Table}/>
   </Switch>
 );
 
