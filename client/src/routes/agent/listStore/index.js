@@ -49,7 +49,7 @@ class listStore extends Component {
       
 
     componentDidMount() {
-        axios.get('http://localhost:5000/users/agent/liststores') //the api to hit request
+        axios.get(BASE_URL+'users/agent/liststores') //the api to hit request
             .then((response) => {
                 const data = response.data.storelist.map((Admins) => ({
                     nom: Admins.nom,

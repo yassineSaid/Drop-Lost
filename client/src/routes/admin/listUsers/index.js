@@ -55,7 +55,7 @@ class listUsers extends Component {
       
 
     componentDidMount() {
-        axios.get('http://localhost:5000/users/superadmin/allusers') //the api to hit request
+        axios.get(BASE_URL+'users/superadmin/allusers') //the api to hit request
             .then((response) => {
                 const data = response.data.AdminsList.map((Admins) => ({
                     nom: Admins.nom,

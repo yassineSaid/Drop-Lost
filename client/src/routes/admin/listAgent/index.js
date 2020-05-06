@@ -51,7 +51,7 @@ class listAgent extends Component {
       
 
     componentDidMount() {
-        axios.get('http://localhost:5000/users/admin/allagents') //the api to hit request
+        axios.get(BASE_URL+'users/admin/allagents') //the api to hit request
             .then((response) => {
                 const data = response.data.agentslist.map((Admins) => ({
                     nom: Admins.nom,
