@@ -61,7 +61,7 @@ module.exports = {
             subject: 'Account activation link',
             html: `
                       <h1>Please use the following to activate your account</h1>
-                      <p>http://localhost:3000/custom-views/user-auth/lock-screen/${st}</p>
+                      <p>https://droplost.herokuapp.com/custom-views/user-auth/lock-screen/${st}</p>
                       <hr />
                       <p>This email may containe sensetive information</p>
                       
@@ -238,7 +238,7 @@ module.exports = {
                 subject: 'Account password change ',
                 html: `
                           <h1>Please use the following to change your password</h1>
-                          <p>http://localhost:3000/custom-views/user-auth/reset-password/${st}</p>
+                          <p>https://droplost.herokuapp.com/custom-views/user-auth/reset-password/${st}</p>
                           <hr />
                           <p>This email may containe sensetive information</p>
                           
@@ -326,7 +326,7 @@ module.exports = {
             to: email,
             subject: 'New account created',
             html: `
-                  <h3>Welcome to drop&lost <a href="http://localhost:3000/signin">click here</a> to log in and use these</h3>
+                  <h3>Welcome to drop&lost <a href="https://droplost.herokuapp.com/signin">click here</a> to log in and use these</h3>
                   <h4>email :${email}</h4>
                   <h4>password :${req.value.body.password}</h4>
 
@@ -452,7 +452,7 @@ module.exports = {
             to: email,
             subject: 'New account created',
             html: `
-                        <h3>Welcome to drop&lost <a href="http://localhost:3000/signin">click here</a> to log in and use these</h3>
+                        <h3>Welcome to drop&lost <a href="https://droplost.herokuapp.com/signin">click here</a> to log in and use these</h3>
                         <h4>email :${email}</h4>
                         <h4>password :${req.body.password}</h4>
       
