@@ -116,7 +116,7 @@ module.exports = {
                         else {
                             let newUser = new User({
                                 method: 'google',
-
+                              
                                 nom: given_name,
                                 prenom: family_name,
                                 email: email

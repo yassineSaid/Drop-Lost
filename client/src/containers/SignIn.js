@@ -44,7 +44,10 @@ class SignIn extends React.Component {
       .post(BASE_URL+'users/oauth/google', {
         idToken: tokenId
       }, { withCredentials: true })
-      .then(localStorage.setItem("User", tokenId))
+      .then(response => {
+        // returning the data here allows the caller to get it through another .then(...)
+        localStorage.setItem('User', JSON.stringify( response.data.user));
+      })
       .catch(error => error);
 
 
@@ -52,7 +55,7 @@ class SignIn extends React.Component {
   responseGoogle = response => {
     console.log(response);
     this.sendGoogleToken(response.tokenId);
-    if (localStorage.getItem("User") !== null) {
+    if (localStorage.getItem('User') !== null) {
       this.props.history.push('/accueil');
     }
 
