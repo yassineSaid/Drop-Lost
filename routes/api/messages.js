@@ -420,7 +420,7 @@ router.get('/store', (req, res) => {
             'distanceField': 'distance'
           }
         }, {
-          '$limit': 1
+          '$limit': 5
         }
       ]).exec((err, stores) => {
             if (err) {

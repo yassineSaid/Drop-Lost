@@ -90,10 +90,6 @@ router.get('/list', (req, res) => {
                 'foreignField': '_id',
                 'as': 'boutique'
             }
-        }, {
-            '$unwind': {
-                'path': '$boutique'
-            }
         }
     ]).exec((err, matchs) => {
         if (err) { }
@@ -133,6 +129,131 @@ router.get('/', (req, res) => {
             'as': 'annonces'
           }
         }
+      ]).exec((err, matchs) => {
+        if (err) { }
+        else {
+            res.send(matchs);
+        }
+    })
+})
+
+
+router.get('/success', (req, res) => {
+    let jwtUser = jwt.verify(verify(req), keys.jwtSecret);
+    //let user = mongoose.Types.ObjectId(jwtUser.sub);
+    let match = mongoose.Types.ObjectId(req.query.match);
+
+    Match.findOneAndUpdate({
+        _id: match
+    }, {
+        etat : "Objet Récupéré"
+    },
+        { upsert: true, new: true, setDefaultsOnInsert: true },
+        function (err, match) {
+            if (err) {
+                //console.log(err)
+                res.setHeader('Content-Type', 'application/json');
+                res.sendStatus(500);
+                res.end(JSON.stringify({ message: 'Failure' }));
+            }
+            else {
+                const message = {
+                    message: "success"
+                }
+                res.send(message);
+            }
+        }
+    );
+    
+})
+
+router.get('/agent/recuperer', (req, res) => {
+    let jwtUser = jwt.verify(verify(req), keys.jwtSecret);
+    //let user = mongoose.Types.ObjectId(jwtUser.sub);
+    let match = mongoose.Types.ObjectId(req.query.match);
+
+    Match.findOneAndUpdate({
+        _id: match
+    }, {
+        etat : "Objet Récupéré"
+    },
+        { upsert: true, new: true, setDefaultsOnInsert: true },
+        function (err, match) {
+            if (err) {
+                //console.log(err)
+                res.setHeader('Content-Type', 'application/json');
+                res.sendStatus(500);
+                res.end(JSON.stringify({ message: 'Failure' }));
+            }
+            else {
+                const message = {
+                    message: "success"
+                }
+                res.send(message);
+            }
+        }
+    );
+    
+})
+
+router.get('/agent/deposer', (req, res) => {
+    let jwtUser = jwt.verify(verify(req), keys.jwtSecret);
+    //let user = mongoose.Types.ObjectId(jwtUser.sub);
+    let match = mongoose.Types.ObjectId(req.query.match);
+
+    Match.findOneAndUpdate({
+        _id: match
+    }, {
+        etat : "Attente de Récuperation"
+    },
+        { upsert: true, new: true, setDefaultsOnInsert: true },
+        function (err, match) {
+            if (err) {
+                //console.log(err)
+                res.setHeader('Content-Type', 'application/json');
+                res.sendStatus(500);
+                res.end(JSON.stringify({ message: 'Failure' }));
+            }
+            else {
+                const message = {
+                    message: "success"
+                }
+                res.send(message);
+            }
+        }
+    );
+    
+})
+
+
+router.get('/agent/list', (req, res) => {
+    let jwtUser = jwt.verify(verify(req), keys.jwtSecret);
+    let user = mongoose.Types.ObjectId(jwtUser.sub);
+    Match.aggregate([
+        {
+          '$lookup': {
+            'from': 'stores', 
+            'localField': 'boutique', 
+            'foreignField': '_id', 
+            'as': 'boutique'
+          }
+        }, {
+          '$match': {
+            'boutique': {
+              '$elemMatch': {
+                'agent': user
+              }
+            }
+          }
+        },
+        {
+            '$lookup': {
+              'from': 'annonces', 
+              'localField': 'annonces', 
+              'foreignField': '_id', 
+              'as': 'annonces'
+            }
+          }
       ]).exec((err, matchs) => {
         if (err) { }
         else {

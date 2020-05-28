@@ -1,31 +1,93 @@
 import React from "react";
 import axios from 'axios';
-import { Col, Row, Card, Divider, Tag } from "antd";
+import { Col, Row, Card, Icon, Button } from "antd";
 import Moment from "moment";
-
+import WithIconTimeLineItem from "components/timeline/WithIconTimeLineItem";
+import "./basic.less";
+import { Link } from "react-router-dom";
 
 class Match extends React.Component {
+
+
   constructor(props) {
     super(props);
     const { match: { params } } = this.props;
     console.log(params)
     this.state = {
       loading: true,
-      matching: null
+      matching: null,
+      perdu: null,
+      trouve: null,
+      matchResult: null,
+      iconLoading: false,
+      confirmed: false,
     }
   }
+
+  enterIconLoading = () => {
+    const { match: { params } } = this.props;
+
+    this.setState({ iconLoading: true });
+
+
+    const payload = {
+      match: params.match
+    }
+    axios.get(process.env.REACT_APP_API_URL + "match/success/", { params: payload, withCredentials: true }).then(
+      response => {
+        this.setState({
+          matchResult: {
+            ...this.state.matchResult,
+            description: "Objet Récupéré"
+          },
+          confirmed: true
+        });
+      }
+    ).catch();
+
+    setTimeout(() => {
+      this.setState({iconLoading: false});
+    }, 1500);
+  };
+
+
 
   componentDidMount() {
     const { match: { params } } = this.props;
     const payload = {
       match: params.match
     }
-    axios.get(process.env.REACT_APP_API_URL+"match/", { params: payload, withCredentials: true }).then(
+    axios.get(process.env.REACT_APP_API_URL + "match/", { params: payload, withCredentials: true }).then(
       response => {
+        const data = response.data[0];
+        const perdu = {
+          title: "Ajout annonce objet perdu",
+          description: data.annonces[0].description,
+          time: Moment(data.annonces[0].date).format('dddd LL')
+        }
+
+        const trouve = {
+          title: "Ajout annonce objet trouvé",
+          description: data.annonces[1].description,
+          time: Moment(data.annonces[1].date).format('dddd LL')
+        }
+
+        const matchResult = {
+          title: "Matching entre les deux annonces !",
+          description: data.etat,
+          time: Moment(Number(data.date)).format('dddd LL')
+        }
+
+
         this.setState({
           matching: response.data[0],
-          loading: false
+          perdu,
+          trouve,
+          matchResult,
+          loading: false,
+          confirmed: response.data[0].etat === 'Objet Récupéré'
         })
+
       }
 
     ).catch()
@@ -33,71 +95,31 @@ class Match extends React.Component {
 
 
   render() {
-    const { loading, matching } = this.state;
+    const { loading, perdu, trouve, matchResult, confirmed, iconLoading } = this.state;
     return (
       <div className="gx-main-content">
         <Row>
-          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
-            <Card loading={loading} title="Détails du Matching">
-              {matching !== null ?
-                <div>
-                  <Row>
-                    <Col span={24} sm={6}>
-                      <h4>Annonce </h4>
-                    </Col>
-                    <Col span={24} sm={2}>
-                      <Divider type="vertical"></Divider>
-                    </Col>
-                    <Col span={24} sm={16}>
-                      <span>{matching.annonces[0].description}</span>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col span={24} sm={6}>
-                      <h4>Match </h4>
-                    </Col>
-                    <Col span={24} sm={2}>
-                      <Divider type="vertical"></Divider>
-                    </Col>
-                    <Col span={24} sm={16}>
-                      <span>{matching.annonces[1].description}</span>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col span={24} sm={6}>
-                      <h4>Date </h4>
-                    </Col>
-                    <Col span={24} sm={2}>
-                      <Divider type="vertical"></Divider>
-                    </Col>
-                    <Col span={24} sm={16}>
-                      <span>{Moment(Number(matching.date)).format('LLLL')}</span>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col span={24} sm={6}>
-                      <h4>Etat </h4>
-                    </Col>
-                    <Col span={24} sm={2}>
-                      <Divider type="vertical"></Divider>
-                    </Col>
-                    <Col span={24} sm={16}>
-                      <Tag color="green">{matching.etat}</Tag>
-                    </Col>
-                  </Row>
-                  {matching.code !== null ?
-                  <Row>
-                    <Col span={24} sm={6}>
-                      <h4>Code </h4>
-                    </Col>
-                    <Col span={24} sm={2}>
-                      <Divider type="vertical"></Divider>
-                    </Col>
-                    <Col span={24} sm={16}>
-                      <Tag color="geekblue">{matching.code}</Tag>
-                    </Col>
-                  </Row> : ''}
-                </div> : ''}
+          <Col span={24}>
+            <Card loading={loading} title="Timeline du matching" extra={<Link to="/in-built-apps/list/match"> Retour </Link>}>
+              <div className="gx-timeline-section gx-timeline-center">
+                <WithIconTimeLineItem timeLine={perdu} color="green">
+                  <i className="icon icon-search-new gx-p-2" />
+                </WithIconTimeLineItem>
+                <WithIconTimeLineItem styleName="gx-timeline-inverted" timeLine={trouve}
+                  color="purple">
+                  <i className="icon icon-add gx-p-2" />
+                </WithIconTimeLineItem>
+                {matchResult != null ?
+                  <WithIconTimeLineItem timeLine={matchResult} color="red">
+                    {matchResult.description === "Objet Récupéré" ? <i className="icon icon-check gx-p-2" />
+                      : <Icon type="loading" style={{ fontSize: 24, paddingTop: 13 }} />}
+                  </WithIconTimeLineItem> : ""}
+              </div>
+              <div className="gx-text-center">
+                <Button disabled = {confirmed} type="primary" icon="check" loading={iconLoading} onClick={this.enterIconLoading}>
+                  Marqué comme récupéré
+              </Button>
+              </div>
             </Card>
           </Col>
         </Row>

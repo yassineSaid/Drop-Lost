@@ -179,6 +179,20 @@ class HorizontalNav extends Component {
           </Menu.Item>
         </SubMenu>
 
+        {isLoggedIn() && isClient() && <Menu.Item key="matchs" className={this.getNavStyleSubMenuClass(navStyle)} >
+            <Link to="/in-built-apps/list/match" style={{ color: "white" }}>
+              Mes Matchs
+              </Link>
+        </Menu.Item>}
+
+        {isLoggedIn() && isAgent() && <Menu.Item key="matchs" className={this.getNavStyleSubMenuClass(navStyle)} >
+            <Link to="/in-built-apps/list/agent/match" style={{ color: "white" }}>
+              Mes Matchs
+              </Link>
+        </Menu.Item>}
+
+
+
       </Menu>
 
     );

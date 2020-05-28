@@ -11,8 +11,8 @@ const app = express();
 app.use(cookieParser())
 
 app.use(cors({
-  origin:'http://localhost:3000',
-  credentials:true
+  origin: 'http://localhost:3000',
+  credentials: true
 }));
 var usersRouter = require('./routes/api/users');
 var annoncesRouter = require('./routes/api/annonces');
@@ -47,14 +47,18 @@ const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 const io = require('socket.io')(server);
-io.on('connection' , function(socket) {
-  socket.on('subscribe', function(data) {
-      socket.join(data.room)
-      //console.log('entered : '+data.room)
+io.on('connection', function (socket) {
+  socket.on('notification', function (data) {
+    socket.join(data.user)
   })
-  socket.on('unsubscribe', function(data) {
-      socket.leave(data.room)
-      //console.log('left : '+data.room)
+  socket.on('notificationLeave', function (data) {
+    socket.leave(data.user)
+  })
+  socket.on('subscribe', function (data) {
+    socket.join(data.room)
+  })
+  socket.on('unsubscribe', function (data) {
+    socket.leave(data.room)
   })
 })
 global.io = io;

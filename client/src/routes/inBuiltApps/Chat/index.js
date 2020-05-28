@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Avatar, Button, Drawer, Input, Tabs , Upload , Modal } from "antd";
+import { Avatar, Button, Drawer, Input, Tabs, Upload, Modal } from "antd";
 import CustomScrollbars from "util/CustomScrollbars";
 import Moment from "moment";
 import axios from 'axios';
@@ -8,26 +8,29 @@ import Conversation from "components/chat/Conversation/index";
 import IntlMessages from "util/IntlMessages";
 import SearchBox from "components/SearchBox";
 import io from "socket.io-client";
-import {Spin,Icon} from "antd";
+import { Spin, Icon } from "antd";
 import { Redirect } from "react-router-dom";
 import Confirmer from './Confirm'
-
+import { Scrollbars } from "react-custom-scrollbars";
 
 const SOCKET_URI = process.env.REACT_APP_API_URL;
 const TabPane = Tabs.TabPane;
-const antIcon = <Icon type="loading" style={{fontSize: 36}} spin/>;
+const antIcon = <Icon type="loading" style={{ fontSize: 36 }} spin />;
 
 class Chat extends Component {
 
   socket = null;
 
+  scrollbars = React.createRef();
+
   componentDidMount() {
     this.socket = io.connect(SOCKET_URI);
     this.setupSocketListeners();
+    this.setState({mounted: true});
   }
 
   componentDidUpdate() {
-    //console.log(this.state)
+    //this.state.mounted && this.scrollbars.current.scrollToBottom();
   }
 
   setupSocketListeners() {
@@ -41,13 +44,14 @@ class Chat extends Component {
       'type': 'received',
       'body': message.body,
       'date': Moment().unix() * 1000,
-      'message' : message.message
+      'message': message.message
     };
     //console.log(updatedConversation)
     if (message.from !== this.state.loggedUser._id) {
       this.setState({
         conversation: this.state.conversation.concat(updatedConversation)
       })
+      this.scrollbars.current.scrollToBottom();
     }
   }
 
@@ -65,12 +69,12 @@ class Chat extends Component {
   uploadImage = async options => {
     const { onSuccess, onError, file } = options;
     const fmData = new FormData();
-    const config = { headers: { "content-type": "multipart/form-data" }, withCredentials : true };
+    const config = { headers: { "content-type": "multipart/form-data" }, withCredentials: true };
     fmData.append("image", file);
     fmData.append("to", this.state.selectedUser.recipientObj._id);
     try {
       const res = await axios.post(
-        process.env.REACT_APP_API_URL+"api/chat/upload",
+        process.env.REACT_APP_API_URL + "api/chat/upload",
         fmData,
         config
       );
@@ -80,7 +84,7 @@ class Chat extends Component {
         'type': 'sent',
         'body': res.data.image,
         'date': Moment().unix() * 1000,
-        'message' : 'image'
+        'message': 'image'
       };
       this.setState({
         conversation: this.state.conversation.concat(updatedConversation)
@@ -130,10 +134,13 @@ class Chat extends Component {
         <Confirmer match={this.state.selectedUser.matchAnnonce} annonce={this.state.selectedUser.annonce}></Confirmer>
       </div>
 
-      <CustomScrollbars className="gx-chat-list-scroll">
+      <Scrollbars className="gx-chat-list-scroll"
+        autoHide
+        ref={this.scrollbars}
+        renderTrackHorizontal={() => <div style={{ display: 'none' }} className="track-horizontal" />}>
         <Conversation conversationData={conversationData}
           selectedUser={selectedUser} />
-      </CustomScrollbars>
+      </Scrollbars>
 
       <div className="gx-chat-main-footer">
         <div className="gx-flex-row gx-align-items-center" style={{ maxHeight: 51 }}>
@@ -149,9 +156,9 @@ class Chat extends Component {
             </div>
           </div>
           <Upload showUploadList={false}
-                  accept="image/*"
-                  customRequest={this.uploadImage}
-                  onChange={this.handleOnChangeImage}
+            accept="image/*"
+            customRequest={this.uploadImage}
+            onChange={this.handleOnChangeImage}
           >
             <i className="gx-icon-btn icon icon-image" />
           </Upload>
@@ -179,7 +186,7 @@ class Chat extends Component {
               className="gx-size-60" alt="John Doe" />
           </div>
 
-        <div className="gx-user-name h4 gx-my-2">{this.state.loggedUser.nom} {this.state.loggedUser.prenom}</div>
+          <div className="gx-user-name h4 gx-my-2">{this.state.loggedUser.nom} {this.state.loggedUser.prenom}</div>
 
         </div>
       </div>
@@ -290,7 +297,7 @@ class Chat extends Component {
       //console.log(this.state.conversation)
       this.socket.emit('unsubscribe', { room: this.state.conversation._id })
     }
-    axios.get(process.env.REACT_APP_API_URL+"api/chat/conversations/query", { params: { userId: user.recipientObj._id }, withCredentials: true }).then(
+    axios.get(process.env.REACT_APP_API_URL + "api/chat/conversations/query", { params: { userId: user.recipientObj._id }, withCredentials: true }).then(
       response => {
         this.setState({
           selectedSectionId: user._id,
@@ -348,14 +355,15 @@ class Chat extends Component {
       chatUsersSearch: [],
       conversationList: [],
       conversation: null,
-      redirect : false,
-      loggedUser : JSON.parse(localStorage.getItem('User')),
+      redirect: false,
+      loggedUser: JSON.parse(localStorage.getItem('User')),
       file: null,
       uploading: false,
+      mounted: false,
     }
 
 
-    axios.get(process.env.REACT_APP_API_URL+"api/chat/conversations", { withCredentials: true }).then(
+    axios.get(process.env.REACT_APP_API_URL + "api/chat/conversations", { withCredentials: true }).then(
       response => {
         this.setState({
           chatUsers: response.data,
@@ -382,7 +390,7 @@ class Chat extends Component {
         'type': 'sent',
         'body': this.state.message,
         'date': Moment().unix() * 1000,
-        'message' : 'texte'
+        'message': 'texte'
       };
       const payload = {
         to: this.state.selectedUser.recipientObj._id,
@@ -392,9 +400,10 @@ class Chat extends Component {
         conversation: this.state.conversation.concat(updatedConversation),
         message: ''
       })
-      axios.post(process.env.REACT_APP_API_URL+"api/chat/", payload, { withCredentials: true }).then(
-        response => {
 
+      axios.post(process.env.REACT_APP_API_URL + "api/chat/", payload, { withCredentials: true }).then(
+        response => {
+          this.scrollbars.current.scrollToBottom();
         }
       ).catch(error => {
         if (error.response.status === 401) {
@@ -428,7 +437,7 @@ class Chat extends Component {
 
   render() {
     if (this.state.loggedUser === null) {
-      return <Redirect to='/signin'/>;
+      return <Redirect to='/signin' />;
     }
     const { loader, userState, drawerState } = this.state;
     return (
@@ -449,7 +458,7 @@ class Chat extends Component {
             </div>
             {loader ?
               <div className="gx-loader-view">
-                <Spin indicator={antIcon}/>
+                <Spin indicator={antIcon} />
               </div> : this.showCommunication()
             }
           </div>

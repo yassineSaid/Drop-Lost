@@ -1,9 +1,9 @@
 import React from "react";
-import { Button, Modal, Collapse, Form, Select, Tooltip, Icon, Card, Row, Col, notification, message } from "antd";
+import { Button, Modal, Collapse, Form, Select, Tooltip, Icon, Card, Row, Col, notification, message,Popover } from "antd";
 import "./basic.less";
 import Moment from "moment";
 import axios from 'axios';
-import MapGL, { Marker, GeolocateControl, setRTLTextPlugin  } from 'react-map-gl';
+import MapGL, { Marker, GeolocateControl, setRTLTextPlugin } from 'react-map-gl';
 import Pin from './pin';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Redirect } from "react-router-dom";
@@ -24,11 +24,11 @@ const geolocateStyle = {
 const TOKEN = 'pk.eyJ1Ijoib3Vzc2FtYWZlIiwiYSI6ImNrM3hvMDUxZjBzZG8za3A2cHNyMzh3bWQifQ.zjwKRhcnIP_nowp9lPg5PA'; // Set your mapbox token here
 
 
-class Confimer extends React.Component {
+
+class Confirmer extends React.Component {
 
   constructor(props) {
     super(props);
-    //console.log(this.props)
     this.state = {
       visible: false,
       confirmLoading: false,
@@ -39,9 +39,9 @@ class Confimer extends React.Component {
       recherche: 'Recherche en cours de la boutique la plus proche à votre position !',
       latitude: null,
       longitude: null,
-      store: null,
+      store: [],
       loading: "validating",
-      navigate : false ,
+      navigate: false,
       viewport: {
         latitude: 36.8065,
         longitude: 10.1815,
@@ -49,11 +49,14 @@ class Confimer extends React.Component {
         bearing: 0,
         pitch: 0
       },
-      routes : [],
+      routes: [],
       copied: false,
-      ref : null
+      ref: null,
+      selectedStore : null,
+      showMap : false,
     }
     this.selectChange = this.selectChange.bind(this);
+    this.onSelectChange = this.onSelectChange.bind(this);
   }
 
   componentDidMount() {
@@ -81,7 +84,7 @@ class Confimer extends React.Component {
   }
 
   componentDidUpdate() {
-    //console.log(this.state)
+    //console.log(this.state.showMap)
   }
 
   success = () => {
@@ -103,7 +106,7 @@ class Confimer extends React.Component {
   selectChange = (value) => {
     this.setState({
       methode: value,
-      disabled : false
+      disabled: false
     })
     if (value === 'boutique') {
       const payload = {
@@ -111,11 +114,12 @@ class Confimer extends React.Component {
         lon: this.state.longitude
       }
       //console.log(payload)
-      axios.get(process.env.REACT_APP_API_URL+"api/chat/store", { params: payload, withCredentials: true }).then(
+      axios.get(process.env.REACT_APP_API_URL + "api/chat/store", { params: payload, withCredentials: true }).then(
         response => {
           //console.log(response);
           this.setState({
-            store: response.data[0],
+            store: response.data,
+            selectedStore : response.data[0],
             loading: "success",
             recherche: 'Distance : ' + (response.data[0].distance / 1000).toFixed(2) + ' km',
           })
@@ -126,7 +130,7 @@ class Confimer extends React.Component {
 
   close = () => {
     this.setState({
-      navigate : true
+      navigate: true
     })
   };
 
@@ -151,18 +155,18 @@ class Confimer extends React.Component {
       confirmLoading: true,
     });
     const payload = {
-      perdu : this.state.annonce._id,
-      trouve : this.state.match._id,
-      methode : this.state.methode,
-      boutique : this.state.methode === 'boutique' ? this.state.store._id : ''
+      perdu: this.state.annonce._id,
+      trouve: this.state.match._id,
+      methode: this.state.methode,
+      boutique: this.state.methode === 'boutique' ? this.state.selectedStore._id : ''
     }
-    axios.post(process.env.REACT_APP_API_URL+"/match/create", payload,{ withCredentials: true }).then(
-        response => {
-          this.setState({
-            ref : response.data.match
-          })
-        }
-      ).catch()
+    axios.post(process.env.REACT_APP_API_URL + "match/create", payload, { withCredentials: true }).then(
+      response => {
+        this.setState({
+          ref: response.data.match
+        })
+      }
+    ).catch()
     setTimeout(() => {
       this.setState({
         visible: false,
@@ -181,14 +185,25 @@ class Confimer extends React.Component {
     this.setState({ viewport });
   };
 
+  onSelectChange = (value) => {
+    this.setState({
+      showMap : true,
+      selectedStore : this.state.store[value]
+    })
+  }
+
   render() {
-    const { visible, confirmLoading, disabled, viewport,routes } = this.state;
+    const { visible, confirmLoading, disabled, viewport, selectedStore } = this.state;
     const formItemLayout = {
       labelCol: { xs: 24, sm: 7 },
       wrapperCol: { xs: 24, sm: 17 },
     };
-    if(this.state.navigate) {
-      return <Redirect to={'/in-built-apps/match/'+this.state.ref} />;
+    const formItemLayout1 = {
+      labelCol: { xs: 24, sm: 0 },
+      wrapperCol: { xs: 24, sm: 24 },
+    };
+    if (this.state.navigate) {
+      return <Redirect to={'/in-built-apps/match/' + this.state.ref} />;
     }
     return (
 
@@ -248,8 +263,8 @@ class Confimer extends React.Component {
                 hasFeedback
               >
                 {<Select placeholder="Selectionner une option" onChange={this.selectChange}>
-                  <Option value="directe">En Personne</Option>
-                  <Option value="boutique">Boutique TrustIt </Option>
+                  <Option value="En Personne">En Personne</Option>
+                  <Option value="Boutique">Boutique TrustIt </Option>
                 </Select>}
               </FormItem>
               {this.state.methode === 'boutique' ?
@@ -260,18 +275,36 @@ class Confimer extends React.Component {
                     </div>
                   </Col>
                   <Col span={24} sm={18}>
-                        <h3 className="loc">{this.state.loading === "success" ? this.state.store.store.name : 'Recherche en cours ...'}</h3>
+                    <FormItem
+                      {...formItemLayout1}
+                      hasFeedback
+
+                      validateStatus={this.state.store.length !== 0 ? "" : "validating"}
+                    >
+                      <Select
+                        name="boutique"
+                        placeholder= "Selectionner une boutique "
+                        onChange={this.onSelectChange}
+                        disabled={this.state.store.length !== 0 ? false : true}
+                      >
+                        {this.state.store.length !== 0 ? this.state.store.map(function (item, i) {
+                          return <Option value={i} key={i}>{item.store.name}</Option>
+                        }) : null  }
+                      </Select>
+                    </FormItem>
                   </Col>
                   <Col sm={2}>
                     {this.state.loading === 'success' ?
-                      <CopyToClipboard text={`${this.state.store.store.location.coordinates[0]}, ${this.state.store.store.location.coordinates[1]}`} onCopy={() => this.setState({ copied: true })}>
+                      <CopyToClipboard text={selectedStore.store.location.coordinates[0]+","+selectedStore.store.location.coordinates[1]}>
+                        <Popover placement="right" content={parseFloat(selectedStore.distance / 1000).toFixed(2) + " - KM"} title="Distance">
                           <Button onClick={this.success}><i className="icon icon-copy"></i></Button>
+                        </Popover>
                       </CopyToClipboard> : ''}
                   </Col>
                 </Row> : ''
               }
             </Form>
-            {this.state.loading === 'success' &&  this.state.methode === 'boutique' ?
+            { this.state.showMap && this.state.methode === "boutique" ?
               <div className="nt-col-xs-24 ant-col-sm-26">
                 <MapGL
                   {...viewport}
@@ -288,8 +321,8 @@ class Confimer extends React.Component {
                   />
 
                   <Marker
-                    longitude={this.state.store.store.location.coordinates[1]}
-                    latitude={this.state.store.store.location.coordinates[0]}
+                    longitude={selectedStore.store.location.coordinates[1]}
+                    latitude={selectedStore.store.location.coordinates[0]}
                     offsetTop={-20}
                     offsetLeft={-10}
                   >
@@ -304,4 +337,4 @@ class Confimer extends React.Component {
   }
 }
 
-export default Confimer;
+export default Confirmer;
