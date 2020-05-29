@@ -21,7 +21,7 @@ router.post('/create', (req, res) => {
     //console.log(req.body)
     let boutique = null;
     let code = null;
-    if (req.body.methode === 'boutique') {
+    if (req.body.methode === 'Boutique') {
         etat = "Attente de Déposition"
         boutique = req.body.boutique,
         code = (Math.floor(Math.random() * 10000) + 10000).toString().substring(1);

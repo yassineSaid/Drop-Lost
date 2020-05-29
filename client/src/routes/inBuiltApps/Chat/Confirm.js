@@ -108,7 +108,7 @@ class Confirmer extends React.Component {
       methode: value,
       disabled: false
     })
-    if (value === 'boutique') {
+    if (value === 'Boutique') {
       const payload = {
         lat: this.state.latitude,
         lon: this.state.longitude
@@ -158,8 +158,10 @@ class Confirmer extends React.Component {
       perdu: this.state.annonce._id,
       trouve: this.state.match._id,
       methode: this.state.methode,
-      boutique: this.state.methode === 'boutique' ? this.state.selectedStore._id : ''
+      boutique: this.state.methode === 'Boutique' ? this.state.selectedStore._id : ''
     }
+
+    console.log(payload)
     axios.post(process.env.REACT_APP_API_URL + "match/create", payload, { withCredentials: true }).then(
       response => {
         this.setState({
@@ -267,7 +269,7 @@ class Confirmer extends React.Component {
                   <Option value="Boutique">Boutique TrustIt </Option>
                 </Select>}
               </FormItem>
-              {this.state.methode === 'boutique' ?
+              {this.state.methode === 'Boutique' ?
                 <Row>
                   <Col span={24} sm={2}>
                     <div className="icons">
@@ -304,7 +306,7 @@ class Confirmer extends React.Component {
                 </Row> : ''
               }
             </Form>
-            { this.state.showMap && this.state.methode === "boutique" ?
+            { this.state.showMap && this.state.methode === "Boutique" ?
               <div className="nt-col-xs-24 ant-col-sm-26">
                 <MapGL
                   {...viewport}

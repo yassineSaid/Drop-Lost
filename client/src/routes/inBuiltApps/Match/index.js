@@ -60,33 +60,37 @@ class Match extends React.Component {
     axios.get(process.env.REACT_APP_API_URL + "match/", { params: payload, withCredentials: true }).then(
       response => {
         const data = response.data[0];
-        const perdu = {
-          title: "Ajout annonce objet perdu",
-          description: data.annonces[0].description,
-          time: Moment(data.annonces[0].date).format('dddd LL')
+        console.log('test')
+        console.log(data)
+        if(data !== []) {
+          const perdu = {
+            title: "Ajout annonce objet perdu",
+            description: data.annonces[0].description,
+            time: Moment(data.annonces[0].date).format('dddd LL')
+          }
+
+          const trouve = {
+            title: "Ajout annonce objet trouvé",
+            description: data.annonces[1].description,
+            time: Moment(data.annonces[1].date).format('dddd LL')
+          }
+
+          const matchResult = {
+            title: "Matching entre les deux annonces !",
+            description: data.etat,
+            time: Moment(Number(data.date)).format('dddd LL')
+          }
+
+
+          this.setState({
+            matching: response.data[0],
+            perdu,
+            trouve,
+            matchResult,
+            loading: false,
+            confirmed: response.data[0].etat === 'Objet Récupéré'
+          })
         }
-
-        const trouve = {
-          title: "Ajout annonce objet trouvé",
-          description: data.annonces[1].description,
-          time: Moment(data.annonces[1].date).format('dddd LL')
-        }
-
-        const matchResult = {
-          title: "Matching entre les deux annonces !",
-          description: data.etat,
-          time: Moment(Number(data.date)).format('dddd LL')
-        }
-
-
-        this.setState({
-          matching: response.data[0],
-          perdu,
-          trouve,
-          matchResult,
-          loading: false,
-          confirmed: response.data[0].etat === 'Objet Récupéré'
-        })
 
       }
 
@@ -95,7 +99,7 @@ class Match extends React.Component {
 
 
   render() {
-    const { loading, perdu, trouve, matchResult, confirmed, iconLoading } = this.state;
+    const { loading, perdu, trouve, matchResult, confirmed, iconLoading,matching } = this.state;
     return (
       <div className="gx-main-content">
         <Row>
@@ -116,9 +120,10 @@ class Match extends React.Component {
                   </WithIconTimeLineItem> : ""}
               </div>
               <div className="gx-text-center">
+                {matching && matching.methode !== "Boutique" ?
                 <Button disabled = {confirmed} type="primary" icon="check" loading={iconLoading} onClick={this.enterIconLoading}>
                   Marqué comme récupéré
-              </Button>
+              </Button> : "" }
               </div>
             </Card>
           </Col>
