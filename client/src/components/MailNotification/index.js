@@ -23,12 +23,14 @@ class MailNotification extends React.Component{
           loading : false
         })
       }
-    ).catch(
-      this.setState({
-        errorMessage : "Vous n'êtes pas connecté !",
-        loading : false
-      })
-    )
+    ).catch(error => {
+      if(error.response.status === 500) {
+        this.setState({
+          errorMessage : "Vous n'êtes pas connecté !",
+          loading : false
+        })
+      }
+    })
   }
 
 
@@ -36,7 +38,9 @@ class MailNotification extends React.Component{
     super(props);
     this.state = {
       loggedUser: JSON.parse(localStorage.getItem('User')) ? JSON.parse(localStorage.getItem('User')) : null,
-      loading : true
+      loading : true,
+      notifications : [],
+      errorMessage : "Pas De Messages !",
     }
   }
 
@@ -52,7 +56,7 @@ class MailNotification extends React.Component{
         </div>
         <CustomScrollbars className="gx-popover-scroll">
           <ul className="gx-sub-popover">
-            { loading ? <div className="gx-loader-view"><Spin indicator={antIcon} /> </div> : errorMessage && notifications ?
+            { loading ? <div className="gx-loader-view"><Spin indicator={antIcon} /> </div> : errorMessage !== "Pas De Messages !" && notifications !== [] ?
             notifications.map((notification, index) => <NotificationItem key={index} notification={notification}/>) :
             <h5 className="gx-text-center"><span className="gx-link">{errorMessage}</span></h5>
             }
