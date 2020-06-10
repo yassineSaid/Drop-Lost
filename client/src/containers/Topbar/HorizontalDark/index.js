@@ -55,10 +55,28 @@ function handleChange(value) {
 }
 
 class HorizontalDark extends Component {
-
-  state = {
-    searchText: '',
-  };
+  constructor(props){
+    super(props);
+    const sock = new WebSocket('ws://localhost:5000/notification');
+    sock.onopen = function() {
+        console.log('open');
+    };
+    const self = this;
+    sock.onmessage = function(e) {
+      console.log('socket message');
+          const message = JSON.parse(e.data);
+          const dataToSend = JSON.stringify(message);
+          self.setState({ notification: message });
+    };
+    this.state = {
+      actions : sock,
+      notification : {},
+      searchText: '',
+    }
+  }
+  // state = {
+  //   searchText: '',
+  // };
 
   languageMenu = () => (
     <CustomScrollbars className="gx-popover-lang-scroll">
@@ -164,7 +182,7 @@ class HorizontalDark extends Component {
                 </li>
 
                 <li className="gx-notify">
-                  <Popover overlayClassName="gx-popover-horizantal" placement="bottomRight" content={<AppNotification/>}
+                  <Popover overlayClassName="gx-popover-horizantal" placement="bottomRight" content={<AppNotification  { ... this.state}/>}
                            trigger="click">
                     <span className="gx-pointer gx-d-block"><i className="icon icon-notification"/></span>
                   </Popover>

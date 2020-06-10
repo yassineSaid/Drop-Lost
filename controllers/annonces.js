@@ -9,11 +9,11 @@ var fs = require('fs');
 var stringSimilarity = require('string-similarity');
 require("@tensorflow/tfjs-node");
 var faceapi = require("face-api.js")
-var canvas = require("canvas")
-const { Image, loadImage, ImageData, createCanvas, HTMLCanvasElement, HTMLImageElement, Canvas } = canvas;
-faceapi.env.monkeyPatch({
+ var canvas = require("canvas")
+ const { Image, loadImage, ImageData, createCanvas, HTMLCanvasElement, HTMLImageElement, Canvas } = canvas;
+ faceapi.env.monkeyPatch({
     Image, Canvas, ImageData
-})
+ })
 
 const storage = multer.diskStorage({
     destination: "./public/uploads/",

@@ -17,6 +17,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "canvas": "^2.6.1",
+    "cogo-toast": "^4.2.3",
     "config": "^3.3.1",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
@@ -29,7 +30,7 @@
     "joi": "^14.3.1",
     "jsonwebtoken": "^8.5.1",
     "log4js": "^1.1.1",
-    "mongoose": "^5.9.6",
+    "mongoose": "^5.9.16",
     "multer": "^1.4.2",
     "nodemailer": "^6.4.6",
     "passport": "^0.4.1",
@@ -38,9 +39,14 @@
     "passport-google-plus-token": "^2.1.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
+    "pusher": "^3.0.1",
+    "q": "^1.5.1",
     "randomstring": "^1.1.5",
     "socket.io": "^2.3.0",
-    "string-similarity": "^4.0.1"
+    "string-similarity": "^4.0.1",
+    "web-push": "^3.4.4",
+    "redis": "^2.8.0",
+    "express-ws": "^4.0.0"
   },
   "devDependencies": {
     "concurrently": "^5.1.0",
