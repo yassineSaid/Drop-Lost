@@ -50,6 +50,11 @@ router.get('/getAllReclamations' , (req,res) => {
         .then(reclamations => res.json(reclamations))
         .catch(err => res.status(400).json('Error' + err));
 });
+router.get('/getReclamations' , (req,res) => {
+    Reclamation.find()
+        .then(reclamations => res.json(reclamations))
+        .catch(err => res.status(400).json('Error' + err));
+});
 router.get('/getReclamation/:id' , (req,res) => {
 
     // let user = mongoose.Types.ObjectId(req.query.userId);

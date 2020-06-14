@@ -203,6 +203,11 @@ class HorizontalNav extends Component {
               Mes réclamations
               </Link>
           </Menu.Item>
+          <Menu.Item key="/reclamations/listeDesReclamations" >
+          <Link to="/reclamations/listeDesReclamations" >
+              Liste des réclamations
+              </Link>
+          </Menu.Item>
         </SubMenu>
         {isLoggedIn() && isAgent() && <Menu.Item key="matchs" className={this.getNavStyleSubMenuClass(navStyle)} >
             <Link to="/in-built-apps/list/agent/match" style={{ color: "white" }}>
