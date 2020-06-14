@@ -1,12 +1,18 @@
 import React, { Component } from "react";
-import { Modal, Card, Icon, Row, Col, Carousel, Tag, Button } from "antd";
+import { Modal, Card, Icon, Row, Col, Carousel, Tag, Button,Input } from "antd";
 import { getAnnonce, supprimerAnnonce } from "../../../requests/annonces";
 import moment from "moment";
 import 'moment/locale/fr';
 import Meta from "antd/lib/card/Meta";
 import { Redirect } from "react-router-dom";
 import axios from 'axios';
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+} from 'react-places-autocomplete';
 moment.locale('fr')
+
+
 
 
 class Reclamation extends Component {
@@ -27,6 +33,16 @@ class Reclamation extends Component {
     this.handleContact = this.handleContact.bind(this);
     this.handleSupprimer = this.handleSupprimer.bind(this);
   }
+  handleChange = address => {
+    this.setState({ address });
+  };
+
+  handleSelect = address => {
+    geocodeByAddress(address)
+      .then(results => getLatLng(results[0]))
+      .then(latLng => console.log('Success', latLng))
+      .catch(error => console.error('Error', error));
+  };
 
   componentDidMount() {
     // getreclamation(this.state.id).then(response => {
@@ -105,40 +121,93 @@ class Reclamation extends Component {
 
     return (
       <div>
-        <Row>
-          <Col xl={8} lg={12} md={12} sm={24} xs={24}>
-            <Carousel autoplay style={{ height: "300px", lineHeight: "300px", textAlign: "center" }}>
-              {this.state.images.length > 0 ?
-                this.state.images.map(item => {
-                  return (
-                    <div key={item}>
-                      <img alt="example"
-                        src={process.env.REACT_APP_API_URL+"uploads/" + item}
-                        style={{ maxHeight: "300px", width: "auto", margin: "auto" }}
-                      />
-                    </div>
-                  )
-                })
-                :
-                <div>
-                  <img alt="example"
-                    src={process.env.REACT_APP_API_URL+"uploads/no-image.jpg"}
-                    style={{ maxHeight: "300px", width: "auto", margin: "auto" }}
-                  />
-                </div>
-              }
-            </Carousel>
-          </Col>
-          <Col xl={16} lg={24} md={24} sm={24} xs={24}>
-            <Card
-              loading={this.state.loading}
-              title={!this.state.loading ? "Annonce du " + moment(this.state.annonce.date).format("DD MMMM YYYY") : null}
-              extra={this.state.owner ? <Button type="danger" onClick={this.handleSupprimer}>Supprimer cette annonce</Button> : null}
-            >
-              {!this.state.loading ? this.state.annonce.description : null}
-            </Card>
-          </Col>
-        </Row>
+             <Modal visible={true} footer={null} onCancel={this.handleCancel}>
+    
+    <PlacesAutocomplete
+     value={this.state.address}
+     onChange={this.handleChange}
+     onSelect={this.handleSelect}
+   >
+     {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+       <div>
+            <div className="gx-modal-box-form-item">
+         <div className="gx-form-group">
+         <Input
+           {...getInputProps({
+             placeholder: 'Search Places ...',
+             className: 'gx-form-group',
+           })}
+         />
+         </div>
+         </div>
+         <div className="autocomplete-dropdown-container">
+           {loading && <div>Loading...</div>}
+           {suggestions.map(suggestion => {
+             const className = suggestion.active
+               ? 'suggestion-item--active'
+               : 'suggestion-item';
+             // inline style for demonstration purpose
+             const style = suggestion.active
+               ? { backgroundColor: '#fafafa', cursor: 'pointer' }
+               : { backgroundColor: '#ffffff', cursor: 'pointer' };
+             return (
+               <div
+                 {...getSuggestionItemProps(suggestion, {
+                   className,
+                   style,
+                 })}
+               >
+                 <span>{suggestion.description}</span>
+               </div>
+             );
+           })}
+         </div>
+       </div>
+     )}
+   </PlacesAutocomplete>
+   <div className="gx-modal-box-row">
+       <div className="gx-modal-box-avatar">
+
+       </div>
+
+       <div className="gx-modal-box-form-item">
+         <div className="gx-form-group">
+           <Input
+             required
+             placeholder="Name"
+            // onChange={(event) => this.setState({name: event.target.value})}
+             //defaultValue={name}
+             margin="none"/>
+         </div>
+         <div className="gx-form-group">
+           <Input
+             placeholder="Email"
+             //onChange={(event) => this.setState({email: event.target.value})}
+             //value={email}
+             margin="normal"/>
+         </div>
+         <div className="gx-form-group">
+           <Input
+             placeholder="Phone"
+             //onChange={(event) => this.setState({phone: event.target.value})}
+            // value={phone}
+             margin="normal"
+           />
+         </div>
+         <div className="gx-form-group">
+           <Input
+             placeholder="Designation"
+             //onChange={(event) => this.setState({designation: event.target.value})}
+            // value={designation}
+             autosize={{minRows: 2, maxRows: 6}}
+             margin="normal"/>
+         </div>
+       </div>
+     </div>
+   
+       </Modal>
+     
+        
   
       </div>
     );

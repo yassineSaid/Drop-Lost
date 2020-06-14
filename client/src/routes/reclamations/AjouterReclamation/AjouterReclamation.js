@@ -74,8 +74,6 @@ const formItemLayout = {
       viewState: []
 
     };
-
-
     // Bind
     this.handleLocationChange = this.handleLocationChange.bind(this);
     this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
@@ -358,13 +356,20 @@ handleDateChange(e) {
             <Card className="gx-card"  style={{ width: 800}}>
 
            <Descriptions title="Choisir L'adressse de l'incident">
-    <Descriptions.Item  >
-          <FormItem
-            label={this.state.address}
-            onChange= {this.handleAddressChange}
-          ></FormItem>
-      </Descriptions.Item>
+
   </Descriptions>
+  {getFieldDecorator("Adresse", {
+            rules: [{ required: true, message: "Vous devez sélectionner une adresse l'incident!" }]
+          })(
+   
+          <div className="gx-form-group">
+          <Input
+           placeholder="Sélectionnez l'adresse de l'incident avec des détails"
+            onChange= {this.handleAddressChange}
+            value={this.state.address}
+            margin="normal"/>
+        </div>
+          )}
           <LocationPicker
             containerElement={ <div style={ {height: '100%'} } /> }
             mapElement={ <div style={ {height: '400px'} } /> }

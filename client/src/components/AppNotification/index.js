@@ -47,7 +47,6 @@ export default class ListNotififications extends Component {
   componentDidMount(){
     this._isMounted = true;
     let user = JSON.parse(localStorage.getItem('User'));
-    console.log("the userrrr"+JSON.stringify(user._id));
     axios.get('http://localhost:5000/api/notifications/allNotifications', { params: { userId: user._id }, withCredentials: true })
       .then(resp => {
         console.log("Les valeurs"+JSON.stringify(resp.data.notifications));

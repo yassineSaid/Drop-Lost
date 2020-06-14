@@ -57,4 +57,37 @@ router.get('/getReclamation/:id' , (req,res) => {
     //     .then(reclamation => res.json(reclamation))
     //     .catch(err => res.status(400).json('Error' + err));
 });
+
+
+
+router.route('/updateReclamation').put(function (req, res) {
+    try {
+ 
+        Reclamation.findById(req.body._id, function(err, reclam) {
+
+    
+                if(reclam!=null){
+                reclam.description = req.body.description; 
+                reclam.address=req.body.address,
+                reclam.lng=req.body.lng,
+                reclam.lat=req.body.lat
+            }
+
+            // save the reclamation
+            reclam.save(function(err) {
+                if (err)
+                    res.send(err);
+
+                res.json({ message: 'Bear updated!' });
+            });
+
+        });
+    }
+    catch (err) {
+        console.log(err)
+ 
+        res.status(500).json({ success: false});
+    }
+    });
+
 module.exports = router;
