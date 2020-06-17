@@ -69,7 +69,6 @@ class AddAgent extends Component {
     this.setState({
       stores : values
     })
-
     })
 
     this.handleStoreChange = this.handleStoreChange.bind(this);

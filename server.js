@@ -5,6 +5,7 @@ const path = require("path");
 const cors = require("cors");
 const bodyparser = require('body-parser');
 var cookieParser = require('cookie-parser')
+const axios = require('axios');
 
 const expressWs = require('express-ws');
 const app = express();
@@ -59,7 +60,21 @@ app.ws('/notification', (ws, req) => {
     });
   };
 })
+//For google maps API
+app.get('/getRoute',async(req,res)=>{
+  const params = req.url.split('?')[1].split('&');
+  const from = params[0].split('=')[1];
+  const to = params[1].split('=')[1];
+  console.log(from,to)
+       axios.get(`https://maps.googleapis.com/maps/api/directions/json?origin=${from}&destination=${to}&key=API_KEY&sensor=false&alternatives=true`)
+      .then(function (response) {
+          res.send(response.data)
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
 
+});
 
 
 

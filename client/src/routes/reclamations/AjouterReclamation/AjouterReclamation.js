@@ -11,7 +11,7 @@ import { JSDOM } from "jsdom";
 import Geocode from "react-geocode";
 import { notification,Card, DatePicker,Descriptions, Form, Input, Select, Button, Switch, Upload, Icon, Modal } from "antd";
 /* Default position */
-Geocode.setApiKey("{$Api_key}");
+Geocode.setApiKey("API_KEY");
 const defaultPosition = {
   lat: 27.9878,
   lng: 86.9250
@@ -329,8 +329,6 @@ handleDateChange(e) {
       </Descriptions>
         <FormItem
             {...formItemLayout}
-        
-         
           >
             <div className="dropbox">
               <Upload.Dragger {...props}
@@ -344,6 +342,27 @@ handleDateChange(e) {
               </Upload.Dragger>
             </div>
           </FormItem>
+          <Descriptions title="Choisir l'adressse de l'incident">
+
+</Descriptions>
+<FormItem
+            {...formItemLayout}
+          >
+{getFieldDecorator("Adresse", {
+          rules: [{ required: true, message: "Vous devez sélectionner une adresse l'incident!" }]
+        })(
+ 
+        <div className="gx-form-group">
+        <Input
+         placeholder="Sélectionnez l'adresse de l'incident avec des détails"
+          onChange= {this.handleAddressChange}
+          value={this.state.address}
+          margin="normal"
+          name="adresse"
+          />
+      </div>
+        )}
+        </FormItem>
              <Form.Item {...formItemLayout}>
         <Button type="primary" htmlType="submit">
           Submit
@@ -355,24 +374,10 @@ handleDateChange(e) {
           {/* </div> */}
             <Card className="gx-card"  style={{ width: 800}}>
 
-           <Descriptions title="Choisir L'adressse de l'incident">
-
-  </Descriptions>
-  {getFieldDecorator("Adresse", {
-            rules: [{ required: true, message: "Vous devez sélectionner une adresse l'incident!" }]
-          })(
-   
-          <div className="gx-form-group">
-          <Input
-           placeholder="Sélectionnez l'adresse de l'incident avec des détails"
-            onChange= {this.handleAddressChange}
-            value={this.state.address}
-            margin="normal"/>
-        </div>
-          )}
+ 
           <LocationPicker
             containerElement={ <div style={ {height: '100%'} } /> }
-            mapElement={ <div style={ {height: '400px'} } /> }
+            mapElement={ <div style={ {height: '600px',marginTop:"25px"} } /> }
             defaultPosition={this.state.defaultPosition}
             radius={-1}
             onChange={this.handleLocationChange}

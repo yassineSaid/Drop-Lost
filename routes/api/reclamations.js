@@ -94,5 +94,17 @@ router.route('/updateReclamation').put(function (req, res) {
         res.status(500).json({ success: false});
     }
     });
+    router.get('/supprimerReclamation/:id' , async (req, res, next) => {
+        console.log(JSON.stringify(req.params))
+        const reclamation = await Reclamation.findById(req.params.id)
+        console.log("The id"+req.params.id +" "+JSON.stringify(reclamation))
+            reclamation.remove().then(result => {
+                res.status(200).json({ success: true })
+            }).catch(err => {
+                res.status(500).json({ success: false, error: err })
+            })
 
+     
+    }
+    );
 module.exports = router;

@@ -39,18 +39,10 @@ const GeolocationExampleGoogleMap = withGoogleMap(props => (
                      lat: center.lat,
                      lng: center.lng
                  }}>
-
-
-      {/* <InfoWindow position={{
-                     lat: center.lat,
-                     lng: center.lng
-                 }}>
-        <div><p>Nochhh</p></div>
-      </InfoWindow> */}
     
                  </Marker>
 
-        ))};
+        ))}
 {props.center && reclamations.map(center => (
      <Circle center={{ lat:  parseFloat(center.lat), lng:parseFloat(center.lng) }}     radius={props.radius} options={{
         fillColor: 'red',
@@ -102,7 +94,6 @@ export default class ListeDesReclamations extends Component {
        
    });
    this.setState({reclamations:localStorage.getItem('listeReclam')})
-
     }
     ).catch(err => console.log(err));
       //DEBUT CODE

@@ -12,6 +12,7 @@ import admin from "./admin/index"
 import agent from "./agent/index"
 import Accueil from "./accueil";
 import Reclamations from "./reclamations/index";
+import RendezVous from "./rendez-vous/index";
 
 
 const App = ({match}) => (
@@ -28,6 +29,7 @@ const App = ({match}) => (
       <Route path={`${match.url}superadmin`} component={SuperAdmin}/>
       <Route path={`${match.url}admin`} component={admin}/>
       <Route path={`${match.url}agent`} component={agent}/>
+      <Route path={`${match.url}rendezVous`} component={RendezVous}/>
 
     </Switch>
   </div>

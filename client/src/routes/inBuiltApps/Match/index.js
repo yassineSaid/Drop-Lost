@@ -4,10 +4,13 @@ import { Col, Row, Card, Icon, Button } from "antd";
 import Moment from "moment";
 import WithIconTimeLineItem from "components/timeline/WithIconTimeLineItem";
 import "./basic.less";
-import { Link } from "react-router-dom";
+import { Link} from "react-router-dom";
+import { withRouter } from "react-router-dom";
+
+
 
 class Match extends React.Component {
-
+ 
 
   constructor(props) {
     super(props);
@@ -96,10 +99,22 @@ class Match extends React.Component {
 
     ).catch()
   }
+  handleClick = (e) => {
 
+//   this.props.history.push("/rendezVous/AjouterRendezVous",{id: this.state.matching._id});
+//   history.push({
+//     pathname: '/rendezVous/AjouterRendezVous',
+//     search: '?query='+this.state.matching._id,
+//     state: { detail: this.state.matching._id }
+// });
+    
+this.props.history.push("/rendezVous/AjouterRendezVous/"+this.state.matching._id)
+
+}
 
   render() {
     const { loading, perdu, trouve, matchResult, confirmed, iconLoading,matching } = this.state;
+  
     return (
       <div className="gx-main-content">
         <Row>
@@ -116,8 +131,15 @@ class Match extends React.Component {
                 {matchResult != null ?
                   <WithIconTimeLineItem timeLine={matchResult} color="red">
                     {matchResult.description === "Objet Récupéré" ? <i className="icon icon-check gx-p-2" />
-                      : <Icon type="loading" style={{ fontSize: 24, paddingTop: 13 }} />}
+                      : <Icon type="loading" style={{ fontSize: 24, paddingTop: 13 }} />
+                      }
                   </WithIconTimeLineItem> : ""}
+              </div>
+              <div className="gx-text-center">
+                {matching && matching.methode !== "Boutique" ?
+                <Button disabled = {confirmed} type="primary" icon="check" loading={iconLoading} onClick={this.handleClick}>
+               Programmer un Rendez-vous
+              </Button> : "" }
               </div>
               <div className="gx-text-center">
                 {matching && matching.methode !== "Boutique" ?
@@ -125,6 +147,7 @@ class Match extends React.Component {
                   Marqué comme récupéré
               </Button> : "" }
               </div>
+         
             </Card>
           </Col>
         </Row>

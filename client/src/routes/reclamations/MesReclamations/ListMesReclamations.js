@@ -13,7 +13,7 @@ import TextArea from "antd/lib/input/TextArea";
 import Geocode from "react-geocode";
 
 moment.locale('fr')
-Geocode.setApiKey("AIzaSyA5EKrHABEcEowV8yEQh8AnEh0SuTquSQM");
+Geocode.setApiKey("API_KEY");
 const listData = [];
 for (let i = 0; i < 5; i++) {
   listData.push({
@@ -39,8 +39,7 @@ const IconText = ({ type, text }) => (
 );
 
 class MesreclamationsList extends React.Component {
-  handleCancel = () => this.setState({previewVisible: false})
-
+handleCancel = () => this.setState({previewVisible: false})
 handlePreview = (file) => {
   console.log("previewImage")
 
@@ -91,6 +90,16 @@ handleDateChange(e) {
         current: page
       }
     })
+  }
+  supprimerReclamation(item){
+
+axios.get('http://localhost:5000/api/reclamations/supprimerReclamation/'+item._id)
+.then((resp) => {
+this.componentDidMount()
+}
+).catch(err => console.log(err));
+
+
   }
   getReclamation(e){
 this.setState({reclamation:e,
@@ -159,7 +168,6 @@ this.setState({reclamation:e,
         lat:this.state.lat,
         lng:this.state.lng
       }
-  
        axios.put('http://localhost:5000/api/reclamations/updateReclamation',Reclamation)
     .then((resp) => {
   
@@ -177,13 +185,6 @@ this.setState({reclamation:e,
       console.error(error);
     }
   );
-
-
-   
-
-
-
-  
  }
   render() {
     return (
@@ -305,7 +306,7 @@ this.setState({reclamation:e,
                     <div className="gx-card-list-footer" style={{display: 'flex',justifyContent: 'end'}}>
                      
                     <Button type="primary" onClick={() => this.getReclamation(item)} >Modifier</Button>
-                    <Button type="danger">Supprimer</Button>
+                    <Button type="danger"onClick={() => this.supprimerReclamation(item)}>Supprimer</Button>
               
                    </div>
 
