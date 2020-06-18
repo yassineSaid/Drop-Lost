@@ -193,19 +193,22 @@ class HorizontalNav extends Component {
 
         <SubMenu className={this.getNavStyleSubMenuClass(navStyle)} key="Réclamations"
           title="Réclamations">
+              {
+            isLoggedIn() &&
           <Menu.Item key="/reclamations/AjouterReclamation" >
           <Link to="/reclamations/AjouterReclamation" >
-              Faire une réclamation
+          <i class="icon icon-edit"></i> Faire une réclamation
               </Link>
-          </Menu.Item>
+          </Menu.Item>}
+          { isLoggedIn() && isClient() &&
           <Menu.Item key="/reclamations/mesReclamations" >
-          <Link to="/reclamations/mesReclamations" >
-              Mes réclamations
+         <Link to="/reclamations/mesReclamations" >
+         <i class="icon icon-plain-list-divider"></i> Mes réclamations
               </Link>
-          </Menu.Item>
+          </Menu.Item>}
           <Menu.Item key="/reclamations/listeDesReclamations" >
           <Link to="/reclamations/listeDesReclamations" >
-              Liste des réclamations
+          <i class="icon icon-map-simple"></i> Liste des réclamations
               </Link>
           </Menu.Item>
         </SubMenu>

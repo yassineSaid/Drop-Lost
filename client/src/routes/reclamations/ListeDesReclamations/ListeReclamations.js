@@ -26,6 +26,7 @@ const geolocation = (
 let recycleCenters = [{lat:36.86336,lng:10.16866},{lat:36.80987,lng:10.18812},{lat:36.8092,lng:10.08685}]
 var TrustItCenters=[]
 var reclamations=[]
+var isOpen=false;
 const GeolocationExampleGoogleMap = withGoogleMap(props => (
   <GoogleMap
     defaultZoom={11}
@@ -38,8 +39,9 @@ const GeolocationExampleGoogleMap = withGoogleMap(props => (
                  position={{
                      lat: center.lat,
                      lng: center.lng
-                 }}>
-    
+                 }}
+
+                 >
                  </Marker>
 
         ))}
@@ -70,7 +72,7 @@ const GeolocationExampleGoogleMap = withGoogleMap(props => (
  * Add <script src="https://maps.googleapis.com/maps/api/js"></script> to your HTML to provide google.maps reference
  */
 export default class ListeDesReclamations extends Component {
-   
+
   state = {
     center: null,
     content: null,
@@ -78,11 +80,23 @@ export default class ListeDesReclamations extends Component {
     store : null,
     stores : [],
     TrustItCenters:[],
-    reclamations:[]
+    reclamations:[],
+    isOpen: false
   };
 
   isUnmounted = false;
+  handleToggleOpen = () => {
 
+    this.setState({
+      isOpen: true
+    });
+  }
+  
+  handleToggleClose = () => {
+    this.setState({
+      isOpen: false
+    });
+  }
   componentDidMount() {
     axios.get('http://localhost:5000/api/reclamations/getReclamations')
     .then((resp) => {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar, Card, Icon, List, Spin,Button,Modal,Input, Form,DatePicker } from "antd";
+import { Avatar, Icon, List, Spin,Button,Modal,Input, Form,DatePicker, Card, Col, Row } from "antd";
 import Widget from "components/Widget";
 import moment from "moment";
 import 'moment/locale/fr';
@@ -11,9 +11,13 @@ import PlacesAutocomplete, {
 } from 'react-places-autocomplete';
 import TextArea from "antd/lib/input/TextArea";
 import Geocode from "react-geocode";
+import {NotificationContainer, NotificationManager} from "react-notifications";
+
+import ContainerHeader from "components/ContainerHeader/index";
+import IntlMessages from "util/IntlMessages";
 
 moment.locale('fr')
-Geocode.setApiKey("API_KEY");
+Geocode.setApiKey("AIzaSyA5EKrHABEcEowV8yEQh8AnEh0SuTquSQM");
 const listData = [];
 for (let i = 0; i < 5; i++) {
   listData.push({
@@ -91,11 +95,43 @@ handleDateChange(e) {
       }
     })
   }
+  createNotification = (type) => {
+    return () => {
+      switch (type) {
+        case 'info':
+          NotificationManager.info(<IntlMessages id="notification.infoMsg"/>);
+          break;
+        case 'success':
+          NotificationManager.success(<IntlMessages id="notification.successMessage"/>, <IntlMessages
+            id="notification.titleHere"/>);
+          break;
+        case 'warning':
+          NotificationManager.warning(<IntlMessages id="notification.warningMessage"/>, <IntlMessages
+            id="notification.closeAfter3000ms"/>, 3000);
+          break;
+        case 'error':
+          NotificationManager.error(<IntlMessages id="notification.errorMessage"/>, <IntlMessages
+            id="notification.clickMe"/>, 5000, () => {
+            alert('callback');
+          });
+          break;
+        default:
+          NotificationManager.info(<IntlMessages id="notification.infoMsg"/>);
+          break;
+
+      }
+    };
+  };
+
   supprimerReclamation(item){
+
 
 axios.get('http://localhost:5000/api/reclamations/supprimerReclamation/'+item._id)
 .then((resp) => {
-this.componentDidMount()
+this.componentDidMount();
+Modal.success({
+  content: 'Votre réclamation a bien été supprimée',
+});
 }
 ).catch(err => console.log(err));
 
@@ -188,8 +224,9 @@ this.setState({reclamation:e,
  }
   render() {
     return (
+   
       <Card className="gx-card" title="Mes reclamations">
-    
+          <NotificationContainer/>
     {this.state.reclamation!=null ? 
        <Modal visible={this.state.displayModal} footer={null} onCancel={() => this.setState({ displayModal: false,reclamation:undefined})} title="Modifier une Réclamation">
      <PlacesAutocomplete
@@ -271,7 +308,7 @@ this.setState({reclamation:e,
         
         
          {!this.state.loading ?
-        
+      
           <List
             itemLayout="vertical"
             size="large"
@@ -305,8 +342,8 @@ this.setState({reclamation:e,
                   title={
                     <div className="gx-card-list-footer" style={{display: 'flex',justifyContent: 'end'}}>
                      
-                    <Button type="primary" onClick={() => this.getReclamation(item)} >Modifier</Button>
-                    <Button type="danger"onClick={() => this.supprimerReclamation(item)}>Supprimer</Button>
+                    <Button type="primary" onClick={() => this.getReclamation(item)} ><i class="icon icon-edit"></i>Modifier</Button>
+                    <Button type="danger"onClick={() => this.supprimerReclamation(item)}><i class="icon icon-close"></i>Supprimer</Button>
               
                    </div>
 
@@ -315,9 +352,12 @@ this.setState({reclamation:e,
                 </List.Item.Meta>
        
               </List.Item>
+              
             )}
+            
           /> :
           <Spin size="large" />}
+             
       </Card>
     );
   }

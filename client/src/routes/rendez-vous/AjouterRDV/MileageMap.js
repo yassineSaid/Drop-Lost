@@ -12,7 +12,7 @@ import axios from 'axios';
 import { JSDOM } from "jsdom";
 import _ from 'lodash';
 import { Polyline } from "react-google-maps";
-import {Layout,Card, Col,Row,Button,Modal} from "antd";
+import {Layout,Card, Col,Row,Button,Modal,List,Tag} from "antd";
 import { compose, withProps } from "recompose";
 import PropTypes from "prop-types";
 import Widget from "components/Widget/index";
@@ -264,15 +264,18 @@ axios.get("https://api.allorigins.win/raw?url=https://www.trustit.tn/reseau-trus
             var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             var distance = R * c;
             //  distance returns the distance in meter
-         
-            if(distance>=5000){
-              const val={lat:element.lat,lng:element.lng,names:element.listeNames}
+          
+            if(distance>=10000){
+        
+              var distan=distance/1000;
+              const val={lat:element.lat,lng:element.lng,names:element.listeNames,dist:distan}
               liste.push(val);
               //localStorage.setItem('liststr',liste)
             }
       })
     })
      console.log("La liste"+JSON.stringify(liste))
+     console.log("el Nb"+nb)
       })
       //
 const places = {
@@ -290,9 +293,9 @@ const places = {
 const MileageMap = compose(
   withProps({
     googleMapURL:
-      "https://maps.googleapis.com/maps/api/js?key=API_KEY&v=3.exp",
+      "https://maps.googleapis.com/maps/api/js?key=AIzaSyA5EKrHABEcEowV8yEQh8AnEh0SuTquSQM&v=3.exp",
     loadingElement: <div style={{ height: `100%` }} />,
-    containerElement: <div key="klj" style={{ height: `400px`,width:'750px',marginBottom:"50px" }} />,
+    containerElement: <div key="klj" style={{ height: `400px`,width:'850px',marginBottom:"50px" }} />,
     mapElement: <div style={{ height: `100%` }} />
   }),
   withScriptjs,
@@ -313,7 +316,7 @@ const MileageMap = compose(
             />
         ))}
         {reclamations.map(center => (
-            <Circle center={{ lat:  parseFloat(center.lat), lng:parseFloat(center.lng)  }} radius={500}  options={places.circle.options}
+            <Circle center={{ lat:  parseFloat(center.lat), lng:parseFloat(center.lng)  }} radius={200}  options={places.circle.options}
            />
             
         ))}
@@ -642,14 +645,14 @@ google.maps.Polygon.prototype.containsLatLng = function(latLng) {
            
                <Col>
                
-                <Card.Grid style={{marginLeft:"17px",height:"250px",width:"250px"}}>
+                <Card.Grid style={{marginLeft:"17px",height:"300px",width:"250px"}}>
 
-                <h4 style={{color:getRandomColor[wayIndex]}} >Route <sub
+                <h4 style={{color:getRandomColor[wayIndex],fontWeight:'bold'}} >Route <sub
                     className="gx-fs-md gx-bottom-0">{index+1} | {getRandomColor[wayIndex]=="#0277bd"?"Bleu":""}
                     {getRandomColor[wayIndex]=="#4caf50"? "Verte":""}
                     {getRandomColor[wayIndex]=="#f5222d"? "Rouge":""}
-                    
                     </sub></h4>
+                    <hr class="solid" style={{borderTop:"2px solid #bbb"}}></hr>
               <div className="gx-currentplan-row" style={{display: 'flex',  justifyContent:'center',marginTop:"20px"}}>
                 <div className="gx-currentplan-col" >
                 {/* <div className="gx-currentplan-col gx-currentplan-right">
@@ -657,38 +660,35 @@ google.maps.Polygon.prototype.containsLatLng = function(latLng) {
                   </div>
                 </div>
                */}
-         
                   {/* <p className="gx-mb-1"><span className="gx-size-10 gx-bg-dark gx-rounded-xs gx-d-inline-block gx-mr-1"/> 
                   <span>
                {points.legs && points.summary}
                 </span>
                  </p>     */}
-                  <p style={{fontWeight: "bold"}}>{points.legs && points.summary}</p>
-                <p><span className="gx-size-10 gx-bg-dark gx-rounded-xs gx-d-inline-block gx-mr-1"/>           
-                  {points.legs[0] &&
+                  <p style={{fontWeight: "bold"}}><i class="icon icon-location"></i>{points.legs && points.summary}</p>
+                <p>
+                  <span style={{fontWeight: 'bold',size:"25px" }}>
+                  <i class="icon icon-map-directions"></i> {points.legs[0] &&
                     points.legs[0].distance &&
                     points.legs[0].distance.text}
+
+                  </span>
                       <span className="totla-dis">
+
                       </span></p>
-                  <p className="gx-mb-1"><span className="gx-size-10 gx-bg-dark gx-rounded-xs gx-d-inline-block gx-mr-1"/> 
-                  <span>
-                              {points.legs[0] &&
+                  <p className="gx-mb-1">
+                  <span style={{fontWeight: 'bold',size:"25px" }}>
+                  <i class="icon icon-timepicker"></i> {points.legs[0] &&
                                 points.legs[0].duration &&
                                 points.legs[0].duration.text}
                 </span>
                  </p>
-
-
-
-
-
-
-
                 {/* {nb>=6 ? <h1>Nochhh</h1>: ""} */}
                 {getRandomColor[wayIndex]=="#0277bd"?  <Button type="primary" icon="check" onClick={() =>envoyerMessage(points.legs[0].end_location)} >
                  Choisir
                 </Button >:""}
-                <h4 style={{color:getRandomColor[wayIndex]}} > {getRandomColor[wayIndex]=="#0277bd"?"1 point dangeureux":""}
+                <hr class="solid" style={{borderTop:"2px solid #bbb"}}></hr>
+                <h4 style={{color:getRandomColor[wayIndex],fontWeight:'bold'}} > {getRandomColor[wayIndex]=="#0277bd"?"1 point dangeureux":""}
                     {getRandomColor[wayIndex]=="#4caf50"? "Aucun point dangeureux":""}
                     {getRandomColor[wayIndex]=="#f5222d"? "Beaucoup de points dangeureux":""}
                     
@@ -702,21 +702,38 @@ google.maps.Polygon.prototype.containsLatLng = function(latLng) {
                 </Card.Grid> 
             </Col>
                     ))}
-                         
-                          </Row>  
-                     
-                        
-           {/* {nb>=6?
+            </Row>  
+          {nb>=6?
             
-           <Button type="primary" icon="plus" onClick={function(e) {
-            this.handleClick()
-           }}>Des propositions</Button> :""} */}
-                          </Card>
-                    </div>
-            
-   
-                    
-        </React.Fragment>
+          <Row>
+            <Col>
+            <List className="gx-mb-4" style={{marginTop:"20px",width:"600px"}}
+            size="large"
+            header={<div style={{backgroundColor:"#fafafa"}}><p style={{color:"rgb(3, 143, 222)",size:"20px",fontWeight:"bold"}}>Liste des stores sécurisés</p></div>}
+            bordered
+            dataSource={liste}
+            renderItem={item => (<List.Item>
+              <Row>
+                <Col>
+              {item.names}
+              </Col>
+              <Col style={{display:'flex',justifyContent:'start',marginLeft:"80px"}}>
+          <Tag size="15px" color={item.dist >=100 ? "#87d068" : item.dist >= 12 ? "rgb(3, 143, 222)" : "rgb(245, 34, 45)"}>
+          Le taux de dangerosité est à {item.dist >=100 ? 90 : item.dist >= 12 ? 70 : 30} %</Tag>
+            </Col>
+            <Col>
+            </Col>
+            </Row>
+            </List.Item>
+              )}
+      />
+            </Col>
+            </Row>
+        
+             :""} 
+            </Card>
+            </div>
+            </React.Fragment>
         
       );
     })}
@@ -732,11 +749,11 @@ google.maps.Polygon.prototype.containsLatLng = function(latLng) {
                  >
      
             
-                <InfoWindow onCloseClick={handleToggleClose()}
+                {/* <InfoWindow onCloseClick={handleToggleClose()}
 
                 >
                     <span>{center.names}</span>
-                </InfoWindow>
+                </InfoWindow> */}
                  </Marker>
 
         )):""}

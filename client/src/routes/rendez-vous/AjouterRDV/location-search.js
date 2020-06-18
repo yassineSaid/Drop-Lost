@@ -243,7 +243,7 @@ class LocationSearchInput extends React.Component {
  
       </Col>
       <Col lg={12} md={12} sm={24} xs={24}>
-      <Card style={{width:"800px",height:"800px"}}>      <div className="col-md-12 pl-0">
+      <Card style={{width:"900px",height:"5000px"}}>      <div className="col-md-12 pl-0">
           <MileageMap
             wayPoints={wayPoints}
             labels={labels}

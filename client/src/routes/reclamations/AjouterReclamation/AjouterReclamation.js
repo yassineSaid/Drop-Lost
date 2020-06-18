@@ -11,7 +11,7 @@ import { JSDOM } from "jsdom";
 import Geocode from "react-geocode";
 import { notification,Card, DatePicker,Descriptions, Form, Input, Select, Button, Switch, Upload, Icon, Modal } from "antd";
 /* Default position */
-Geocode.setApiKey("API_KEY");
+Geocode.setApiKey("AIzaSyA5EKrHABEcEowV8yEQh8AnEh0SuTquSQM");
 const defaultPosition = {
   lat: 27.9878,
   lng: 86.9250
