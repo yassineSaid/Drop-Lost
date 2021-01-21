@@ -42,7 +42,7 @@
     "pusher": "^3.0.1",
     "q": "^1.5.1",
     "randomstring": "^1.1.5",
-    "socket.io": "^2.3.0",
+    "socket.io": "^2.4.0",
     "string-similarity": "^4.0.1",
     "web-push": "^3.4.4",
     "redis": "^2.8.0",
